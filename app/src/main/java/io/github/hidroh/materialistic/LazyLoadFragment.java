@@ -20,7 +20,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 /**
- * Base fragment that controls load timing depends on WIFI and visibility
+ * A base fragment that delays loading data until it is visible to the user or if WIFI is enabled.
  */
 public abstract class LazyLoadFragment extends BaseFragment {
     public static final String EXTRA_EAGER_LOAD = LazyLoadFragment.class.getName() + ".EXTRA_EAGER_LOAD";
@@ -30,12 +30,23 @@ public abstract class LazyLoadFragment extends BaseFragment {
     private boolean mEagerLoad, mLoaded, mActivityCreated;
     private boolean mNewInstance;
 
+    /**
+     * Called when a fragment is first attached to its context.
+     *
+     * @param context The context.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mNewInstance = false;
     }
 
+    /**
+     * Called to do initial creation of a fragment.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +61,13 @@ public abstract class LazyLoadFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Called when the fragment's activity has been created and this
+     * fragment's view hierarchy instantiated.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -59,6 +77,13 @@ public abstract class LazyLoadFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Called to ask the fragment to save its current dynamic state, so it
+     * can later be reconstructed in a new instance of its process is
+     * restarted.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -66,12 +91,18 @@ public abstract class LazyLoadFragment extends BaseFragment {
         outState.putBoolean(STATE_LOADED, false); // allow re-loading on state restoration
     }
 
+    /**
+     * Called when the fragment is no longer attached to its activity.
+     */
     @Override
     public void onDetach() {
         super.onDetach();
         mActivityCreated = false;
     }
 
+    /**
+     * Loads the data immediately.
+     */
     public void loadNow() {
         if (mActivityCreated) {
             mEagerLoad = true;
@@ -80,10 +111,15 @@ public abstract class LazyLoadFragment extends BaseFragment {
     }
 
     /**
-     * Load data after fragment becomes visible or if WIFI is enabled
+     * Loads the data.
      */
     protected abstract void load();
 
+    /**
+     * Checks if the fragment is a new instance.
+     *
+     * @return True if the fragment is a new instance, false otherwise.
+     */
     protected boolean isNewInstance() {
         return !getRetainInstance() || mNewInstance;
     }

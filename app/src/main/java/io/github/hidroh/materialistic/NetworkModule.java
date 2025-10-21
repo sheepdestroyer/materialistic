@@ -45,16 +45,31 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
+/**
+ * A Dagger module that provides network-related dependencies.
+ */
 @Module(library = true, complete = false)
 class NetworkModule {
     private static final String TAG_OK_HTTP = "OkHttp";
     private static final long CACHE_SIZE = 20 * 1024 * 1024; // 20 MB
 
+    /**
+     * Provides a singleton instance of {@link RestServiceFactory}.
+     *
+     * @param callFactory The {@link Call.Factory} instance.
+     * @return The singleton instance of {@link RestServiceFactory}.
+     */
     @Provides @Singleton
     public RestServiceFactory provideRestServiceFactory(Call.Factory callFactory) {
         return new RestServiceFactory.Impl(callFactory);
     }
 
+    /**
+     * Provides a singleton instance of {@link Call.Factory}.
+     *
+     * @param context The application context.
+     * @return The singleton instance of {@link Call.Factory}.
+     */
     @Provides @Singleton
     public Call.Factory provideCallFactory(Context context) {
         return new OkHttpClient.Builder()
@@ -104,6 +119,13 @@ class NetworkModule {
                 .build();
     }
 
+    /**
+     * Provides a singleton instance of {@link FileDownloader}.
+     *
+     * @param context     The application context.
+     * @param callFactory The {@link Call.Factory} instance.
+     * @return The singleton instance of {@link FileDownloader}.
+     */
     @Provides @Singleton
     public FileDownloader provideFileDownloader(Context context, Call.Factory callFactory) {
         return new FileDownloader(context, callFactory);

@@ -23,6 +23,10 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 
+/**
+ * An empty implementation of {@link AbstractAccountAuthenticator} that can be extended to provide
+ * a partial implementation.
+ */
 public class EmptyAccountAuthenticator extends AbstractAccountAuthenticator {
 
     public EmptyAccountAuthenticator(Context context) {

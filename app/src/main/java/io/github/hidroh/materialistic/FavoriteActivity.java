@@ -29,6 +29,9 @@ import io.github.hidroh.materialistic.data.ItemManager;
 import io.github.hidroh.materialistic.data.MaterialisticDatabase;
 import io.github.hidroh.materialistic.data.WebItem;
 
+/**
+ * Activity for displaying a list of favorite stories.
+ */
 public class FavoriteActivity extends BaseListActivity {
 
     static final String EMPTY_QUERY = MaterialisticDatabase.class.getName();
@@ -49,6 +52,14 @@ public class FavoriteActivity extends BaseListActivity {
     };
     private String mFilter;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +70,13 @@ public class FavoriteActivity extends BaseListActivity {
         MaterialisticDatabase.getInstance(this).getLiveData().observe(this, mObserver);
     }
 
+    /**
+     * This is called for activities that set launchMode to "singleTop" in
+     * their package, or if a client used the {@link Intent#FLAG_ACTIVITY_SINGLE_TOP}
+     * flag when calling {@link #startActivity}.
+     *
+     * @param intent The new intent that was started for the activity.
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -78,17 +96,34 @@ public class FavoriteActivity extends BaseListActivity {
         }
     }
 
+    /**
+     * Called to retrieve per-instance state from an activity before being killed
+     * so that the state can be restored in {@link #onCreate(Bundle)} or
+     * {@link #onRestoreInstanceState(Bundle)}.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(STATE_FILTER, mFilter);
     }
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_favorite);
     }
 
+    /**
+     * Instantiates the list fragment for the activity.
+     *
+     * @return The list fragment.
+     */
     @Override
     protected Fragment instantiateListFragment() {
         Bundle args = new Bundle();
@@ -96,11 +131,21 @@ public class FavoriteActivity extends BaseListActivity {
         return Fragment.instantiate(this, FavoriteFragment.class.getName(), args);
     }
 
+    /**
+     * Checks if the activity is searchable.
+     *
+     * @return True if the activity is searchable, false otherwise.
+     */
     @Override
     protected boolean isSearchable() {
         return false;
     }
 
+    /**
+     * Gets the item cache mode for the activity.
+     *
+     * @return The item cache mode.
+     */
     @Override
     protected int getItemCacheMode() {
         return ItemManager.MODE_CACHE;

@@ -24,8 +24,19 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
+/**
+ * An activity that displays the release notes.
+ */
 class ReleaseNotesActivity : InjectableActivity() {
 
+  /**
+   * Called when the activity is first created.
+   *
+   * @param savedInstanceState If the activity is being re-initialized after
+   *                           previously being shut down then this Bundle contains the data it most
+   *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+   *                           Otherwise it is null.
+   */
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -47,10 +58,18 @@ class ReleaseNotesActivity : InjectableActivity() {
     Preferences.setReleaseNotesSeen(this)
   }
 
+  /**
+   * Called when the activity is finishing.
+   */
   override fun finish() {
     super.finish()
     overridePendingTransition(0, R.anim.slide_out_down)
   }
 
+  /**
+   * Checks if the activity should be displayed as a dialog.
+   *
+   * @return True if the activity should be displayed as a dialog, false otherwise.
+   */
   override fun isDialogTheme() = true
 }

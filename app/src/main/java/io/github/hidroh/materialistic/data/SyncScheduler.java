@@ -18,7 +18,16 @@ package io.github.hidroh.materialistic.data;
 
 import android.content.Context;
 
+/**
+ * A class that schedules sync jobs.
+ */
 public class SyncScheduler {
+    /**
+     * Schedules a sync for the given item.
+     *
+     * @param context the application context
+     * @param itemId  the ID of the item to sync
+     */
     public void scheduleSync(Context context, String itemId) {
         SyncDelegate.scheduleSync(context, new SyncDelegate.JobBuilder(context, itemId).build());
     }

@@ -30,18 +30,59 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.schedulers.Schedulers;
 
+/**
+ * A factory for creating REST services.
+ */
 public interface RestServiceFactory {
+    /**
+     * A cache control header that forces the use of cached data.
+     */
     String CACHE_CONTROL_FORCE_CACHE = "Cache-Control: only-if-cached, max-stale=" + Integer.MAX_VALUE;
+    /**
+     * A cache control header that forces a network request.
+     */
     String CACHE_CONTROL_FORCE_NETWORK = "Cache-Control: no-cache";
+    /**
+     * A cache control header that sets the maximum age of cached data to 30 minutes.
+     */
     String CACHE_CONTROL_MAX_AGE_30M = "Cache-Control: max-age=" + (30 * 60);
+    /**
+     * A cache control header that sets the maximum age of cached data to 24 hours.
+     */
     String CACHE_CONTROL_MAX_AGE_24H = "Cache-Control: max-age=" + (24 * 60 * 60);
 
+    /**
+     * Enables or disables RxJava support for the created services.
+     *
+     * @param enabled `true` to enable RxJava support, `false` otherwise
+     * @return this {@code RestServiceFactory} instance
+     */
     RestServiceFactory rxEnabled(boolean enabled);
 
+    /**
+     * Creates a new REST service.
+     *
+     * @param baseUrl the base URL of the service
+     * @param clazz   the class of the service
+     * @param <T>     the type of the service
+     * @return a new REST service
+     */
     <T> T create(String baseUrl, Class<T> clazz);
 
+    /**
+     * Creates a new REST service.
+     *
+     * @param baseUrl          the base URL of the service
+     * @param clazz            the class of the service
+     * @param callbackExecutor the executor to use for callbacks
+     * @param <T>              the type of the service
+     * @return a new REST service
+     */
     <T> T create(String baseUrl, Class<T> clazz, Executor callbackExecutor);
 
+    /**
+     * An implementation of {@link RestServiceFactory}.
+     */
     class Impl implements RestServiceFactory {
         private final Call.Factory mCallFactory;
         private boolean mRxEnabled;

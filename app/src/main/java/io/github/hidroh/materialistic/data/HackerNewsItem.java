@@ -42,6 +42,9 @@ import io.github.hidroh.materialistic.Navigable;
 import io.github.hidroh.materialistic.R;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 
+/**
+ * A data model for a Hacker News item.
+ */
 class HackerNewsItem implements Item {
     private static final String AUTHOR_SEPARATOR = " - ";
 
@@ -97,6 +100,9 @@ class HackerNewsItem implements Item {
     private CharSequence displayedText;
     private int defaultColor;
 
+    /**
+     * A {@link Creator} that creates {@link HackerNewsItem} instances from a {@link Parcel}.
+     */
     public static final Creator<HackerNewsItem> CREATOR = new Creator<HackerNewsItem>() {
         @Override
         public HackerNewsItem createFromParcel(Parcel source) {

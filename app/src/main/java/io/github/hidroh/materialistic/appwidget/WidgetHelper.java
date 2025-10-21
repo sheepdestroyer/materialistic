@@ -48,6 +48,9 @@ import io.github.hidroh.materialistic.SearchActivity;
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * A helper class for managing widgets.
+ */
 class WidgetHelper {
     private static final String SP_NAME = "WidgetConfiguration_%1$d";
     private static final int DEFAULT_FREQUENCY_HOUR = 6;
@@ -55,21 +58,42 @@ class WidgetHelper {
     private final AppWidgetManager mAppWidgetManager;
     private final AlarmManager mAlarmManager;
 
+    /**
+     * Constructs a new {@code WidgetHelper}.
+     *
+     * @param context the application context
+     */
     WidgetHelper(Context context) {
         mContext = context;
         mAppWidgetManager = AppWidgetManager.getInstance(context);
         mAlarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
     }
 
+    /**
+     * Gets the name of the shared preferences file for a given widget ID.
+     *
+     * @param appWidgetId the widget ID
+     * @return the shared preferences file name
+     */
     static String getConfigName(int appWidgetId) {
         return String.format(Locale.US, SP_NAME, appWidgetId);
     }
 
+    /**
+     * Configures a widget after it has been created.
+     *
+     * @param appWidgetId the ID of the widget to configure
+     */
     void configure(int appWidgetId) {
         scheduleUpdate(appWidgetId);
         update(appWidgetId);
     }
 
+    /**
+     * Updates the widget's views.
+     *
+     * @param appWidgetId the ID of the widget to update
+     */
     void update(int appWidgetId) {
         WidgetConfig config = WidgetConfig.createWidgetConfig(mContext,
                 getConfig(appWidgetId, R.string.pref_widget_theme),
@@ -81,12 +105,22 @@ class WidgetHelper {
         mAppWidgetManager.updateAppWidget(appWidgetId, remoteViews);
     }
 
+    /**
+     * Refreshes the data in the widget's list view.
+     *
+     * @param appWidgetId the ID of the widget to refresh
+     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     void refresh(int appWidgetId) {
         mAppWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, android.R.id.list);
         update(appWidgetId);
     }
 
+    /**
+     * Removes a widget and its configuration.
+     *
+     * @param appWidgetId the ID of the widget to remove
+     */
     void remove(int appWidgetId) {
         cancelScheduledUpdate(appWidgetId);
         clearConfig(appWidgetId);
@@ -168,6 +202,9 @@ class WidgetHelper {
                         PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    /**
+     * A class that holds the configuration for a widget.
+     */
     static class WidgetConfig {
         final boolean customQuery;
         final Class<? extends Activity> destination;
@@ -176,6 +213,15 @@ class WidgetHelper {
         final @LayoutRes int widgetLayout;
         final String section;
 
+        /**
+         * Creates a new {@code WidgetConfig} based on the user's preferences.
+         *
+         * @param context the application context
+         * @param theme   the widget theme
+         * @param section the story section to display
+         * @param query   a custom query for the stories
+         * @return a new {@code WidgetConfig}
+         */
         @NonNull
         static WidgetConfig createWidgetConfig(Context context, String theme, String section, String query) {
             int widgetLayout;

@@ -19,19 +19,22 @@ package io.github.hidroh.materialistic.data;
 import androidx.annotation.Nullable;
 
 /**
- * Callback interface for requests
- * @param <T> response type
+ * A callback interface for API requests.
+ *
+ * @param <T> the type of the response
  */
 public interface ResponseListener<T> {
     /**
-     * Fired when request is successful
-     * @param response result
+     * Called when the request is successful.
+     *
+     * @param response the response from the API
      */
     void onResponse(@Nullable T response);
 
     /**
-     * Fired when request is failed
-     * @param errorMessage error message or null
+     * Called when the request fails.
+     *
+     * @param errorMessage an error message, or `null` if no error message is available
      */
     void onError(String errorMessage);
 }

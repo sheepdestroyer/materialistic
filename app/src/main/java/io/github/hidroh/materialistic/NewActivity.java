@@ -21,9 +21,19 @@ import androidx.annotation.NonNull;
 
 import io.github.hidroh.materialistic.data.ItemManager;
 
+/**
+ * Activity to display new stories
+ */
 public class NewActivity extends BaseStoriesActivity {
     public static final String EXTRA_REFRESH = NewActivity.class.getName() + ".EXTRA_REFRESH";
 
+    /**
+     * This is called for activities that set launchMode to "singleTop" in
+     * their package, or if a client used the {@link Intent#FLAG_ACTIVITY_SINGLE_TOP}
+     * flag when calling {@link #startActivity}.
+     *
+     * @param intent The new intent that was started for the activity.
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -37,17 +47,32 @@ public class NewActivity extends BaseStoriesActivity {
         }
     }
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_new);
     }
 
+    /**
+     * Gets the fetch mode for the stories.
+     *
+     * @return The fetch mode.
+     */
     @NonNull
     @Override
     protected String getFetchMode() {
         return ItemManager.NEW_FETCH_MODE;
     }
 
+    /**
+     * Gets the item cache mode for the activity.
+     *
+     * @return The item cache mode.
+     */
     @Override
     protected int getItemCacheMode() {
         return ItemManager.MODE_NETWORK;

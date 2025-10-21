@@ -23,7 +23,13 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * A stub {@link ContentProvider} for the sync adapter.
+ */
 public class SyncContentProvider extends ContentProvider {
+    /**
+     * The authority of the sync content provider.
+     */
     public static final String PROVIDER_AUTHORITY = "io.github.hidroh.materialistic.syncprovider";
 
     @Override

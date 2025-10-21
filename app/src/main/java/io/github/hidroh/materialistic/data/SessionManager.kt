@@ -25,7 +25,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 /**
- * Data repository for session state
+ * A data repository for session state.
  */
 @Singleton
 class SessionManager @Inject constructor(
@@ -33,6 +33,12 @@ class SessionManager @Inject constructor(
     private val ioScheduler: Scheduler,
     private val cache: LocalCache) {
 
+  /**
+   * Checks if an item has been viewed.
+   *
+   * @param itemId the ID of the item to check
+   * @return an [Observable] that emits `true` if the item has been viewed, `false` otherwise
+   */
   @WorkerThread
   fun isViewed(itemId: String?): Observable<Boolean> = Observable.just(
       if (itemId.isNullOrEmpty()) {
@@ -42,8 +48,9 @@ class SessionManager @Inject constructor(
       })
 
   /**
-   * Marks an item as already being viewed
-   * @param itemId    item ID that has been viewed
+   * Marks an item as having been viewed.
+   *
+   * @param itemId the ID of the item that has been viewed
    */
   fun view(itemId: String?) {
     if (itemId.isNullOrEmpty()) return

@@ -19,6 +19,15 @@ package io.github.hidroh.materialistic;
 import android.content.res.TypedArray;
 import androidx.annotation.ArrayRes;
 
+/**
+ * An interface for providing resources.
+ */
 public interface ResourcesProvider {
+    /**
+     * Obtains a typed array.
+     *
+     * @param resId The resource ID of the typed array.
+     * @return The typed array.
+     */
     TypedArray obtainTypedArray(@ArrayRes int resId);
 }

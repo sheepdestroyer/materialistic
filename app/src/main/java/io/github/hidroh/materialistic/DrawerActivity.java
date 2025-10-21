@@ -39,6 +39,9 @@ import javax.inject.Inject;
 
 import io.github.hidroh.materialistic.annotation.Synthetic;
 
+/**
+ * Abstract base activity that provides a navigation drawer.
+ */
 public abstract class DrawerActivity extends InjectableActivity {
 
     @Inject AlertDialogBuilder mAlertDialogBuilder;
@@ -57,6 +60,14 @@ public abstract class DrawerActivity extends InjectableActivity {
         }
     };
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,23 +102,48 @@ public abstract class DrawerActivity extends InjectableActivity {
         setUsername();
     }
 
+    /**
+     * Called after {@link #onCreate(Bundle)} has completed.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
     }
 
+    /**
+     * Called by the system when the device configuration changes while your
+     * activity is running.
+     *
+     * @param newConfig The new device configuration.
+     */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return mDrawerToggle.onOptionsItemSelected(item)|| super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called when the activity has detected the user's press of the back
+     * key.
+     */
     @Override
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(mDrawer)) {
@@ -119,6 +155,9 @@ public abstract class DrawerActivity extends InjectableActivity {
         }
     }
 
+    /**
+     * Called before the activity is destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -127,6 +166,11 @@ public abstract class DrawerActivity extends InjectableActivity {
                 .unregisterOnSharedPreferenceChangeListener(mLoginListener);
     }
 
+    /**
+     * Set the activity content from a layout resource.
+     *
+     * @param layoutResID Resource ID to be inflated.
+     */
     @Override
     public void setContentView(int layoutResID) {
         ViewGroup drawerLayout = (ViewGroup) findViewById(R.id.drawer_layout);

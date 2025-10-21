@@ -17,41 +17,45 @@
 package io.github.hidroh.materialistic.data;
 
 /**
- * Data repository for local items
- * @param <T>    item type
+ * An interface for managing local items.
+ *
+ * @param <T> the type of item
  */
 public interface LocalItemManager<T> {
     /**
-     * Gets number of items
-     * @return  number of items, 0 if none
+     * Gets the number of items.
+     *
+     * @return the number of items, or 0 if there are none
      */
     int getSize();
 
     /**
-     * Gets item at given position
-     * @param position  item position
-     * @return  item at given position, or null if none
+     * Gets the item at the given position.
+     *
+     * @param position the position of the item
+     * @return the item at the given position, or `null` if there is no item at that position
      */
     T getItem(int position);
 
     /**
-     * Initiates an async query for local items
-     * @param observer         listener that will be informed on changes
-     * @param filter           query filter if any
+     * Initiates an asynchronous query for local items.
+     *
+     * @param observer the listener that will be informed of changes
+     * @param filter   the query filter, if any
      */
     void attach(Observer observer, String filter);
 
     /**
-     * Cleans up any extra state created by {@link #attach(Observer, String)}
+     * Cleans up any extra state created by {@link #attach(Observer, String)}.
      */
     void detach();
 
     /**
-     * Callback interface for local items change events
+     * A callback interface for local item change events.
      */
     interface Observer {
         /**
-         * Fired when local items change (added/removed/edited)
+         * Called when local items change (i.e., are added, removed, or edited).
          */
         void onChanged();
     }

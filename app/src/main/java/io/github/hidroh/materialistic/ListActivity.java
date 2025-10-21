@@ -20,13 +20,26 @@ import androidx.annotation.NonNull;
 
 import io.github.hidroh.materialistic.data.ItemManager;
 
+/**
+ * List activity that displays top stories
+ */
 public class ListActivity extends BaseStoriesActivity {
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_list);
     }
 
+    /**
+     * Gets the fetch mode for the stories.
+     *
+     * @return The fetch mode.
+     */
     @NonNull
     @Override
     protected String getFetchMode() {

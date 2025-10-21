@@ -31,6 +31,9 @@ import java.util.List;
                 MaterialisticDatabase.Readable.class
         },
         version = 4)
+/**
+ * A Room database for storing saved stories, read stories, and readable content.
+ */
 public abstract class MaterialisticDatabase extends RoomDatabase {
 
     private static final String BASE_URI = "content://io.github.hidroh.materialistic";
@@ -38,6 +41,12 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
     private static MaterialisticDatabase sInstance;
     private final MutableLiveData<Uri> mLiveData = new MutableLiveData<>();
 
+    /**
+     * Gets the singleton instance of the database.
+     *
+     * @param context the application context
+     * @return the singleton instance of the database
+     */
     public static synchronized MaterialisticDatabase getInstance(Context context) {
         if (sInstance == null) {
             sInstance = setupBuilder(Room.databaseBuilder(context.getApplicationContext(),
@@ -68,10 +77,20 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         });
     }
 
+    /**
+     * Gets the base URI for saved stories.
+     *
+     * @return the base URI for saved stories
+     */
     public static Uri getBaseSavedUri() {
         return Uri.parse(BASE_URI).buildUpon().appendPath("saved").build();
     }
 
+    /**
+     * Gets the base URI for read stories.
+     *
+     * @return the base URI for read stories
+     */
     public static Uri getBaseReadUri() {
         return Uri.parse(BASE_URI).buildUpon().appendPath("read").build();
     }
@@ -82,20 +101,39 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
 
     public abstract ReadableDao getReadableDao();
 
+    /**
+     * Gets a {@link LiveData} that is notified of changes to the database.
+     *
+     * @return a {@link LiveData} that is notified of changes to the database
+     */
     public LiveData<Uri> getLiveData() {
         return mLiveData;
     }
 
+    /**
+     * Sets the value of the {@link LiveData} to notify observers of a change.
+     *
+     * @param uri the URI of the changed data
+     */
     public void setLiveValue(Uri uri) {
         mLiveData.setValue(uri);
         // clear notification Uri after notifying all active observers
         mLiveData.setValue(null);
     }
 
+    /**
+     * Creates a URI for a read story.
+     *
+     * @param itemId the ID of the story
+     * @return a URI for the read story
+     */
     public Uri createReadUri(String itemId) {
         return MaterialisticDatabase.getBaseReadUri().buildUpon().appendPath(itemId).build();
     }
 
+    /**
+     * A Room entity that represents a read story.
+     */
     @Entity(tableName = "read")
     public static class ReadStory {
         @PrimaryKey(autoGenerate = true)
@@ -104,6 +142,11 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         @ColumnInfo(name = "itemid")
         private String itemId;
 
+        /**
+         * Constructs a new {@code ReadStory}.
+         *
+         * @param itemId the ID of the story
+         */
         public ReadStory(String itemId) {
             this.itemId = itemId;
         }
@@ -143,6 +186,9 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         }
     }
 
+    /**
+     * A Room entity that represents readable content for a story.
+     */
     @Entity
     public static class Readable {
         @PrimaryKey(autoGenerate = true)
@@ -152,6 +198,12 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         private String itemId;
         private String content;
 
+        /**
+         * Constructs a new {@code Readable}.
+         *
+         * @param itemId  the ID of the story
+         * @param content the readable content
+         */
         public Readable(String itemId, String content) {
             this.itemId = itemId;
             this.content = content;
@@ -203,6 +255,9 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         }
     }
 
+    /**
+     * A Room entity that represents a saved story.
+     */
     @Entity(tableName = "saved")
     public static class SavedStory {
         @PrimaryKey(autoGenerate = true)
@@ -214,6 +269,12 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         private String title;
         private String time;
 
+        /**
+         * Creates a {@code SavedStory} from a {@link WebItem}.
+         *
+         * @param story the {@link WebItem} to convert
+         * @return a {@code SavedStory}
+         */
         static SavedStory from(WebItem story) {
             SavedStory savedStory = new SavedStory();
             savedStory.itemId = story.getId();
@@ -266,6 +327,9 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         }
     }
 
+    /**
+     * A DAO for accessing saved stories.
+     */
     @Dao
     public interface SavedStoriesDao {
         @Query("SELECT * FROM saved ORDER BY time DESC")
@@ -294,6 +358,9 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         SavedStory selectByItemId(String itemId);
     }
 
+    /**
+     * A DAO for accessing read stories.
+     */
     @Dao
     public interface ReadStoriesDao {
         @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -303,6 +370,9 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
         ReadStory selectByItemId(String itemId);
     }
 
+    /**
+     * A DAO for accessing readable content.
+     */
     @Dao
     public interface ReadableDao {
         @Insert(onConflict = OnConflictStrategy.REPLACE)

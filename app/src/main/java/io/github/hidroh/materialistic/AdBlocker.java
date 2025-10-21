@@ -35,10 +35,19 @@ import okio.Okio;
 import rx.Observable;
 import rx.Scheduler;
 
+/**
+ * A simple ad blocker that blocks network requests to hosts listed in the ad hosts file.
+ */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
     private static final Set<String> AD_HOSTS = new HashSet<>();
 
+    /**
+     * Initializes the ad blocker by loading the ad hosts from the assets file.
+     *
+     * @param context   The application context.
+     * @param scheduler The RxJava scheduler to perform the operation on.
+     */
     public static void init(Context context, Scheduler scheduler) {
         Observable.fromCallable(() -> loadFromAssets(context))
                 .onErrorReturn(throwable -> null)
@@ -46,11 +55,22 @@ public class AdBlocker {
                 .subscribe();
     }
 
+    /**
+     * Checks if a given URL is an ad.
+     *
+     * @param url The URL to check.
+     * @return True if the URL is an ad, false otherwise.
+     */
     public static boolean isAd(String url) {
         HttpUrl httpUrl = HttpUrl.parse(url);
         return isAdHost(httpUrl != null ? httpUrl.host() : "");
     }
 
+    /**
+     * Creates an empty WebResourceResponse to block a network request.
+     *
+     * @return An empty WebResourceResponse.
+     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static WebResourceResponse createEmptyResource() {
         return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));

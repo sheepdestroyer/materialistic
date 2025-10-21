@@ -20,14 +20,56 @@ import android.content.Context;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
+/**
+ * An interface for managing users.
+ */
 public interface UserManager {
+    /**
+     * Gets a user by their username.
+     *
+     * @param username the username of the user to get
+     * @param listener the listener to be notified of the response
+     */
     void getUser(String username, final ResponseListener<User> listener);
 
+    /**
+     * An interface that represents a user.
+     */
     interface User extends Parcelable {
+        /**
+         * Gets the user's ID.
+         *
+         * @return the user's ID
+         */
         String getId();
+
+        /**
+         * Gets the user's "about" text.
+         *
+         * @return the user's "about" text
+         */
         String getAbout();
+
+        /**
+         * Gets the user's karma.
+         *
+         * @return the user's karma
+         */
         long getKarma();
+
+        /**
+         * Gets the user's creation date.
+         *
+         * @param context the application context
+         * @return the user's creation date
+         */
         String getCreated(Context context);
+
+        /**
+         * Gets an array of the user's submitted items.
+         *
+         * @return an array of the user's submitted items
+         */
         @NonNull Item[] getItems();
     }
 }

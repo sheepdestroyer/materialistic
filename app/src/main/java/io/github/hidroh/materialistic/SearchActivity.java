@@ -28,11 +28,22 @@ import io.github.hidroh.materialistic.data.AlgoliaClient;
 import io.github.hidroh.materialistic.data.HackerNewsClient;
 import io.github.hidroh.materialistic.data.SearchRecentSuggestionsProvider;
 
+/**
+ * An activity that displays search results.
+ */
 public class SearchActivity extends BaseListActivity {
 
     private static final int MAX_RECENT_SUGGESTIONS = 10;
     private String mQuery;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (getIntent().hasExtra(SearchManager.QUERY)) {
@@ -54,12 +65,27 @@ public class SearchActivity extends BaseListActivity {
         }
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_sort, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Prepare the Screen's standard options menu to be displayed.
+     *
+     * @param menu The options menu as last shown or first initialized by
+     *             onCreateOptionsMenu().
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(AlgoliaClient.sSortByTime ? R.id.menu_sort_recent : R.id.menu_sort_popular)
@@ -67,6 +93,13 @@ public class SearchActivity extends BaseListActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getGroupId() == R.id.menu_sort_group) {
@@ -77,11 +110,21 @@ public class SearchActivity extends BaseListActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_search);
     }
 
+    /**
+     * Instantiates the list fragment for the activity.
+     *
+     * @return The list fragment.
+     */
     @Override
     protected Fragment instantiateListFragment() {
         Bundle args = new Bundle();

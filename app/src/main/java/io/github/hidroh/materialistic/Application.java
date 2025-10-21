@@ -25,17 +25,30 @@ import dagger.ObjectGraph;
 import io.github.hidroh.materialistic.data.AlgoliaClient;
 import rx.schedulers.Schedulers;
 
+/**
+ * The main application class. This class is the entry point of the application and is
+ * responsible for initializing application-wide components and settings.
+ */
 public class Application extends android.app.Application implements Injectable {
 
     public static Typeface TYPE_FACE = null;
     private ObjectGraph mApplicationGraph;
 
+    /**
+     * Called when the application is first created.
+     *
+     * @param base The base context.
+     */
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         mApplicationGraph = ObjectGraph.create();
     }
 
+    /**
+     * Called when the application is starting, before any activity, service,
+     * or receiver objects (excluding content providers) have been created.
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -57,11 +70,21 @@ public class Application extends android.app.Application implements Injectable {
         AdBlocker.init(this, Schedulers.io());
     }
 
+    /**
+     * Injects the dependencies of the given object.
+     *
+     * @param object The object to inject dependencies into.
+     */
     @Override
     public void inject(Object object) {
         getApplicationGraph().inject(object);
     }
 
+    /**
+     * Gets the application's object graph for dependency injection.
+     *
+     * @return The application's object graph.
+     */
     @Override
     public ObjectGraph getApplicationGraph() {
         return mApplicationGraph;

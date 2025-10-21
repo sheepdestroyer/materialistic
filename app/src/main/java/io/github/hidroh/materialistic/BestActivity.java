@@ -20,13 +20,26 @@ import androidx.annotation.NonNull;
 
 import io.github.hidroh.materialistic.data.ItemManager;
 
+/**
+ * Activity to display best stories
+ */
 public class BestActivity extends BaseStoriesActivity {
+    /**
+     * Gets the fetch mode for the stories.
+     *
+     * @return The fetch mode.
+     */
     @NonNull
     @Override
     protected String getFetchMode() {
         return ItemManager.BEST_FETCH_MODE;
     }
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_best);

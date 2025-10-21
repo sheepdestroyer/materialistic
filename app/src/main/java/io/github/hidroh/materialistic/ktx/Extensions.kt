@@ -28,14 +28,38 @@ import okhttp3.internal.Util
 import java.io.Closeable
 import java.io.File
 
+/**
+ * Closes this [Closeable] quietly.
+ */
 inline fun Closeable.closeQuietly() = Util.closeQuietly(this)
 
+/**
+ * Gets a content URI for this file.
+ *
+ * @param context   the context
+ * @param authority the authority of the file provider
+ * @return a content URI for this file
+ */
 inline fun File.getUri(context: Context, authority: String) =
     FileProvider.getUriForFile(context, authority, this)!!
 
+/**
+ * Creates a chooser intent for sending this URI.
+ *
+ * @param context the context
+ * @return a chooser intent for sending this URI
+ */
 inline fun Uri.toSendIntentChooser(context: Context) =
     AppUtils.makeSendIntentChooser(context, this)!!
 
+/**
+ * Sets the notification channel for this builder.
+ *
+ * @param context   the context
+ * @param channelId the ID of the notification channel
+ * @param name      the name of the notification channel
+ * @return this builder
+ */
 fun NotificationCompat.Builder.setChannel(context: Context,
     channelId: String,
     name: CharSequence): NotificationCompat.Builder {

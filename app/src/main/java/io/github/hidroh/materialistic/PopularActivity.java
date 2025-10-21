@@ -23,11 +23,22 @@ import android.view.MenuItem;
 
 import io.github.hidroh.materialistic.data.AlgoliaPopularClient;
 
+/**
+ * An activity that displays a list of popular stories.
+ */
 public class PopularActivity extends BaseListActivity {
     private static final String STATE_RANGE = "state:range";
 
     private String mRange;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,12 +47,26 @@ public class PopularActivity extends BaseListActivity {
         }
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_popular, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_range_day) {
@@ -60,17 +85,34 @@ public class PopularActivity extends BaseListActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called to retrieve per-instance state from an activity before being killed
+     * so that the state can be restored in {@link #onCreate(Bundle)} or
+     * {@link #onRestoreInstanceState(Bundle)}.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(STATE_RANGE, mRange);
     }
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_popular);
     }
 
+    /**
+     * Instantiates the list fragment for the activity.
+     *
+     * @return The list fragment.
+     */
     @Override
     protected Fragment instantiateListFragment() {
         Bundle args = new Bundle();
@@ -80,6 +122,11 @@ public class PopularActivity extends BaseListActivity {
         return Fragment.instantiate(this, ListFragment.class.getName(), args);
     }
 
+    /**
+     * Checks if the activity is searchable.
+     *
+     * @return True if the activity is searchable, false otherwise.
+     */
     @Override
     protected boolean isSearchable() {
         return false;

@@ -44,6 +44,9 @@ import io.github.hidroh.materialistic.data.MaterialisticDatabase;
 import io.github.hidroh.materialistic.widget.StoryRecyclerViewAdapter;
 import rx.Scheduler;
 
+/**
+ * A fragment that displays a list of stories.
+ */
 public class ListFragment extends BaseListFragment {
 
     public static final String EXTRA_ITEM_MANAGER = ListFragment.class.getName() + ".EXTRA_ITEM_MANAGER";
@@ -85,6 +88,11 @@ public class ListFragment extends BaseListFragment {
         void onRefreshed();
     }
 
+    /**
+     * Called when a fragment is first attached to its context.
+     *
+     * @param context The context.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -96,6 +104,13 @@ public class ListFragment extends BaseListFragment {
                 R.string.pref_username,
                 R.string.pref_auto_viewed);
     }
+
+    /**
+     * Called to do initial creation of a fragment.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +122,18 @@ public class ListFragment extends BaseListFragment {
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -129,6 +156,13 @@ public class ListFragment extends BaseListFragment {
         return view;
     }
 
+    /**
+     * Called when the fragment's activity has been created and this
+     * fragment's view hierarchy instantiated.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -189,6 +223,13 @@ public class ListFragment extends BaseListFragment {
         });
     }
 
+    /**
+     * Called to ask the fragment to save its current dynamic state, so it
+     * can later be reconstructed in a new instance of its process is
+     * restarted.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -196,6 +237,9 @@ public class ListFragment extends BaseListFragment {
         outState.putInt(STATE_CACHE_MODE, mCacheMode);
     }
 
+    /**
+     * Called when the fragment is no longer attached to its activity.
+     */
     @Override
     public void onDetach() {
         mPreferenceObservable.unsubscribe(getActivity());
@@ -203,6 +247,11 @@ public class ListFragment extends BaseListFragment {
         super.onDetach();
     }
 
+    /**
+     * Filters the list of stories.
+     *
+     * @param filter The filter to apply.
+     */
     public void filter(String filter) {
         mFilter = filter;
         getAdapter().setHighlightUpdated(false);
@@ -210,6 +259,11 @@ public class ListFragment extends BaseListFragment {
         refresh();
     }
 
+    /**
+     * Gets the adapter for the RecyclerView.
+     *
+     * @return The adapter.
+     */
     @Override
     protected StoryRecyclerViewAdapter getAdapter() {
         if (mAdapter == null) {

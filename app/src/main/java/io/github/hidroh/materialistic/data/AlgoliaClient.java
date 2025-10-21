@@ -32,9 +32,18 @@ import retrofit2.http.Query;
 import rx.Observable;
 import rx.Scheduler;
 
+/**
+ * An {@link ItemManager} that uses the Algolia REST API forHN Search.
+ */
 public class AlgoliaClient implements ItemManager {
 
+    /**
+     * A flag that indicates whether to sort search results by time.
+     */
     public static boolean sSortByTime = true;
+    /**
+     * The host of the Algolia API.
+     */
     public static final String HOST = "hn.algolia.com";
     private static final String BASE_API_URL = "https://" + HOST + "/api/v1/";
     static final String MIN_CREATED_AT = "created_at_i>";
@@ -42,6 +51,11 @@ public class AlgoliaClient implements ItemManager {
     @Inject @Named(ActivityModule.HN) ItemManager mHackerNewsClient;
     @Inject @Named(DataModule.MAIN_THREAD) Scheduler mMainThreadScheduler;
 
+    /**
+     * Constructs a new {@code AlgoliaClient}.
+     *
+     * @param factory the {@link RestServiceFactory} to use for creating the REST service
+     */
     @Inject
     public AlgoliaClient(RestServiceFactory factory) {
         mRestService = factory.rxEnabled(true).create(BASE_API_URL, RestService.class);
@@ -79,11 +93,23 @@ public class AlgoliaClient implements ItemManager {
         return mHackerNewsClient.getItem(itemId, cacheMode);
     }
 
+    /**
+     * Searches for stories that match the given filter.
+     *
+     * @param filter the filter to apply
+     * @return an {@link Observable} that emits the search results
+     */
     protected Observable<AlgoliaHits> searchRx(String filter) {
         // TODO add ETag header
         return sSortByTime ? mRestService.searchByDateRx(filter) : mRestService.searchRx(filter);
     }
 
+    /**
+     * Searches for stories that match the given filter.
+     *
+     * @param filter the filter to apply
+     * @return a {@link Call} that can be used to execute the search
+     */
     protected Call<AlgoliaHits> search(String filter) {
         return sSortByTime ? mRestService.searchByDate(filter) : mRestService.search(filter);
     }

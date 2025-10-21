@@ -31,13 +31,34 @@ import retrofit2.http.POST;
 import rx.Observable;
 import rx.Scheduler;
 
+/**
+ * A client for sending feedback.
+ */
 public interface FeedbackClient {
+    /**
+     * A callback interface for receiving feedback submission results.
+     */
     interface Callback {
+        /**
+         * Called when the feedback has been sent.
+         *
+         * @param success `true` if the feedback was sent successfully, `false` otherwise
+         */
         void onSent(boolean success);
     }
 
+    /**
+     * Sends feedback with the given title and body.
+     *
+     * @param title    the title of the feedback
+     * @param body     the body of the feedback
+     * @param callback the callback to be invoked when the feedback has been sent
+     */
     void send(String title, String body, Callback callback);
 
+    /**
+     * An implementation of {@link FeedbackClient} that sends feedback as a GitHub issue.
+     */
     class Impl implements FeedbackClient {
         private final FeedbackService mFeedbackService;
         private final Scheduler mMainThreadScheduler;

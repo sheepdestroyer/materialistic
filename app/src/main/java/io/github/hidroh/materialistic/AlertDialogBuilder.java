@@ -26,8 +26,11 @@ import android.widget.ListView;
 
 /**
  * Injectable alert dialog builder, allowing swapping between
- * {@link androidx.appcompat.app.AlertDialog.Builder} and {@link android.app.AlertDialog.Builder}
- * @param <T> type of created alert dialog, extends from {@link Dialog}
+ * {@link androidx.appcompat.app.AlertDialog.Builder} and {@link android.app.AlertDialog.Builder}.
+ * This interface provides a consistent way to create alert dialogs, regardless of the underlying
+ * implementation, which is particularly useful for testing and maintaining a consistent UI.
+ *
+ * @param <T> The type of created alert dialog, which must extend from {@link Dialog}.
  */
 public interface AlertDialogBuilder<T extends Dialog> {
     /**

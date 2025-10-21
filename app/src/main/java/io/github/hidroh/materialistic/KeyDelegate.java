@@ -32,7 +32,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Helper that intercepts key events and interprets them into navigation actions
+ * A delegate that intercepts key events and interprets them as navigation actions.
  */
 public class KeyDelegate {
 
@@ -64,9 +64,10 @@ public class KeyDelegate {
     }
 
     /**
-     * Attaches this delegate to given activity lifecycle
-     * Should call {@link #detach(Activity)} accordingly
-     * @param activity    active activity to receive key events
+     * Attaches this delegate to the given activity lifecycle.
+     * Should call {@link #detach(Activity)} accordingly.
+     *
+     * @param activity The active activity to receive key events.
      * @see #detach(Activity)
      */
     public void attach(Activity activity) {
@@ -78,9 +79,10 @@ public class KeyDelegate {
     }
 
     /**
-     * Detaches this delegate from given activity lifecycle
-     * Should already call {@link #attach(Activity)}
-     * @param activity    active activity that has been receiving key events
+     * Detaches this delegate from the given activity lifecycle.
+     * Should already have called {@link #attach(Activity)}.
+     *
+     * @param activity The active activity that has been receiving key events.
      * @see #attach(Activity)
      */
     public void detach(Activity activity) {
@@ -91,9 +93,10 @@ public class KeyDelegate {
     }
 
     /**
-     * Binds navigation objects that would be scrolled by key events
-     * @param scrollable      vertically scrollable instance
-     * @param appBarLayout    optional AppBarLayout that expands/collapses while scrolling
+     * Binds navigation objects that will be scrolled by key events.
+     *
+     * @param scrollable   The vertically scrollable instance.
+     * @param appBarLayout The optional AppBarLayout that expands/collapses while scrolling.
      */
     public void setScrollable(Scrollable scrollable, AppBarLayout appBarLayout) {
         mScrollable = scrollable;
@@ -101,26 +104,29 @@ public class KeyDelegate {
     }
 
     /**
-     * Toggle {@link AppBarLayout} expand/collapse
-     * @param enabled true to enable, false otherwise
+     * Toggles the expand/collapse state of the {@link AppBarLayout}.
+     *
+     * @param enabled True to enable, false otherwise.
      */
     void setAppBarEnabled(boolean enabled) {
         mAppBarEnabled = enabled;
     }
 
     /**
-     * Intercepts back pressed
-     * @param backInterceptor listener to back pressed event
+     * Intercepts the back-pressed event.
+     *
+     * @param backInterceptor The listener for the back-pressed event.
      */
     void setBackInterceptor(BackInterceptor backInterceptor) {
         mBackInterceptor = backInterceptor;
     }
 
     /**
-     * Calls from {@link Activity#onKeyDown(int, KeyEvent)} to delegate
-     * @param keyCode    event key code
-     * @param event      key event
-     * @return  true if is intercepted as navigation, false otherwise
+     * Delegates from {@link Activity#onKeyDown(int, KeyEvent)}.
+     *
+     * @param keyCode The event key code.
+     * @param event   The key event.
+     * @return True if the event is intercepted as a navigation action, false otherwise.
      */
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -138,10 +144,11 @@ public class KeyDelegate {
     }
 
     /**
-     * Calls from {@link Activity#onKeyUp(int, KeyEvent)} to delegate
-     * @param keyCode    event key code
-     * @param event      key event
-     * @return  true if is intercepted as navigation, false otherwise
+     * Delegates from {@link Activity#onKeyUp(int, KeyEvent)}.
+     *
+     * @param keyCode The event key code.
+     * @param event   The key event.
+     * @return True if the event is intercepted as a navigation action, false otherwise.
      */
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (!mEnabled) {
@@ -159,10 +166,11 @@ public class KeyDelegate {
     }
 
     /**
-     * Calls from {@link Activity#onKeyLongPress(int, KeyEvent)} to delegate
-     * @param keyCode    event key code
-     * @param event      key event
-     * @return  true if is intercepted as navigation, false otherwise
+     * Delegates from {@link Activity#onKeyLongPress(int, KeyEvent)}.
+     *
+     * @param keyCode The event key code.
+     * @param event   The key event.
+     * @return True if the event is intercepted as a navigation action, false otherwise.
      */
     @SuppressWarnings("UnusedParameters")
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {

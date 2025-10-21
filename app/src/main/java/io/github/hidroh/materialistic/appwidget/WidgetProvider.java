@@ -27,6 +27,10 @@ import android.widget.Toast;
 import io.github.hidroh.materialistic.BuildConfig;
 import io.github.hidroh.materialistic.R;
 
+/**
+ * App widget provider that handles widget lifecycle events.
+ * It is responsible for initializing, updating, and removing widgets.
+ */
 public class WidgetProvider extends AppWidgetProvider {
 
     static final String ACTION_REFRESH_WIDGET = BuildConfig.APPLICATION_ID + ".ACTION_REFRESH_WIDGET";
