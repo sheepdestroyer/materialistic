@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 Ha Duy Trung
  *
@@ -19,6 +20,8 @@ package io.github.hidroh.materialistic.data;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -40,7 +43,9 @@ import okio.Okio;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 
 /**
  * A client for fetching readable content from a URL.
@@ -90,6 +95,11 @@ public interface ReadabilityClient {
         public Impl(Context context, LocalCache cache) {
             mContext = context;
             mCache = cache;
+            try (InputStream inputStream = mContext.getAssets().open("Readability.js")) {
+                mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
+            } catch (IOException e) {
+                // mReadabilityJs will be null, and fromNetwork will emit null
+            }
         }
 
         @Override
@@ -116,19 +126,16 @@ public interface ReadabilityClient {
         private Observable<String> fromNetwork(String itemId, String url) {
             return Observable.create(subscriber -> new Handler(Looper.getMainLooper()).post(() -> {
                 WebView webView = new WebView(mContext);
+                subscriber.add(Subscriptions.create(() -> AndroidSchedulers.mainThread()
+                        .createWorker().schedule(webView::destroy)));
                 webView.setWebViewClient(new WebViewClient() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
                         super.onPageFinished(view, url);
                         if (mReadabilityJs == null) {
-                            try {
-                                InputStream inputStream = mContext.getAssets().open("Readability.js");
-                                mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
-                            } catch (IOException e) {
-                                subscriber.onNext(null);
-                                subscriber.onCompleted();
-                                return;
-                            }
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                            return;
                         }
                         webView.evaluateJavascript(mReadabilityJs, null);
                         webView.evaluateJavascript("new Readability(document).parse()",
@@ -142,10 +149,15 @@ public interface ReadabilityClient {
                                     } catch (JSONException e) {
                                         subscriber.onNext(null);
                                         subscriber.onCompleted();
-                                    } finally {
-                                        webView.destroy();
                                     }
                                 });
+                    }
+
+                    @Override
+                    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                        super.onReceivedError(view, request, error);
+                        subscriber.onNext(null);
+                        subscriber.onCompleted();
                     }
                 });
                 WebSettings settings = webView.getSettings();
