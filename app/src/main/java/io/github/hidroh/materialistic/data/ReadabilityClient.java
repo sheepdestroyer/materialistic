@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -131,36 +132,51 @@ public interface ReadabilityClient {
                 WebView webView = new WebView(mContext);
                 subscriber.add(Subscriptions.create(() -> AndroidSchedulers.mainThread()
                         .createWorker().schedule(webView::destroy)));
+                final AtomicBoolean isFinished = new AtomicBoolean(false);
                 webView.setWebViewClient(new WebViewClient() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
                         super.onPageFinished(view, url);
                         if (mReadabilityJs == null) {
-                            subscriber.onNext(null);
-                            subscriber.onCompleted();
+                            if (isFinished.compareAndSet(false, true)) {
+                                subscriber.onNext(null);
+                                subscriber.onCompleted();
+                            }
                             return;
                         }
-                        webView.evaluateJavascript(mReadabilityJs, null);
-                        webView.evaluateJavascript("new Readability(document).parse()",
-                                value -> {
-                                    try {
-                                        JSONObject json = new JSONObject(value);
-                                        String content = json.getString("content");
-                                        mCache.putReadability(itemId, content);
-                                        subscriber.onNext(content);
-                                        subscriber.onCompleted();
-                                    } catch (JSONException e) {
-                                        subscriber.onNext(null);
-                                        subscriber.onCompleted();
-                                    }
-                                });
+                        view.evaluateJavascript(mReadabilityJs, s ->
+                                view.evaluateJavascript("new Readability(document).parse()",
+                                        value -> {
+                                            if (isFinished.compareAndSet(false, true)) {
+                                                String content = null;
+                                                try {
+                                                    JSONObject json = new JSONObject(value);
+                                                    content = json.getString("content");
+                                                    mCache.putReadability(itemId, content);
+                                                } catch (JSONException e) {
+                                                    // content will be null
+                                                }
+                                                subscriber.onNext(content);
+                                                subscriber.onCompleted();
+                                            }
+                                        }));
+                    }
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                        super.onReceivedError(view, errorCode, description, failingUrl);
+                        if (isFinished.compareAndSet(false, true)) {
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        }
                     }
 
                     @Override
                     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                        super.onReceivedError(view, request, error);
-                        subscriber.onNext(null);
-                        subscriber.onCompleted();
+                        if (request.isForMainFrame()) {
+                            super.onReceivedError(view, request, error);
+                        }
                     }
                 });
                 WebSettings settings = webView.getSettings();
