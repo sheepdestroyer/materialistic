@@ -16,33 +16,36 @@
 
 package io.github.hidroh.materialistic.data;
 
-import androidx.annotation.Keep;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import io.github.hidroh.materialistic.AndroidUtils;
-import io.github.hidroh.materialistic.BuildConfig;
 import io.github.hidroh.materialistic.DataModule;
-import io.github.hidroh.materialistic.annotation.Synthetic;
-import retrofit2.http.GET;
-import retrofit2.http.Headers;
-import retrofit2.http.Query;
+import okio.Okio;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
  * A client for fetching readable content from a URL.
  */
 public interface ReadabilityClient {
-    /**
-     * The host of the Readability API.
-     */
-    String HOST = "mercury.postlight.com";
-
     /**
      * A callback interface for receiving the readable content.
      */
@@ -74,35 +77,18 @@ public interface ReadabilityClient {
     void parse(String itemId, String url);
 
     /**
-     * An implementation of {@link ReadabilityClient} that uses the Mercury Web Parser API.
+     * An implementation of {@link ReadabilityClient} that uses Mozilla's Readability.js.
      */
     class Impl implements ReadabilityClient {
-        private static final CharSequence EMPTY_CONTENT = "<div></div>";
-        private final MercuryService mMercuryService;
         private final LocalCache mCache;
+        private final Context mContext;
         @Inject @Named(DataModule.IO_THREAD) Scheduler mIoScheduler;
         @Inject @Named(DataModule.MAIN_THREAD) Scheduler mMainThreadScheduler;
-
-        interface MercuryService {
-            String MERCURY_API_URL = "https://" + HOST + "/";
-            String X_API_KEY = "x-api-key: ";
-
-            @Headers({RestServiceFactory.CACHE_CONTROL_MAX_AGE_24H,
-                    X_API_KEY + BuildConfig.MERCURY_TOKEN})
-            @GET("parser")
-            Observable<Readable> parse(@Query("url") String url);
-        }
-
-        class Readable {
-            @Keep @Synthetic
-            String content;
-        }
+        private String mReadabilityJs;
 
         @Inject
-        public Impl(LocalCache cache, RestServiceFactory factory) {
-            mMercuryService = factory.rxEnabled(true)
-                    .create(MercuryService.MERCURY_API_URL,
-                            MercuryService.class);
+        public Impl(Context context, LocalCache cache) {
+            mContext = context;
             mCache = cache;
         }
 
@@ -112,7 +98,6 @@ public interface ReadabilityClient {
                     .subscribeOn(mIoScheduler)
                     .flatMap(content -> content != null ?
                             Observable.just(content) : fromNetwork(itemId, url))
-                    .map(content -> AndroidUtils.TextUtils.equals(EMPTY_CONTENT, content) ? null : content)
                     .observeOn(mMainThreadScheduler)
                     .subscribe(callback::onResponse);
         }
@@ -123,17 +108,52 @@ public interface ReadabilityClient {
             Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(Schedulers.immediate())
                     .switchIfEmpty(fromNetwork(itemId, url))
-                    .map(content -> AndroidUtils.TextUtils.equals(EMPTY_CONTENT, content) ? null : content)
                     .observeOn(Schedulers.immediate())
                     .subscribe();
         }
 
         @NonNull
         private Observable<String> fromNetwork(String itemId, String url) {
-            return mMercuryService.parse(url)
-                    .onErrorReturn(throwable -> null)
-                    .map(readable -> readable == null ? null : readable.content)
-                    .doOnNext(content -> mCache.putReadability(itemId, content));
+            return Observable.create(subscriber -> new Handler(Looper.getMainLooper()).post(() -> {
+                WebView webView = new WebView(mContext);
+                webView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        super.onPageFinished(view, url);
+                        if (mReadabilityJs == null) {
+                            try {
+                                InputStream inputStream = mContext.getAssets().open("Readability.js");
+                                mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
+                            } catch (IOException e) {
+                                subscriber.onNext(null);
+                                subscriber.onCompleted();
+                                return;
+                            }
+                        }
+                        webView.evaluateJavascript(mReadabilityJs, null);
+                        webView.evaluateJavascript("new Readability(document).parse()",
+                                value -> {
+                                    try {
+                                        JSONObject json = new JSONObject(value);
+                                        String content = json.getString("content");
+                                        mCache.putReadability(itemId, content);
+                                        subscriber.onNext(content);
+                                        subscriber.onCompleted();
+                                    } catch (JSONException e) {
+                                        subscriber.onNext(null);
+                                        subscriber.onCompleted();
+                                    } finally {
+                                        webView.destroy();
+                                    }
+                                });
+                    }
+                });
+                WebSettings settings = webView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                settings.setBlockNetworkImage(true);
+                settings.setLoadsImagesAutomatically(false);
+                webView.loadUrl(url);
+            }));
         }
 
         private Observable<String> fromCache(String itemId) {
