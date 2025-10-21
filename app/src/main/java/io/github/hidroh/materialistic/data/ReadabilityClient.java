@@ -20,6 +20,7 @@ package io.github.hidroh.materialistic.data;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -34,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -98,6 +100,7 @@ public interface ReadabilityClient {
             try (InputStream inputStream = mContext.getAssets().open("Readability.js")) {
                 mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
             } catch (IOException e) {
+                Log.e("ReadabilityClient", "Failed to load Readability.js from assets", e);
                 // mReadabilityJs will be null, and fromNetwork will emit null
             }
         }
@@ -109,7 +112,7 @@ public interface ReadabilityClient {
                     .flatMap(content -> content != null ?
                             Observable.just(content) : fromNetwork(itemId, url))
                     .observeOn(mMainThreadScheduler)
-                    .subscribe(callback::onResponse);
+                    .subscribe(callback::onResponse, throwable -> callback.onResponse(null));
         }
 
         @WorkerThread
@@ -164,8 +167,11 @@ public interface ReadabilityClient {
                 settings.setJavaScriptEnabled(true);
                 settings.setBlockNetworkImage(true);
                 settings.setLoadsImagesAutomatically(false);
+                settings.setAllowFileAccess(false);
+                settings.setAllowContentAccess(false);
+                settings.setGeolocationEnabled(false);
                 webView.loadUrl(url);
-            }));
+            })).timeout(30, TimeUnit.SECONDS);
         }
 
         private Observable<String> fromCache(String itemId) {
