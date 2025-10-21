@@ -149,12 +149,12 @@ public interface ReadabilityClient {
                                         value -> {
                                             if (isFinished.compareAndSet(false, true)) {
                                                 String content = null;
-                                                try {
-                                                    JSONObject json = new JSONObject(value);
-                                                    content = json.getString("content");
-                                                    mCache.putReadability(itemId, content);
-                                                } catch (JSONException e) {
-                                                    // content will be null
+                                                if (value != null) {
+                                                    try {
+                                                        JSONObject json = new JSONObject(value);
+                                                        content = json.getString("content");
+                                                        mCache.putReadability(itemId, content);
+                                                    } catch (JSONException e) { /* content will be null */ }
                                                 }
                                                 subscriber.onNext(content);
                                                 subscriber.onCompleted();
@@ -166,7 +166,7 @@ public interface ReadabilityClient {
                     @Override
                     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                         super.onReceivedError(view, errorCode, description, failingUrl);
-                        if (isFinished.compareAndSet(false, true)) {
+                        if (url.equals(failingUrl) && isFinished.compareAndSet(false, true)) {
                             subscriber.onNext(null);
                             subscriber.onCompleted();
                         }
