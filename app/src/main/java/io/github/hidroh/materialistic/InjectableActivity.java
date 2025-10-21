@@ -20,16 +20,30 @@ import android.os.Bundle;
 
 import dagger.ObjectGraph;
 
+/**
+ * An abstract base activity that supports dependency injection.
+ */
 public abstract class InjectableActivity extends ThemedActivity implements Injectable {
     private ObjectGraph mActivityGraph;
     private boolean mDestroyed;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         inject(this);
     }
 
+    /**
+     * Called before the activity is destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -37,6 +51,10 @@ public abstract class InjectableActivity extends ThemedActivity implements Injec
         mActivityGraph = null;
     }
 
+    /**
+     * Called when the activity has detected the user's press of the back
+     * key.
+     */
     @Override
     public void onBackPressed() {
         // TODO http://b.android.com/176265
@@ -47,11 +65,21 @@ public abstract class InjectableActivity extends ThemedActivity implements Injec
         }
     }
 
+    /**
+     * Injects the dependencies of the given object.
+     *
+     * @param object The object to inject dependencies into.
+     */
     @Override
     public void inject(Object object) {
         getApplicationGraph().inject(object);
     }
 
+    /**
+     * Gets the application's object graph for dependency injection.
+     *
+     * @return The application's object graph.
+     */
     @Override
     public ObjectGraph getApplicationGraph() {
         if (mActivityGraph == null) {
@@ -61,6 +89,11 @@ public abstract class InjectableActivity extends ThemedActivity implements Injec
         return mActivityGraph;
     }
 
+    /**
+     * Checks if the activity has been destroyed.
+     *
+     * @return True if the activity has been destroyed, false otherwise.
+     */
     public boolean isActivityDestroyed() {
         return mDestroyed;
     }

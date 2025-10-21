@@ -32,6 +32,9 @@ import javax.inject.Inject;
 import io.github.hidroh.materialistic.ActivityModule;
 import io.github.hidroh.materialistic.Injectable;
 
+/**
+ * A {@link JobService} that syncs items.
+ */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class ItemSyncJobService extends JobService {
     @Inject RestServiceFactory mFactory;

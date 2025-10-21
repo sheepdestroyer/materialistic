@@ -25,6 +25,9 @@ import android.text.TextUtils;
 
 import io.github.hidroh.materialistic.AppUtils;
 
+/**
+ * A {@link BroadcastReceiver} that triggers a sync when the device connects to a Wi-Fi network.
+ */
 public class ItemSyncWifiReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {

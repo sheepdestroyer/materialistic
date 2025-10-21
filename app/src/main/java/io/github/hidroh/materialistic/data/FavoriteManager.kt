@@ -54,6 +54,9 @@ class FavoriteManager @Inject constructor(
     private val dao: MaterialisticDatabase.SavedStoriesDao) : LocalItemManager<Favorite> {
 
   companion object {
+    /**
+     * The notification channel ID for export notifications.
+     */
     private const val CHANNEL_EXPORT = "export"
     private const val URI_PATH_ADD = "add"
     private const val URI_PATH_REMOVE = "remove"
@@ -62,10 +65,28 @@ class FavoriteManager @Inject constructor(
     private const val FILENAME_EXPORT = "materialistic-export.txt"
     private const val FILE_AUTHORITY = "io.github.hidroh.materialistic.fileprovider"
 
+    /**
+     * Checks if a URI represents an added favorite.
+     *
+     * @param uri the URI to check
+     * @return `true` if the URI represents an added favorite, `false` otherwise
+     */
     fun isAdded(uri: Uri) = uri.toString().startsWith(buildAdded().toString())
 
+    /**
+     * Checks if a URI represents a removed favorite.
+     *
+     * @param uri the URI to check
+     * @return `true` if the URI represents a removed favorite, `false` otherwise
+     */
     fun isRemoved(uri: Uri) = uri.toString().startsWith(buildRemoved().toString())
 
+    /**
+     * Checks if a URI represents cleared favorites.
+     *
+     * @param uri the URI to check
+     * @return `true` if the URI represents cleared favorites, `false` otherwise
+     */
     fun isCleared(uri: Uri) = uri.toString().startsWith(buildCleared().toString())
 
     private fun buildAdded(): Uri.Builder =
@@ -104,9 +125,10 @@ class FavoriteManager @Inject constructor(
   }
 
   /**
-   * Exports all favorites matched given query to file
-   * @param context   an instance of {@link android.content.Context}
-   * @param query     query to filter stories to be retrieved
+   * Exports all favorites matched given query to a file.
+   *
+   * @param context an instance of [Context]
+   * @param query   a query to filter stories to be retrieved
    */
   fun export(context: Context, query: String?) {
     val appContext = context.applicationContext
@@ -131,9 +153,10 @@ class FavoriteManager @Inject constructor(
   }
 
   /**
-   * Adds given story as favorite
-   * @param context   an instance of {@link android.content.Context}
-   * @param story     story to be added as favorite
+   * Adds a story as a favorite.
+   *
+   * @param context an instance of [Context]
+   * @param story   the story to be added as a favorite
    */
   fun add(context: Context, story: WebItem) {
     Observable.defer { Observable.just(story) }
@@ -147,10 +170,10 @@ class FavoriteManager @Inject constructor(
   }
 
   /**
-   * Clears all stories matched given query from favorites
-   * will be sent upon completion
-   * @param context   an instance of {@link android.content.Context}
-   * @param query     query to filter stories to be cleared
+   * Clears all stories that match a given query from favorites.
+   *
+   * @param context an instance of [Context]
+   * @param query   a query to filter stories to be cleared
    */
   fun clear(context: Context, query: String?) {
     Observable.defer { Observable.just(query) }
@@ -161,10 +184,10 @@ class FavoriteManager @Inject constructor(
   }
 
   /**
-   * Removes story with given ID from favorites
-   * upon completion
-   * @param context   an instance of {@link android.content.Context}
-   * @param itemId    story ID to be removed from favorites
+   * Removes a story with a given ID from favorites.
+   *
+   * @param context an instance of [Context]
+   * @param itemId  the ID of the story to be removed from favorites
    */
   fun remove(context: Context, itemId: String?) {
     if (itemId == null) return
@@ -177,10 +200,10 @@ class FavoriteManager @Inject constructor(
   }
 
   /**
-   * Removes multiple stories with given IDs from favorites
-   * be sent upon completion
-   * @param context   an instance of {@link android.content.Context}
-   * @param itemIds   array of story IDs to be removed from favorites
+   * Removes multiple stories with given IDs from favorites.
+   *
+   * @param context an instance of [Context]
+   * @param itemIds a collection of story IDs to be removed from favorites
    */
   fun remove(context: Context, itemIds: Collection<String>?) {
     if (itemIds.orEmpty().isEmpty()) return
@@ -192,6 +215,12 @@ class FavoriteManager @Inject constructor(
         .subscribe { MaterialisticDatabase.getInstance(context).setLiveValue(it) }
   }
 
+  /**
+   * Checks if a story is a favorite.
+   *
+   * @param itemId the ID of the story to check
+   * @return an [Observable] that emits `true` if the story is a favorite, `false` otherwise
+   */
   @WorkerThread
   fun check(itemId: String?) = Observable.just(if (itemId.isNullOrEmpty()) {
     false

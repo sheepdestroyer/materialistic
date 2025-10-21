@@ -26,9 +26,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Represents an item that can be displayed by a {@link android.webkit.WebView}
+ * An interface for an item that can be displayed in a {@link android.webkit.WebView}.
  */
 public interface WebItem extends Parcelable {
+    /**
+     * An annotation for defining the type of an item.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
             JOB_TYPE,
@@ -36,13 +39,22 @@ public interface WebItem extends Parcelable {
             COMMENT_TYPE,
             POLL_TYPE
     })
-    /*
-      Item types
-     */
     @interface Type {}
+    /**
+     * The type for a job item.
+     */
     String JOB_TYPE = "job";
+    /**
+     * The type for a story item.
+     */
     String STORY_TYPE = "story";
+    /**
+     * The type for a comment item.
+     */
     String COMMENT_TYPE = "comment";
+    /**
+     * The type for a poll item.
+     */
     String POLL_TYPE = "poll";
 
     /**

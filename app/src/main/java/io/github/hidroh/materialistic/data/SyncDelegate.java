@@ -63,6 +63,9 @@ import io.github.hidroh.materialistic.widget.CacheableWebView;
 import retrofit2.Call;
 import retrofit2.Callback;
 
+/**
+ * A delegate for syncing data.
+ */
 public class SyncDelegate {
     static final String SYNC_PREFERENCES_FILE = "_syncpreferences";
     private static final String NOTIFICATION_GROUP_KEY = "group";
@@ -82,6 +85,13 @@ public class SyncDelegate {
     private Job mJob;
     @VisibleForTesting CacheableWebView mWebView;
 
+    /**
+     * Constructs a new {@code SyncDelegate}.
+     *
+     * @param context           the application context
+     * @param factory           the {@link RestServiceFactory} to use for creating REST services
+     * @param readabilityClient the {@link ReadabilityClient} to use for fetching readable content
+     */
     @Inject
     SyncDelegate(Context context, RestServiceFactory factory,
                  ReadabilityClient readabilityClient) {
@@ -113,6 +123,12 @@ public class SyncDelegate {
                 .setAutoCancel(true);
     }
 
+    /**
+     * Schedules a sync job.
+     *
+     * @param context the application context
+     * @param job     the job to schedule
+     */
     @UiThread
     static void scheduleSync(Context context, Job job) {
         if (!Preferences.Offline.isEnabled(context)) {

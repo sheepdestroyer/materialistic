@@ -24,7 +24,13 @@ import android.text.format.DateUtils;
 
 import io.github.hidroh.materialistic.annotation.Synthetic;
 
+/**
+ * A data model for a Hacker News user.
+ */
 class UserItem implements UserManager.User {
+    /**
+     * A {@link Creator} that creates {@link UserItem} instances from a {@link Parcel}.
+     */
     public static final Creator<UserItem> CREATOR = new Creator<UserItem>() {
         @Override
         public UserItem createFromParcel(Parcel source) {

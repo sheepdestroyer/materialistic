@@ -69,32 +69,66 @@ import io.github.hidroh.materialistic.widget.ThreadPreviewRecyclerViewAdapter;
         library = true,
         complete = false
 )
+/**
+ * A Dagger module that provides UI-related dependencies.
+ */
 class UiModule {
+    /**
+     * Provides a singleton instance of {@link PopupMenu}.
+     *
+     * @return The singleton instance of {@link PopupMenu}.
+     */
     @Provides
     public PopupMenu providePopupMenu() {
         return new PopupMenu.Impl();
     }
 
+    /**
+     * Provides a singleton instance of {@link CustomTabsDelegate}.
+     *
+     * @return The singleton instance of {@link CustomTabsDelegate}.
+     */
     @Provides @Singleton
     public CustomTabsDelegate provideCustomTabsDelegate() {
         return new CustomTabsDelegate();
     }
 
+    /**
+     * Provides a singleton instance of {@link KeyDelegate}.
+     *
+     * @return The singleton instance of {@link KeyDelegate}.
+     */
     @Provides @Singleton
     public KeyDelegate provideKeyDelegate() {
         return new KeyDelegate();
     }
 
+    /**
+     * Provides a singleton instance of {@link ActionViewResolver}.
+     *
+     * @return The singleton instance of {@link ActionViewResolver}.
+     */
     @Provides @Singleton
     public ActionViewResolver provideActionViewResolver() {
         return new ActionViewResolver();
     }
 
+    /**
+     * Provides a singleton instance of {@link AlertDialogBuilder}.
+     *
+     * @return The singleton instance of {@link AlertDialogBuilder}.
+     */
     @Provides
     public AlertDialogBuilder provideAlertDialogBuilder() {
         return new AlertDialogBuilder.Impl();
     }
 
+    /**
+     * Provides a singleton instance of {@link ResourcesProvider}.
+     *
+     * @param context The application context.
+     * @return The singleton instance of {@link ResourcesProvider}.
+     */
     @SuppressLint("Recycle")
     @Provides @Singleton
     public ResourcesProvider provideResourcesProvider(Context context) {

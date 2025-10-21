@@ -38,7 +38,10 @@ import java.util.List;
 
 import io.github.hidroh.materialistic.annotation.Synthetic;
 
-
+/**
+ * A delegate for Custom Tabs functionality. This class manages the connection to the Custom Tabs
+ * service, warms up the browser, and provides a session for launching URLs.
+ */
 public class CustomTabsDelegate {
     private static final String ACTION_CUSTOM_TABS_CONNECTION =
             "android.support.customtabs.action.CustomTabsService";
@@ -49,7 +52,7 @@ public class CustomTabsDelegate {
     /**
      * Binds the Activity to the Custom Tabs Service.
      *
-     * @param activity the activity to be binded to the service.
+     * @param activity the activity to be bound to the service.
      */
     void bindCustomTabsService(Activity activity) {
         if (mClient != null) {
@@ -78,8 +81,12 @@ public class CustomTabsDelegate {
     }
 
     /**
-     * @return true if call to mayLaunchUrl was accepted.
-     * @see CustomTabsSession#mayLaunchUrl(Uri, Bundle, List)
+     * Warms up the browser process and pre-fetches the given URL.
+     *
+     * @param uri               The URL to pre-fetch.
+     * @param extras            Bundle of extras for the request.
+     * @param otherLikelyBundles A list of other likely URLs.
+     * @return true if the call to mayLaunchUrl was accepted.
      */
     public boolean mayLaunchUrl(Uri uri, Bundle extras, List<Bundle> otherLikelyBundles) {
         if (mClient == null) {
@@ -90,7 +97,7 @@ public class CustomTabsDelegate {
     }
 
     /**
-     * Creates or retrieves an exiting CustomTabsSession.
+     * Creates or retrieves an existing CustomTabsSession.
      *
      * @return a CustomTabsSession.
      */

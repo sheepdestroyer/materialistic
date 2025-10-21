@@ -26,13 +26,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 /**
- * Simple sync adapter that triggers OkHttp requests so their responses become available in
- * cache for subsequent requests
+ * A simple sync adapter that triggers OkHttp requests so their responses become available in the
+ * cache for subsequent requests.
  */
 class ItemSyncAdapter extends AbstractThreadedSyncAdapter {
     private final RestServiceFactory mFactory;
     private final ReadabilityClient mReadabilityClient;
 
+    /**
+     * Constructs a new {@code ItemSyncAdapter}.
+     *
+     * @param context           the application context
+     * @param factory           the {@link RestServiceFactory} to use for creating REST services
+     * @param readabilityClient the {@link ReadabilityClient} to use for fetching readable content
+     */
     ItemSyncAdapter(Context context, RestServiceFactory factory,
                            ReadabilityClient readabilityClient) {
         super(context, true);

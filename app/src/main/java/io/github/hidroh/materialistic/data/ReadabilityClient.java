@@ -34,18 +34,48 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
+/**
+ * A client for fetching readable content from a URL.
+ */
 public interface ReadabilityClient {
+    /**
+     * The host of the Readability API.
+     */
     String HOST = "mercury.postlight.com";
 
+    /**
+     * A callback interface for receiving the readable content.
+     */
     interface Callback {
+        /**
+         * Called when the readable content is available.
+         *
+         * @param content the readable content, or `null` if the content could not be fetched
+         */
         void onResponse(String content);
     }
 
+    /**
+     * Parses the content of a URL and returns the readable content.
+     *
+     * @param itemId   the ID of the item
+     * @param url      the URL to parse
+     * @param callback the callback to be invoked when the content is available
+     */
     void parse(String itemId, String url, Callback callback);
 
+    /**
+     * Parses the content of a URL and caches the readable content.
+     *
+     * @param itemId the ID of the item
+     * @param url    the URL to parse
+     */
     @WorkerThread
     void parse(String itemId, String url);
 
+    /**
+     * An implementation of {@link ReadabilityClient} that uses the Mercury Web Parser API.
+     */
     class Impl implements ReadabilityClient {
         private static final CharSequence EMPTY_CONTENT = "<div></div>";
         private final MercuryService mMercuryService;

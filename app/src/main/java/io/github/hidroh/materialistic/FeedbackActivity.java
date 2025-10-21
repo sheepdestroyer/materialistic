@@ -31,9 +31,20 @@ import javax.inject.Inject;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 import io.github.hidroh.materialistic.data.FeedbackClient;
 
+/**
+ * Activity for sending feedback.
+ */
 public class FeedbackActivity extends InjectableActivity {
     @Inject FeedbackClient mFeedbackClient;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +82,11 @@ public class FeedbackActivity extends InjectableActivity {
         });
     }
 
+    /**
+     * Checks if the activity should be displayed as a dialog.
+     *
+     * @return True if the activity should be displayed as a dialog, false otherwise.
+     */
     @Override
     protected boolean isDialogTheme() {
         return true;

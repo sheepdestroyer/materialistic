@@ -19,15 +19,21 @@ package io.github.hidroh.materialistic;
 import dagger.ObjectGraph;
 
 /**
- * Interface for context that can be injected with dependencies
+ * An interface for classes that can be injected with dependencies.
  */
 public interface Injectable {
     /**
-     * Injects the members of given object, including injectable members
+     * Injects the members of the given object, including injectable members
      * inherited from its supertypes.
-     * @param object object with members to be injected
+     *
+     * @param object The object with members to be injected.
      */
     void inject(Object object);
 
+    /**
+     * Gets the application's object graph for dependency injection.
+     *
+     * @return The application's object graph.
+     */
     ObjectGraph getApplicationGraph();
 }

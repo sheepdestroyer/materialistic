@@ -27,8 +27,16 @@ import androidx.annotation.StringDef;
 import retrofit2.Call;
 import rx.Observable;
 
+/**
+ * An {@link ItemManager} that uses the Algolia REST API to fetch popular stories.
+ */
 public class AlgoliaPopularClient extends AlgoliaClient {
 
+    /**
+     * Constructs a new {@code AlgoliaPopularClient}.
+     *
+     * @param factory the {@link RestServiceFactory} to use for creating the REST service
+     */
     @Inject
     public AlgoliaPopularClient(RestServiceFactory factory) {
         super(factory);

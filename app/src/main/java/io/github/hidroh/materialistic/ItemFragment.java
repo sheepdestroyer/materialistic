@@ -51,6 +51,9 @@ import io.github.hidroh.materialistic.widget.MultiPageItemRecyclerViewAdapter;
 import io.github.hidroh.materialistic.widget.SinglePageItemRecyclerViewAdapter;
 import io.github.hidroh.materialistic.widget.SnappyLinearLayoutManager;
 
+/**
+ * A fragment that displays the comments of a single item.
+ */
 public class ItemFragment extends LazyLoadFragment implements Scrollable, Navigable {
 
     public static final String EXTRA_ITEM = ItemFragment.class.getName() + ".EXTRA_ITEM";
@@ -73,6 +76,11 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     private CommentItemDecoration mItemDecoration;
     private View mFragmentView;
 
+    /**
+     * Called when a fragment is first attached to its context.
+     *
+     * @param context The context.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -89,6 +97,12 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
                 R.string.pref_color_code_opacity);
     }
 
+    /**
+     * Called to do initial creation of a fragment.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +122,18 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         if (isNewInstance()) {
@@ -134,6 +160,13 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         return mFragmentView;
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -144,6 +177,13 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         }
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_comments) {
@@ -153,6 +193,13 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called to ask the fragment to save its current dynamic state, so it
+     * can later be reconstructed in a new instance of its process is
+     * restarted.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -162,6 +209,9 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         outState.putInt(STATE_CACHE_MODE, mCacheMode);
     }
 
+    /**
+     * Called when the fragment is no longer in use.
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -170,27 +220,48 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         }
     }
 
+    /**
+     * Called when the fragment is no longer attached to its activity.
+     */
     @Override
     public void onDetach() {
         super.onDetach();
         mPreferenceObservable.unsubscribe(getActivity());
     }
 
+    /**
+     * Scrolls the item list to the top.
+     */
     @Override
     public void scrollToTop() {
         mScrollableHelper.scrollToTop();
     }
 
+    /**
+     * Scrolls the item list to the next item.
+     *
+     * @return True if the list was scrolled, false otherwise.
+     */
     @Override
     public boolean scrollToNext() {
         return mScrollableHelper.scrollToNext();
     }
 
+    /**
+     * Scrolls the item list to the previous item.
+     *
+     * @return True if the list was scrolled, false otherwise.
+     */
     @Override
     public boolean scrollToPrevious() {
         return mScrollableHelper.scrollToPrevious();
     }
 
+    /**
+     * Navigates to the next or previous item in the list.
+     *
+     * @param direction The direction to navigate.
+     */
     @Override
     public void onNavigate(int direction) {
         if (mAdapter == null) { // no kids
@@ -201,6 +272,9 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
                 position -> mAdapter.lockBinding(mScrollableHelper.scrollToPosition(position)));
     }
 
+    /**
+     * Loads the item data.
+     */
     @Override
     protected void load() {
         if (mItem != null) {
@@ -210,6 +284,12 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         }
     }
 
+    /**
+     * Creates the options menu for this fragment.
+     *
+     * @param menu     The menu to inflate.
+     * @param inflater The menu inflater.
+     */
     @Override
     protected void createOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_item_view, menu);

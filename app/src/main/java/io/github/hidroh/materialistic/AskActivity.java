@@ -20,13 +20,26 @@ import androidx.annotation.NonNull;
 
 import io.github.hidroh.materialistic.data.ItemManager;
 
+/**
+ * Activity to display ask stories
+ */
 public class AskActivity extends BaseStoriesActivity {
 
+    /**
+     * Gets the default title for the activity.
+     *
+     * @return The default title.
+     */
     @Override
     protected String getDefaultTitle() {
         return getString(R.string.title_activity_ask);
     }
 
+    /**
+     * Gets the fetch mode for the items to be displayed.
+     *
+     * @return The fetch mode.
+     */
     @NonNull
     @Override
     protected @ItemManager.FetchMode String getFetchMode() {

@@ -20,7 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 /**
- * Injectable utility to resolve action view for menu items
+ * A utility class responsible for resolving and providing the action view for a given menu item.
+ * This class can be injected to facilitate testing and customization of menu item behaviors.
  */
 class ActionViewResolver {
     /**

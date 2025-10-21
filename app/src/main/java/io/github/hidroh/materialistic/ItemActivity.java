@@ -67,6 +67,9 @@ import io.github.hidroh.materialistic.widget.NavFloatingActionButton;
 import io.github.hidroh.materialistic.widget.PopupMenu;
 import io.github.hidroh.materialistic.widget.ViewPager;
 
+/**
+ * Activity that displays a single item in a {@link ViewPager}.
+ */
 public class ItemActivity extends InjectableActivity implements ItemFragment.ItemChangedListener {
 
     public static final String EXTRA_ITEM = ItemActivity.class.getName() + ".EXTRA_ITEM";
@@ -128,6 +131,14 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
     private AppUtils.SystemUiHelper mSystemUiHelper;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,6 +198,9 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         }
     }
 
+    /**
+     * Called when the activity is becoming visible to the user.
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -194,18 +208,40 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         mKeyDelegate.attach(this);
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_item, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Prepare the Screen's standard options menu to be displayed.
+     *
+     * @param menu The options menu as last shown or first initialized by
+     *             onCreateOptionsMenu().
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.menu_share).setVisible(mItem != null);
         return mItem != null;
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -228,6 +264,13 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called to retrieve per-instance state from an activity before being killed
+     * so that the state can be restored in {@link #onCreate(Bundle)} or
+     * {@link #onRestoreInstanceState(Bundle)}.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -236,6 +279,9 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         outState.putBoolean(STATE_FULLSCREEN, mFullscreen);
     }
 
+    /**
+     * Called when the activity is no longer visible to the user.
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -243,6 +289,9 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         mKeyDelegate.detach(this);
     }
 
+    /**
+     * Called before the activity is destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -250,6 +299,10 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         mPreferenceObservable.unsubscribe(this);
     }
 
+    /**
+     * Called when the activity has detected the user's press of the back
+     * key.
+     */
     @Override
     public void onBackPressed() {
         if (!mFullscreen) {
@@ -260,6 +313,15 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
         }
     }
 
+    /**
+     * Called when a key was pressed down and not handled by any of the views
+     * inside of the activity.
+     *
+     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+     * @param event   Description of the key event.
+     * @return If you handled the event, return true. If you want to allow the
+     *         event to be handled by the next receiver, return false.
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         mKeyDelegate.setScrollable(getCurrent(Scrollable.class), mAppBar);
@@ -268,24 +330,53 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
                 super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Called when a key was released and not handled by any of the views
+     * inside of the activity.
+     *
+     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+     * @param event   Description of the key event.
+     * @return If you handled the event, return true. If you want to allow the
+     *         event to be handled by the next receiver, return false.
+     */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         return mKeyDelegate.onKeyUp(keyCode, event) ||
                 super.onKeyUp(keyCode, event);
     }
 
+    /**
+     * Called when a long press has occurred and not handled by any of the views
+     * inside of the activity.
+     *
+     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+     * @param event   Description of the key event.
+     * @return If you handled the event, return true. If you want to allow the
+     *         event to be handled by the next receiver, return false.
+     */
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         return mKeyDelegate.onKeyLongPress(keyCode, event) ||
                 super.onKeyLongPress(keyCode, event);
     }
 
+    /**
+     * Called when the current {@link Window} of the activity gains or loses
+     * focus.
+     *
+     * @param hasFocus Whether the window now has focus.
+     */
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         mSystemUiHelper.setFullscreen(hasFocus && mFullscreen);
     }
 
+    /**
+     * Called when the item has been changed.
+     *
+     * @param item The changed item.
+     */
     @Override
     public void onItemChanged(@NonNull Item item) {
         mItem = item;

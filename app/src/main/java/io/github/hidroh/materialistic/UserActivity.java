@@ -48,6 +48,9 @@ import io.github.hidroh.materialistic.widget.CommentItemDecoration;
 import io.github.hidroh.materialistic.widget.SnappyLinearLayoutManager;
 import io.github.hidroh.materialistic.widget.SubmissionRecyclerViewAdapter;
 
+/**
+ * An activity that displays a user's profile.
+ */
 public class UserActivity extends InjectableActivity implements Scrollable {
     public static final String EXTRA_USERNAME = UserActivity.class.getName() + ".EXTRA_USERNAME";
     private static final String STATE_USER = "state:user";
@@ -67,6 +70,14 @@ public class UserActivity extends InjectableActivity implements Scrollable {
     private View mEmpty;
     private BottomSheetBehavior<View> mBottomSheetBehavior;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,24 +163,46 @@ public class UserActivity extends InjectableActivity implements Scrollable {
         }
     }
 
+    /**
+     * Called when the activity is becoming visible to the user.
+     */
     @Override
     protected void onStart() {
         super.onStart();
         mKeyDelegate.attach(this);
     }
 
+    /**
+     * Called to retrieve per-instance state from an activity before being killed
+     * so that the state can be restored in {@link #onCreate(Bundle)} or
+     * {@link #onRestoreInstanceState(Bundle)}.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(STATE_USER, mUser);
     }
 
+    /**
+     * Called when the activity is no longer visible to the user.
+     */
     @Override
     protected void onStop() {
         super.onStop();
         mKeyDelegate.detach(this);
     }
 
+    /**
+     * Called when a key was pressed down and not handled by any of the views
+     * inside of the activity.
+     *
+     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+     * @param event   Description of the key event.
+     * @return If you handled the event, return true. If you want to allow the
+     *         event to be handled by the next receiver, return false.
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         mKeyDelegate.setScrollable(this, null);
@@ -177,33 +210,69 @@ public class UserActivity extends InjectableActivity implements Scrollable {
                 super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Called when a key was released and not handled by any of the views
+     * inside of the activity.
+     *
+     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+     * @param event   Description of the key event.
+     * @return If you handled the event, return true. If you want to allow the
+     *         event to be handled by the next receiver, return false.
+     */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         return mKeyDelegate.onKeyUp(keyCode, event) ||
                 super.onKeyUp(keyCode, event);
     }
 
+    /**
+     * Called when a long press has occurred and not handled by any of the views
+     * inside of the activity.
+     *
+     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+     * @param event   Description of the key event.
+     * @return If you handled the event, return true. If you want to allow the
+     *         event to be handled by the next receiver, return false.
+     */
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         return mKeyDelegate.onKeyLongPress(keyCode, event) ||
                 super.onKeyLongPress(keyCode, event);
     }
 
+    /**
+     * Scrolls the item list to the top.
+     */
     @Override
     public void scrollToTop() {
         mScrollableHelper.scrollToTop();
     }
 
+    /**
+     * Scrolls the item list to the next item.
+     *
+     * @return True if the list was scrolled, false otherwise.
+     */
     @Override
     public boolean scrollToNext() {
         return mScrollableHelper.scrollToNext();
     }
 
+    /**
+     * Scrolls the item list to the previous item.
+     *
+     * @return True if the list was scrolled, false otherwise.
+     */
     @Override
     public boolean scrollToPrevious() {
         return mScrollableHelper.scrollToPrevious();
     }
 
+    /**
+     * Checks if the activity should be translucent.
+     *
+     * @return True if the activity should be translucent, false otherwise.
+     */
     @Override
     protected boolean isTranslucent() {
         return true;

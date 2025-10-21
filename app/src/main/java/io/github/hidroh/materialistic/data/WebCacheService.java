@@ -26,7 +26,13 @@ import io.github.hidroh.materialistic.Preferences;
 import io.github.hidroh.materialistic.widget.AdBlockWebViewClient;
 import io.github.hidroh.materialistic.widget.CacheableWebView;
 
+/**
+ * A {@link Service} that caches web pages for offline viewing.
+ */
 public class WebCacheService extends Service {
+    /**
+     * An extra that contains the URL of the web page to cache.
+     */
     static final String EXTRA_URL = "extra:url";
 
     @Nullable

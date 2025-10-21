@@ -40,6 +40,9 @@ public class Favorite implements WebItem {
     private Spannable displayedTime;
     private final Spannable displayedAuthor = new SpannableString("");
 
+    /**
+     * A {@link Creator} that creates {@link Favorite} instances from a {@link Parcel}.
+     */
     public static final Creator<Favorite> CREATOR = new Creator<Favorite>() {
         @Override
         public Favorite createFromParcel(Parcel source) {
@@ -149,6 +152,11 @@ public class Favorite implements WebItem {
         dest.writeLong(time);
     }
 
+    /**
+     * Gets the time that the item was favorited.
+     *
+     * @return the time in milliseconds since the epoch
+     */
     long getTime() {
         return time;
     }

@@ -19,7 +19,8 @@ package io.github.hidroh.materialistic;
 import androidx.annotation.Nullable;
 
 /**
- * Straight copies of Android's static utilities
+ * A collection of utility classes that replicate some of Android's static utility methods.
+ * This is primarily used to facilitate testing by providing mockable or predictable implementations.
  */
 public interface AndroidUtils {
 

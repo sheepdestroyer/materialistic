@@ -25,14 +25,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 /**
- * Helper to tint menu items for activities and fragments
+ * A delegate that helps tint menu items for activities and fragments.
  */
 public class MenuTintDelegate {
     private int mTextColorPrimary;
 
     /**
-     * Callback that should be triggered after activity has been created
-     * @param context    activity context
+     * A callback that should be triggered after the activity has been created.
+     *
+     * @param context The activity context.
      */
     public void onActivityCreated(Context context) {
         mTextColorPrimary = ContextCompat.getColor(context,
@@ -40,8 +41,9 @@ public class MenuTintDelegate {
     }
 
     /**
-     * Callback that should be triggered after menu has been inflated
-     * @param menu    inflated menu
+     * A callback that should be triggered after the menu has been inflated.
+     *
+     * @param menu The inflated menu.
      */
     public void onOptionsMenuCreated(Menu menu) {
         for (int i = 0; i < menu.size(); i++) {
@@ -54,6 +56,12 @@ public class MenuTintDelegate {
         }
     }
 
+    /**
+     * Sets the icon for a menu item and tints it.
+     *
+     * @param item The menu item.
+     * @param icon The icon resource.
+     */
     @SuppressWarnings("unused")
     public void setIcon(MenuItem item, @DrawableRes int icon) {
         item.setIcon(icon);

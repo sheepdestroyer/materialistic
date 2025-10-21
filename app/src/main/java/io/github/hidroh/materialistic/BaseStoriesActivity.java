@@ -27,6 +27,10 @@ import io.github.hidroh.materialistic.annotation.Synthetic;
 import io.github.hidroh.materialistic.data.HackerNewsClient;
 import io.github.hidroh.materialistic.data.ItemManager;
 
+/**
+ * An abstract base activity for displaying a list of stories. This activity handles common
+ * functionality for story lists, such as refreshing the list and displaying the last updated time.
+ */
 public abstract class BaseStoriesActivity extends BaseListActivity
         implements ListFragment.RefreshCallback {
 
@@ -56,6 +60,14 @@ public abstract class BaseStoriesActivity extends BaseListActivity
     };
     @Synthetic final Handler mHandler = new Handler();
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +76,10 @@ public abstract class BaseStoriesActivity extends BaseListActivity
         }
     }
 
+    /**
+     * Called after {@link #onRestoreInstanceState(Bundle)}, {@link #onRestart()}, or
+     * {@link #onPause()}, for your activity to start interacting with the user.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -71,12 +87,23 @@ public abstract class BaseStoriesActivity extends BaseListActivity
         mHandler.post(mLastUpdateTask);
     }
 
+    /**
+     * Called as part of the activity lifecycle when an activity is going into
+     * the background, but has not (yet) been killed.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         mHandler.removeCallbacks(mLastUpdateTask);
     }
 
+    /**
+     * Called to retrieve per-instance state from an activity before being killed
+     * so that the state can be restored in {@link #onCreate(Bundle)} or
+     * {@link #onRestoreInstanceState(Bundle)}.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -85,6 +112,9 @@ public abstract class BaseStoriesActivity extends BaseListActivity
         }
     }
 
+    /**
+     * Called when the list has been refreshed.
+     */
     @Override
     public void onRefreshed() {
         onItemSelected(null);
@@ -93,10 +123,20 @@ public abstract class BaseStoriesActivity extends BaseListActivity
         mHandler.post(mLastUpdateTask);
     }
 
+    /**
+     * Gets the fetch mode for the stories.
+     *
+     * @return The fetch mode.
+     */
     @NonNull
     @ItemManager.FetchMode
     protected abstract String getFetchMode();
 
+    /**
+     * Instantiates the list fragment for the activity.
+     *
+     * @return The list fragment.
+     */
     @Override
     protected Fragment instantiateListFragment() {
         Bundle args = new Bundle();

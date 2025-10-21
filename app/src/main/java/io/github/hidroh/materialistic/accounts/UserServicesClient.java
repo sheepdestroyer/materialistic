@@ -40,6 +40,9 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 
+/**
+ * A client that provides user-related services.
+ */
 public class UserServicesClient implements UserServices {
     private static final String BASE_WEB_URL = "https://news.ycombinator.com";
     private static final String LOGIN_PATH = "login";
@@ -76,12 +79,26 @@ public class UserServicesClient implements UserServices {
     private final Call.Factory mCallFactory;
     private final Scheduler mIoScheduler;
 
+    /**
+     * Constructs a new UserServicesClient.
+     *
+     * @param callFactory    The call factory.
+     * @param ioScheduler    The I/O scheduler.
+     */
     @Inject
     public UserServicesClient(Call.Factory callFactory, Scheduler ioScheduler) {
         mCallFactory = callFactory;
         mIoScheduler = ioScheduler;
     }
 
+    /**
+     * Logs in a user.
+     *
+     * @param username      The username.
+     * @param password      The password.
+     * @param createAccount True to create a new account, false to log in.
+     * @param callback      The callback to be invoked when the call is complete.
+     */
     @Override
     public void login(String username, String password, boolean createAccount, Callback callback) {
         execute(postLogin(username, password, createAccount))
@@ -95,6 +112,14 @@ public class UserServicesClient implements UserServices {
                 .subscribe(callback::onDone, callback::onError);
     }
 
+    /**
+     * Votes up an item.
+     *
+     * @param context  The context.
+     * @param itemId   The ID of the item to vote up.
+     * @param callback The callback to be invoked when the call is complete.
+     * @return True if the vote was successful, false otherwise.
+     */
     @Override
     public boolean voteUp(Context context, String itemId, Callback callback) {
         Pair<String, String> credentials = AppUtils.getCredentials(context);
@@ -109,6 +134,14 @@ public class UserServicesClient implements UserServices {
         return true;
     }
 
+    /**
+     * Replies to an item.
+     *
+     * @param context  The context.
+     * @param parentId The ID of the parent item.
+     * @param text     The reply text.
+     * @param callback The callback to be invoked when the call is complete.
+     */
     @Override
     public void reply(Context context, String parentId, String text, Callback callback) {
         Pair<String, String> credentials = AppUtils.getCredentials(context);
@@ -122,6 +155,15 @@ public class UserServicesClient implements UserServices {
                 .subscribe(callback::onDone, callback::onError);
     }
 
+    /**
+     * Submits a new story.
+     *
+     * @param context The context.
+     * @param title   The title of the story.
+     * @param content The content of the story.
+     * @param isUrl   True if the content is a URL, false otherwise.
+     * @param callback The callback to be invoked when the call is complete.
+     */
     @Override
     public void submit(Context context, String title, String content, boolean isUrl, Callback callback) {
         Pair<String, String> credentials = AppUtils.getCredentials(context);

@@ -25,6 +25,9 @@ import javax.inject.Inject;
 import io.github.hidroh.materialistic.ActivityModule;
 import io.github.hidroh.materialistic.Injectable;
 
+/**
+ * A {@link Service} that provides an {@link IBinder} for the {@link ItemSyncAdapter} to sync data.
+ */
 public class ItemSyncService extends Service {
 
     private static ItemSyncAdapter sItemSyncAdapter = null;

@@ -32,11 +32,20 @@ import rx.Observable;
 import rx.Scheduler;
 
 /**
- * Client to retrieve Hacker News content asynchronously
+ * A client that retrieves content from the Hacker News API.
  */
 public class HackerNewsClient implements ItemManager, UserManager {
+    /**
+     * The host of the Hacker News API.
+     */
     public static final String HOST = "hacker-news.firebaseio.com";
+    /**
+     * The base URL for the Hacker News website.
+     */
     public static final String BASE_WEB_URL = "https://news.ycombinator.com";
+    /**
+     * A template for the URL of a Hacker News item.
+     */
     public static final String WEB_ITEM_PATH = BASE_WEB_URL + "/item?id=%s";
     static final String BASE_API_URL = "https://" + HOST + "/v0/";
     @Inject @Named(DataModule.IO_THREAD) Scheduler mIoScheduler;
@@ -45,6 +54,13 @@ public class HackerNewsClient implements ItemManager, UserManager {
     private final SessionManager mSessionManager;
     private final FavoriteManager mFavoriteManager;
 
+    /**
+     * Constructs a new {@code HackerNewsClient}.
+     *
+     * @param factory         the {@link RestServiceFactory} to use for creating the REST service
+     * @param sessionManager  the {@link SessionManager} to use for managing user sessions
+     * @param favoriteManager the {@link FavoriteManager} to use for managing favorite items
+     */
     @Inject
     public HackerNewsClient(RestServiceFactory factory,
                             SessionManager sessionManager,

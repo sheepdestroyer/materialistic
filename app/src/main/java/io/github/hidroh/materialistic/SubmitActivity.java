@@ -43,6 +43,9 @@ import javax.inject.Inject;
 import io.github.hidroh.materialistic.accounts.UserServices;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 
+/**
+ * An activity that allows users to submit a new story.
+ */
 public class SubmitActivity extends InjectableActivity {
     private static final String HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
     private static final String STATE_SUBJECT = "state:subject";
@@ -57,6 +60,14 @@ public class SubmitActivity extends InjectableActivity {
     private TextInputLayout mContentLayout;
     private boolean mSending;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,18 +109,40 @@ public class SubmitActivity extends InjectableActivity {
         }
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_submit, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Prepare the Screen's standard options menu to be displayed.
+     *
+     * @param menu The options menu as last shown or first initialized by
+     *             onCreateOptionsMenu().
+     * @return You must return true for the menu to be displayed;
+     *         if you return false it will not be shown.
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.menu_send).setEnabled(!mSending);
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -144,6 +177,13 @@ public class SubmitActivity extends InjectableActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called to retrieve per-instance state from an activity before being killed
+     * so that the state can be restored in {@link #onCreate(Bundle)} or
+     * {@link #onRestoreInstanceState(Bundle)}.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -151,6 +191,10 @@ public class SubmitActivity extends InjectableActivity {
         outState.putString(STATE_TEXT, mContentEditText.getText().toString());
     }
 
+    /**
+     * Called when the activity has detected the user's press of the back
+     * key.
+     */
     @Override
     public void onBackPressed() {
         mAlertDialogBuilder

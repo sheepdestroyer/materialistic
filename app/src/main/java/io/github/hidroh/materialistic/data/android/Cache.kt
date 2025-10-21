@@ -24,6 +24,9 @@ import rx.Scheduler
 import javax.inject.Inject
 import javax.inject.Named
 
+/**
+ * A Room-backed implementation of [LocalCache].
+ */
 class Cache @Inject constructor(
     private val database: MaterialisticDatabase,
     private val savedStoriesDao: MaterialisticDatabase.SavedStoriesDao,

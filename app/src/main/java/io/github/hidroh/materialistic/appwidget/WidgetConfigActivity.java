@@ -28,6 +28,9 @@ import android.view.Window;
 import io.github.hidroh.materialistic.InjectableActivity;
 import io.github.hidroh.materialistic.R;
 
+/**
+ * An activity that allows the user to configure a new widget.
+ */
 public class WidgetConfigActivity extends InjectableActivity {
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
@@ -62,12 +65,18 @@ public class WidgetConfigActivity extends InjectableActivity {
         return true;
     }
 
+    /**
+     * Finishes the widget configuration and returns the result.
+     */
     private void configure() {
         new WidgetHelper(this).configure(mAppWidgetId);
         setResult(RESULT_OK, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
         finish();
     }
 
+    /**
+     * A fragment that hosts the widget configuration preferences.
+     */
     public static class WidgetConfigurationFragment extends PreferenceFragmentCompat {
 
         private SharedPreferences.OnSharedPreferenceChangeListener mListener =
@@ -99,6 +108,9 @@ public class WidgetConfigActivity extends InjectableActivity {
                     .unregisterOnSharedPreferenceChangeListener(mListener);
         }
 
+        /**
+         * Sets the summary for the filter query preference to its current value.
+         */
         private void setFilterQuery() {
             String key = getString(R.string.pref_widget_query);
             getPreferenceManager().findPreference(key)

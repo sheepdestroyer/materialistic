@@ -31,6 +31,9 @@ import javax.inject.Inject;
 
 import io.github.hidroh.materialistic.accounts.UserServices;
 
+/**
+ * An activity that allows users to log in or create a new account.
+ */
 public class LoginActivity extends AccountAuthenticatorActivity {
     public static final String EXTRA_ADD_ACCOUNT = LoginActivity.class.getName() + ".EXTRA_ADD_ACCOUNT";
     @Inject UserServices mUserServices;
@@ -44,6 +47,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     private String mUsername;
     private String mPassword;
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +94,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         });
     }
 
+    /**
+     * Checks if the activity should be displayed as a dialog.
+     *
+     * @return True if the activity should be displayed as a dialog, false otherwise.
+     */
     @Override
     protected boolean isDialogTheme() {
         return true;

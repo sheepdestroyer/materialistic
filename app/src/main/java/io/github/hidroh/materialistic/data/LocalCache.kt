@@ -19,16 +19,48 @@ package io.github.hidroh.materialistic.data
 import androidx.annotation.Nullable
 import androidx.annotation.WorkerThread
 
+/**
+ * An interface for a local cache of data.
+ */
 @WorkerThread
 interface LocalCache {
+  /**
+   * Gets the readable content for a given item ID.
+   *
+   * @param itemId the ID of the item
+   * @return the readable content, or `null` if it is not cached
+   */
   @Nullable
   fun getReadability(itemId: String?): String?
 
+  /**
+   * Puts the readable content for a given item ID into the cache.
+   *
+   * @param itemId  the ID of the item
+   * @param content the readable content
+   */
   fun putReadability(itemId: String?, content: String?)
 
+  /**
+   * Checks if an item has been viewed.
+   *
+   * @param itemId the ID of the item
+   * @return `true` if the item has been viewed, `false` otherwise
+   */
   fun isViewed(itemId: String?): Boolean
 
+  /**
+   * Marks an item as viewed.
+   *
+   * @param itemId the ID of the item
+   */
   fun setViewed(itemId: String?)
 
+  /**
+   * Checks if an item is a favorite.
+   *
+   * @param itemId the ID of the item
+   * @return `true` if the item is a favorite, `false` otherwise
+   */
   fun isFavorite(itemId: String?): Boolean
 }
