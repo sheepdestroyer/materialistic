@@ -2,8 +2,6 @@
 
 Materialistic is a Hacker News client for Android that is built with a clean, modern architecture and a focus on Material Design principles. It uses the official [HackerNews/API], [Algolia Hacker News Search API], and [Mercury Web Parser API] to provide a fast, reliable, and feature-rich experience.
 
-[![Get it on Google Play][Play Store Badge]][Play Store]
-
 ## Project Overview
 
 Materialistic follows a modular architecture that separates concerns and promotes maintainability. The core components of the application are:
