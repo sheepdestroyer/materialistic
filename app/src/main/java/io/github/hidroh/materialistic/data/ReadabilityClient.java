@@ -174,8 +174,10 @@ public interface ReadabilityClient {
 
                     @Override
                     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                        if (request.isForMainFrame()) {
-                            super.onReceivedError(view, request, error);
+                        super.onReceivedError(view, request, error);
+                        if (request.isForMainFrame() && isFinished.compareAndSet(false, true)) {
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
                         }
                     }
                 });
