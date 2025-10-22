@@ -36,10 +36,10 @@ import io.github.hidroh.materialistic.widget.ThreadPreviewRecyclerViewAdapter;
 /**
  * An activity that displays a preview of a comment thread.
  */
-public class ThreadPreviewActivity extends InjectableActivity {
+public class ThreadPreviewActivity extends ThemedActivity {
     public static final String EXTRA_ITEM = ThreadPreviewActivity.class.getName() + ".EXTRA_ITEM";
 
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManager;
+    @Inject @Named("hn") ItemManager mItemManager;
     @Inject KeyDelegate mKeyDelegate;
 
     /**
@@ -53,6 +53,7 @@ public class ThreadPreviewActivity extends InjectableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         Item item = getIntent().getParcelableExtra(EXTRA_ITEM);
         if (item == null) {
             finish();

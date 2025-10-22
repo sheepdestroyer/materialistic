@@ -51,13 +51,13 @@ import io.github.hidroh.materialistic.widget.SubmissionRecyclerViewAdapter;
 /**
  * An activity that displays a user's profile.
  */
-public class UserActivity extends InjectableActivity implements Scrollable {
+public class UserActivity extends ThemedActivity implements Scrollable {
     public static final String EXTRA_USERNAME = UserActivity.class.getName() + ".EXTRA_USERNAME";
     private static final String STATE_USER = "state:user";
     private static final String PARAM_ID = "id";
     private static final String KARMA = " (%1$s)";
     @Inject UserManager mUserManager;
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManger;
+    @Inject @Named("hn") ItemManager mItemManger;
     @Inject KeyDelegate mKeyDelegate;
     private KeyDelegate.RecyclerViewHelper mScrollableHelper;
     private String mUsername;
@@ -82,6 +82,7 @@ public class UserActivity extends InjectableActivity implements Scrollable {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         mUsername = getIntent().getStringExtra(EXTRA_USERNAME);
         if (TextUtils.isEmpty(mUsername)) {
             mUsername = AppUtils.getDataUriId(getIntent(), PARAM_ID);
@@ -329,14 +330,14 @@ public class UserActivity extends InjectableActivity implements Scrollable {
 
         @Override
         public void onResponse(@Nullable UserManager.User response) {
-            if (mUserActivity.get() != null && !mUserActivity.get().isActivityDestroyed()) {
+            if (mUserActivity.get() != null && !mUserActivity.get().isFinishing()) {
                 mUserActivity.get().onUserLoaded(response);
             }
         }
 
         @Override
         public void onError(String errorMessage) {
-            if (mUserActivity.get() != null && !mUserActivity.get().isActivityDestroyed()) {
+            if (mUserActivity.get() != null && !mUserActivity.get().isFinishing()) {
                 Toast.makeText(mUserActivity.get(), R.string.user_failed, Toast.LENGTH_SHORT).show();
             }
         }

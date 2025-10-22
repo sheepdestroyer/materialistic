@@ -73,9 +73,9 @@ public class ListFragment extends BaseListFragment {
     };
     private StoryRecyclerViewAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    @Inject @Named(ActivityModule.HN) ItemManager mHnItemManager;
-    @Inject @Named(ActivityModule.ALGOLIA) ItemManager mAlgoliaItemManager;
-    @Inject @Named(ActivityModule.POPULAR) ItemManager mPopularItemManager;
+    @Inject @Named("hn") ItemManager mHnItemManager;
+    @Inject @Named("algolia") ItemManager mAlgoliaItemManager;
+    @Inject @Named("popular") ItemManager mPopularItemManager;
     @Inject @Named(DataModule.IO_THREAD) Scheduler mIoThreadScheduler;
     private StoryListViewModel mStoryListViewModel;
     private View mErrorView;
@@ -96,6 +96,7 @@ public class ListFragment extends BaseListFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        ((MaterialisticApplication) getActivity().getApplication()).applicationComponent.inject(this);
         if (context instanceof RefreshCallback) {
             mRefreshCallback = (RefreshCallback) context;
         }

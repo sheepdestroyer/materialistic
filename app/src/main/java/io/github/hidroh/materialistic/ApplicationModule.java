@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ha Duy Trung
+ * Copyright (c) 2023 Ha Duy Trung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,25 @@
 
 package io.github.hidroh.materialistic;
 
-import dagger.ObjectGraph;
+import android.app.Application;
+import android.content.Context;
 
-/**
- * An interface for classes that can be injected with dependencies.
- */
-public interface Injectable {
-    /**
-     * Injects the members of the given object, including injectable members
-     * inherited from its supertypes.
-     *
-     * @param object The object with members to be injected.
-     */
-    void inject(Object object);
+import javax.inject.Singleton;
 
-    /**
-     * Gets the application's object graph for dependency injection.
-     *
-     * @return The application's object graph.
-     */
-    ObjectGraph getApplicationGraph();
+import dagger.Module;
+import dagger.Provides;
+
+@Module
+public class ApplicationModule {
+    private final Application mApplication;
+
+    public ApplicationModule(Application application) {
+        mApplication = application;
+    }
+
+    @Provides
+    @Singleton
+    public Context provideContext() {
+        return mApplication;
+    }
 }

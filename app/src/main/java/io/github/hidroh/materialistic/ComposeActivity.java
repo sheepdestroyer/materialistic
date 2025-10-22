@@ -40,7 +40,7 @@ import io.github.hidroh.materialistic.annotation.Synthetic;
 /**
  * Activity for composing a new comment or reply.
  */
-public class ComposeActivity extends InjectableActivity {
+public class ComposeActivity extends ThemedActivity {
     public static final String EXTRA_PARENT_ID = ComposeActivity.class.getName() + ".EXTRA_PARENT_ID";
     public static final String EXTRA_PARENT_TEXT = ComposeActivity.class.getName() + ".EXTRA_PARENT_TEXT";
     private static final String HN_FORMAT_DOC_URL = "https://news.ycombinator.com/formatdoc";
@@ -66,6 +66,7 @@ public class ComposeActivity extends InjectableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         mParentId = getIntent().getStringExtra(EXTRA_PARENT_ID);
         if (TextUtils.isEmpty(mParentId)) {
             finish();
@@ -267,14 +268,14 @@ public class ComposeActivity extends InjectableActivity {
         @Override
         public void onDone(boolean successful) {
             Preferences.deleteDraft(mAppContext, mParentId);
-            if (mComposeActivity.get() != null && !mComposeActivity.get().isActivityDestroyed()) {
+            if (mComposeActivity.get() != null && !mComposeActivity.get().isFinishing()) {
                 mComposeActivity.get().onSent(successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mComposeActivity.get() != null && !mComposeActivity.get().isActivityDestroyed()) {
+            if (mComposeActivity.get() != null && !mComposeActivity.get().isFinishing()) {
                 mComposeActivity.get().onSent(null);
             }
         }

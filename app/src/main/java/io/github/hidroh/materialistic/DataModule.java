@@ -42,14 +42,10 @@ import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static io.github.hidroh.materialistic.ActivityModule.ALGOLIA;
-import static io.github.hidroh.materialistic.ActivityModule.HN;
-import static io.github.hidroh.materialistic.ActivityModule.POPULAR;
-
 /**
  * Dagger module for data-related dependencies.
  */
-@Module(library = true, complete = false, includes = NetworkModule.class)
+@Module(includes = NetworkModule.class)
 public class DataModule {
     public static final String MAIN_THREAD = "main";
     public static final String IO_THREAD = "io";
@@ -60,7 +56,7 @@ public class DataModule {
      * @param client The {@link HackerNewsClient} instance.
      * @return The singleton instance of {@link HackerNewsClient}.
      */
-    @Provides @Singleton @Named(HN)
+    @Provides @Singleton @Named("hn")
     public ItemManager provideHackerNewsClient(HackerNewsClient client) {
         return client;
     }
@@ -71,7 +67,7 @@ public class DataModule {
      * @param client The {@link AlgoliaClient} instance.
      * @return The singleton instance of {@link AlgoliaClient}.
      */
-    @Provides @Singleton @Named(ALGOLIA)
+    @Provides @Singleton @Named("algolia")
     public ItemManager provideAlgoliaClient(AlgoliaClient client) {
         return client;
     }
@@ -82,7 +78,7 @@ public class DataModule {
      * @param client The {@link AlgoliaPopularClient} instance.
      * @return The singleton instance of {@link AlgoliaPopularClient}.
      */
-    @Provides @Singleton @Named(POPULAR)
+    @Provides @Singleton @Named("popular")
     public ItemManager provideAlgoliaPopularClient(AlgoliaPopularClient client) {
         return client;
     }

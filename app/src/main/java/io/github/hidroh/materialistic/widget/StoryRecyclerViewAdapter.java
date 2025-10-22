@@ -49,6 +49,7 @@ import javax.inject.Named;
 import io.github.hidroh.materialistic.ActivityModule;
 import io.github.hidroh.materialistic.AppUtils;
 import io.github.hidroh.materialistic.ComposeActivity;
+import io.github.hidroh.materialistic.MaterialisticApplication;
 import io.github.hidroh.materialistic.Preferences;
 import io.github.hidroh.materialistic.R;
 import io.github.hidroh.materialistic.UserActivity;
@@ -95,7 +96,7 @@ public class StoryRecyclerViewAdapter extends
             return item1.getLongId() == item2.getLongId();
         }
     };
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManager;
+    @Inject @Named("hn") ItemManager mItemManager;
     @Inject SessionManager mSessionManager;
     @Synthetic final SortedList<Item> mItems = new SortedList<>(Item.class, mSortedListCallback);
     @Synthetic final ArraySet<Item> mAdded = new ArraySet<>();
@@ -147,6 +148,7 @@ public class StoryRecyclerViewAdapter extends
 
     public StoryRecyclerViewAdapter(Context context) {
         super(context);
+        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
         mCallback = new ItemTouchHelperCallback(context,
                 Preferences.getListSwipePreferences(context)) {
             @Override

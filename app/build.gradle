@@ -41,6 +41,9 @@ android {
         absolutePaths false
     }
 
+    buildFeatures {
+        buildConfig true
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -54,7 +57,7 @@ android {
 
 ext {
     okHttpVersion = '3.9.1'
-    daggerVersion = '1.2.5'
+    daggerVersion = '2.57.2'
     retrofitVersion = '2.9.0'
     roomVersion = '2.5.1'
     lifecycleVersion = '2.6.1'
@@ -68,7 +71,7 @@ dependencies {
             'com.google.android.material:material:1.8.0',
             'androidx.preference:preference:1.2.0',
             'androidx.browser:browser:1.5.0',
-            "com.squareup.dagger:dagger:$daggerVersion",
+            "com.google.dagger:dagger:$daggerVersion",
             "com.squareup.retrofit2:retrofit:$retrofitVersion",
             "com.squareup.retrofit2:converter-gson:$retrofitVersion",
             "com.squareup.retrofit2:adapter-rxjava:$retrofitVersion",
@@ -79,11 +82,11 @@ dependencies {
             "androidx.room:room-runtime:$roomVersion",
             "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion",
             "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion",
-            "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
+            "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion",
             "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     kapt "androidx.room:room-compiler:$roomVersion",
-            "com.squareup.dagger:dagger-compiler:$daggerVersion"
+            "com.google.dagger:dagger-compiler:$daggerVersion"
     kaptTest "androidx.room:room-compiler:$roomVersion",
-            "com.squareup.dagger:dagger-compiler:$daggerVersion"
+            "com.google.dagger:dagger-compiler:$daggerVersion"
 }

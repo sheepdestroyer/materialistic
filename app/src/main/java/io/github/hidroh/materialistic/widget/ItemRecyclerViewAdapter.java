@@ -41,7 +41,6 @@ import javax.inject.Inject;
 import io.github.hidroh.materialistic.AlertDialogBuilder;
 import io.github.hidroh.materialistic.AppUtils;
 import io.github.hidroh.materialistic.ComposeActivity;
-import io.github.hidroh.materialistic.Injectable;
 import io.github.hidroh.materialistic.Navigable;
 import io.github.hidroh.materialistic.Preferences;
 import io.github.hidroh.materialistic.R;
@@ -81,9 +80,6 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
     @Override
     public void attach(Context context, RecyclerView recyclerView) {
         super.attach(context, recyclerView);
-        if (mContext instanceof Injectable) {
-            ((Injectable) mContext).inject(this);
-        }
         mLayoutInflater = AppUtils.createLayoutInflater(mContext);
         TypedArray ta = mContext.obtainStyledAttributes(new int[]{
                 android.R.attr.textColorTertiary,

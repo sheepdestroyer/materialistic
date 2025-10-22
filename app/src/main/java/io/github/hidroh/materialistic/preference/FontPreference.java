@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import io.github.hidroh.materialistic.Application;
+import io.github.hidroh.materialistic.MaterialisticApplication;
 import io.github.hidroh.materialistic.FontCache;
 import io.github.hidroh.materialistic.R;
 
@@ -56,7 +56,7 @@ public class FontPreference extends SpinnerPreference {
     @Override
     protected boolean persistString(String value) {
         if (TextUtils.equals(getKey(), getContext().getString(R.string.pref_font))) {
-            Application.TYPE_FACE = FontCache.getInstance().get(getContext(), value);
+            MaterialisticApplication.TYPE_FACE = FontCache.getInstance().get(getContext(), value);
         }
         return super.persistString(value);
     }

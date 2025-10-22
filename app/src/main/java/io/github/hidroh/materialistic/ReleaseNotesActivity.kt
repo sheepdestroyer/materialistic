@@ -27,7 +27,7 @@ import android.webkit.WebViewClient
 /**
  * An activity that displays the release notes.
  */
-class ReleaseNotesActivity : InjectableActivity() {
+class ReleaseNotesActivity : ThemedActivity() {
 
   /**
    * Called when the activity is first created.
@@ -39,6 +39,7 @@ class ReleaseNotesActivity : InjectableActivity() {
    */
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    (application as MaterialisticApplication).applicationComponent.inject(this)
     supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
     setContentView(R.layout.activity_release)
     findViewById<View>(R.id.button_ok).setOnClickListener { _ -> finish() }

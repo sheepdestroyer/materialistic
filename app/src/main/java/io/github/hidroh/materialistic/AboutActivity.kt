@@ -25,7 +25,7 @@ import android.view.MenuItem
 /**
  * Displays application's info.
  */
-class AboutActivity : InjectableActivity() {
+class AboutActivity : ThemedActivity() {
   /**
    * Sets up the activity's layout, toolbar, and displays application information with links.
    *
@@ -35,6 +35,7 @@ class AboutActivity : InjectableActivity() {
    */
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    (application as MaterialisticApplication).applicationComponent.inject(this)
     setContentView(R.layout.activity_about)
     setSupportActionBar(findViewById(R.id.toolbar))
 

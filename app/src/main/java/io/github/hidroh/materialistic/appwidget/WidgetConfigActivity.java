@@ -20,23 +20,25 @@ import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import io.github.hidroh.materialistic.ThemedActivity;
 import androidx.fragment.app.Fragment;
+import io.github.hidroh.materialistic.MaterialisticApplication;
 import androidx.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
 import android.view.Window;
 
-import io.github.hidroh.materialistic.InjectableActivity;
 import io.github.hidroh.materialistic.R;
 
 /**
  * An activity that allows the user to configure a new widget.
  */
-public class WidgetConfigActivity extends InjectableActivity {
+public class WidgetConfigActivity extends ThemedActivity {
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         setResult(RESULT_CANCELED);
         if (getIntent().getExtras() == null ||
                 (mAppWidgetId = getIntent().getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
