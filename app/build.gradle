@@ -45,11 +45,11 @@ android {
         buildConfig true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(21)
     }
     namespace 'io.github.hidroh.materialistic'
 
@@ -64,29 +64,30 @@ ext {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1',
-            'androidx.recyclerview:recyclerview:1.3.0',
-            'androidx.cardview:cardview:1.0.0',
-            'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0',
-            'com.google.android.material:material:1.8.0',
-            'androidx.preference:preference:1.2.0',
-            'androidx.browser:browser:1.5.0',
-            "com.google.dagger:dagger:$daggerVersion",
-            "com.squareup.retrofit2:retrofit:$retrofitVersion",
-            "com.squareup.retrofit2:converter-gson:$retrofitVersion",
-            "com.squareup.retrofit2:adapter-rxjava:$retrofitVersion",
-            "com.squareup.okhttp3:okhttp:$okHttpVersion",
-            "com.squareup.okhttp3:logging-interceptor:$okHttpVersion",
-            "io.reactivex:rxandroid:1.2.1",
-            'io.reactivex:rxjava:1.3.8',
-            "androidx.room:room-runtime:$roomVersion",
-            "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion",
-            "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion",
-            "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion",
-            "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.browser:browser:1.5.0'
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava:$retrofitVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+    implementation "io.reactivex:rxandroid:1.2.1"
+    implementation 'io.reactivex:rxjava:1.3.8'
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    implementation "org.jetbrains.kotlin:kotlin-bom:1.8.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    kapt "androidx.room:room-compiler:$roomVersion",
-            "com.google.dagger:dagger-compiler:$daggerVersion"
-    kaptTest "androidx.room:room-compiler:$roomVersion",
-            "com.google.dagger:dagger-compiler:$daggerVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    kaptTest "androidx.room:room-compiler:$roomVersion"
+    kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
 }
