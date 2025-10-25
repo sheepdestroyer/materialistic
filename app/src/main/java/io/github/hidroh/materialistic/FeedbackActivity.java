@@ -34,7 +34,7 @@ import io.github.hidroh.materialistic.data.FeedbackClient;
 /**
  * Activity for sending feedback.
  */
-public class FeedbackActivity extends InjectableActivity {
+public class FeedbackActivity extends ThemedActivity {
     @Inject FeedbackClient mFeedbackClient;
 
     /**
@@ -49,6 +49,7 @@ public class FeedbackActivity extends InjectableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_feedback);
         AppUtils.setTextWithLinks((TextView) findViewById(R.id.feedback_note),
@@ -116,7 +117,7 @@ public class FeedbackActivity extends InjectableActivity {
 
         @Override
         public void onSent(boolean success) {
-            if (mFeedbackActivity.get() != null && !mFeedbackActivity.get().isActivityDestroyed()) {
+            if (mFeedbackActivity.get() != null && !mFeedbackActivity.get().isFinishing()) {
                 mFeedbackActivity.get().onFeedbackSent(success);
             }
         }

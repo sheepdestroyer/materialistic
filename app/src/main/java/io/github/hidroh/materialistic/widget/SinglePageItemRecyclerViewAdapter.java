@@ -78,6 +78,7 @@ public class SinglePageItemRecyclerViewAdapter
     @Override
     public void attach(Context context, RecyclerView recyclerView) {
         super.attach(context, recyclerView);
+        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
         mLevelIndicatorWidth = AppUtils.getDimensionInDp(mContext, R.dimen.level_indicator_width);
         mColors = mResourcesProvider.obtainTypedArray(R.array.color_codes);
         mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(

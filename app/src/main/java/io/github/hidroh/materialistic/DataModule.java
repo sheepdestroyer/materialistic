@@ -42,15 +42,14 @@ import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static io.github.hidroh.materialistic.ActivityModule.ALGOLIA;
-import static io.github.hidroh.materialistic.ActivityModule.HN;
-import static io.github.hidroh.materialistic.ActivityModule.POPULAR;
-
 /**
  * Dagger module for data-related dependencies.
  */
-@Module(library = true, complete = false, includes = NetworkModule.class)
+@Module(includes = NetworkModule.class)
 public class DataModule {
+    public static final String HN = "hn";
+    public static final String ALGOLIA = "algolia";
+    public static final String POPULAR = "popular";
     public static final String MAIN_THREAD = "main";
     public static final String IO_THREAD = "io";
 

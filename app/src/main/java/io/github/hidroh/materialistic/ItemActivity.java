@@ -53,6 +53,7 @@ import java.lang.ref.WeakReference;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.accounts.UserServices;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 import io.github.hidroh.materialistic.data.FavoriteManager;
@@ -70,7 +71,7 @@ import io.github.hidroh.materialistic.widget.ViewPager;
 /**
  * Activity that displays a single item in a {@link ViewPager}.
  */
-public class ItemActivity extends InjectableActivity implements ItemFragment.ItemChangedListener {
+public class ItemActivity extends ThemedActivity implements ItemFragment.ItemChangedListener {
 
     public static final String EXTRA_ITEM = ItemActivity.class.getName() + ".EXTRA_ITEM";
     public static final String EXTRA_CACHE_MODE = ItemActivity.class.getName() + ".EXTRA_CACHE_MODE";
@@ -84,7 +85,7 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
     @Synthetic ImageView mBookmark;
     private boolean mExternalBrowser;
     private Preferences.StoryViewMode mStoryViewMode;
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     @Inject FavoriteManager mFavoriteManager;
     @Inject AlertDialogBuilder mAlertDialogBuilder;
     @Inject PopupMenu mPopupMenu;
@@ -142,6 +143,7 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         mExternalBrowser = Preferences.externalBrowserEnabled(this);
         if (getIntent().getBooleanExtra(EXTRA_OPEN_COMMENTS, false)) {
             mStoryViewMode = Preferences.StoryViewMode.Comment;
@@ -564,7 +566,7 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
 
         @Override
         public void onResponse(@Nullable Item response) {
-            if (mItemActivity.get() != null && !mItemActivity.get().isActivityDestroyed()) {
+            if (mItemActivity.get() != null && !mItemActivity.get().isFinishing()) {
                 mItemActivity.get().onItemLoaded(response);
             }
         }
@@ -585,14 +587,14 @@ public class ItemActivity extends InjectableActivity implements ItemFragment.Ite
 
         @Override
         public void onDone(boolean successful) {
-            if (mItemActivity.get() != null && !mItemActivity.get().isActivityDestroyed()) {
+            if (mItemActivity.get() != null && !mItemActivity.get().isFinishing()) {
                 mItemActivity.get().onVoted(successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mItemActivity.get() != null && !mItemActivity.get().isActivityDestroyed()) {
+            if (mItemActivity.get() != null && !mItemActivity.get().isFinishing()) {
                 mItemActivity.get().onVoted(null);
             }
         }

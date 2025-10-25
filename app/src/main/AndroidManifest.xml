@@ -37,7 +37,7 @@
     <uses-sdk tools:overrideLibrary="androidx.browser" />
 
     <application
-        android:name=".Application"
+        android:name=".MaterialisticApplication"
         android:supportsRtl="false"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup"

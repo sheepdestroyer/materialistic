@@ -42,7 +42,7 @@ import io.github.hidroh.materialistic.annotation.Synthetic;
 /**
  * Abstract base activity that provides a navigation drawer.
  */
-public abstract class DrawerActivity extends InjectableActivity {
+public abstract class DrawerActivity extends ThemedActivity {
 
     @Inject AlertDialogBuilder mAlertDialogBuilder;
     private ActionBarDrawerToggle mDrawerToggle;

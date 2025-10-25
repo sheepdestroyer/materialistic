@@ -45,16 +45,10 @@ public class ThreadPreviewRecyclerViewAdapter extends ItemRecyclerViewAdapter<Su
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        attach(recyclerView.getContext(), recyclerView);
+    public void attach(Context context, RecyclerView recyclerView) {
+        super.attach(context, recyclerView);
+        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
         mLevelIndicatorWidth = AppUtils.getDimensionInDp(mContext, R.dimen.level_indicator_width);
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        detach(recyclerView.getContext(), recyclerView);
     }
 
     @Override

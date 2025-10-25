@@ -46,7 +46,7 @@ import io.github.hidroh.materialistic.annotation.Synthetic;
 /**
  * An activity that allows users to submit a new story.
  */
-public class SubmitActivity extends InjectableActivity {
+public class SubmitActivity extends ThemedActivity {
     private static final String HN_GUIDELINES_URL = "https://news.ycombinator.com/newsguidelines.html";
     private static final String STATE_SUBJECT = "state:subject";
     private static final String STATE_TEXT = "state:text";
@@ -71,6 +71,7 @@ public class SubmitActivity extends InjectableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         AppUtils.setStatusBarColor(getWindow(), ContextCompat.getColor(this, R.color.blackT12));
         setContentView(R.layout.activity_submit);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
@@ -302,14 +303,14 @@ public class SubmitActivity extends InjectableActivity {
 
         @Override
         public void onDone(boolean successful) {
-            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isActivityDestroyed()) {
+            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isFinishing()) {
                 mSubmitActivity.get().onSubmitted(successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isActivityDestroyed()) {
+            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isFinishing()) {
                 if (throwable instanceof UserServices.Exception) {
                     UserServices.Exception e = (UserServices.Exception) throwable;
                     mSubmitActivity.get().onError(e.message, e.data);

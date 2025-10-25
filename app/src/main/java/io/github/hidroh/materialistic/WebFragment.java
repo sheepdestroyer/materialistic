@@ -53,6 +53,7 @@ import java.lang.ref.WeakReference;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
@@ -93,7 +94,7 @@ public class WebFragment extends LazyLoadFragment
     @Synthetic WebView mWebView;
     private NestedScrollView mScrollView;
     @Synthetic boolean mExternalRequired = false;
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     @Inject PopupMenu mPopupMenu;
     private KeyDelegate.NestedScrollViewHelper mScrollableHelper;
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
@@ -125,6 +126,7 @@ public class WebFragment extends LazyLoadFragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        ((MaterialisticApplication) getActivity().getApplication()).applicationComponent.inject(this);
         mPreferenceObservable.subscribe(context, this::onPreferenceChanged,
                 R.string.pref_readability_font,
                 R.string.pref_readability_line_height,

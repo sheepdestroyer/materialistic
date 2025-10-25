@@ -48,8 +48,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
 /**
  * A Dagger module that provides network-related dependencies.
  */
-@Module(library = true, complete = false)
-class NetworkModule {
+@Module
+public class NetworkModule {
     private static final String TAG_OK_HTTP = "OkHttp";
     private static final long CACHE_SIZE = 20 * 1024 * 1024; // 20 MB
 

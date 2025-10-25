@@ -58,6 +58,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         String username = Preferences.getUsername(this);
         boolean addAccount = getIntent().getBooleanExtra(EXTRA_ADD_ACCOUNT, false);
         setContentView(R.layout.activity_login);
@@ -157,14 +158,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
         @Override
         public void onDone(boolean successful) {
-            if (mLoginActivity.get() != null && !mLoginActivity.get().isActivityDestroyed()) {
+            if (mLoginActivity.get() != null && !mLoginActivity.get().isFinishing()) {
                 mLoginActivity.get().onLoggedIn(successful, null);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mLoginActivity.get() != null && !mLoginActivity.get().isActivityDestroyed()) {
+            if (mLoginActivity.get() != null && !mLoginActivity.get().isFinishing()) {
                 mLoginActivity.get().onLoggedIn(false, throwable != null ? throwable.getMessage() : null);
             }
         }

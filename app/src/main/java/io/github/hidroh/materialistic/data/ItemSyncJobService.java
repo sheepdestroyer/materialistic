@@ -29,8 +29,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import io.github.hidroh.materialistic.ActivityModule;
-import io.github.hidroh.materialistic.Injectable;
+import io.github.hidroh.materialistic.MaterialisticApplication;
 
 /**
  * A {@link JobService} that syncs items.
@@ -44,10 +43,7 @@ public class ItemSyncJobService extends JobService {
     @Override
     public void onCreate() {
         super.onCreate();
-        ((Injectable) getApplication())
-                .getApplicationGraph()
-                .plus(new ActivityModule(this))
-                .inject(this);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
     }
 
     @Override

@@ -27,44 +27,12 @@ import io.github.hidroh.materialistic.appwidget.WidgetService;
 import io.github.hidroh.materialistic.data.ItemSyncJobService;
 import io.github.hidroh.materialistic.data.ItemSyncService;
 
-@Module(
-        injects = {
-                ItemSyncService.class,
-                WidgetService.class,
-                ItemSyncJobService.class
-        },
-        library = true,
-        includes = DataModule.class
-)
+@Module(includes = DataModule.class)
 /**
  * A Dagger module that provides dependencies for various activities and services in the application.
  * This module is responsible for injecting context-related objects and managers.
  */
 public class ActivityModule {
-    public static final String ALGOLIA = "algolia";
-    public static final String POPULAR = "popular";
-    public static final String HN = "hn";
-
-    private final Context mContext;
-
-    /**
-     * Constructs an ActivityModule.
-     *
-     * @param context The application context.
-     */
-    public ActivityModule(Context context) {
-        mContext = context;
-    }
-
-    /**
-     * Provides the application context.
-     *
-     * @return The application context.
-     */
-    @Provides @Singleton
-    public Context provideContext() {
-        return mContext;
-    }
 
     /**
      * Provides the AccountManager.

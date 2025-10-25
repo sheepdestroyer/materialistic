@@ -39,6 +39,12 @@ public class MultiPageItemRecyclerViewAdapter
     }
 
     @Override
+    public void attach(Context context, RecyclerView recyclerView) {
+        super.attach(context, recyclerView);
+        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
+    }
+
+    @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_FOOTER) {
             return new ItemViewHolder(mLayoutInflater.inflate(R.layout.item_footer, parent, false), null);

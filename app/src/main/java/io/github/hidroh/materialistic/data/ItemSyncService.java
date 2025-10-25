@@ -22,8 +22,7 @@ import android.os.IBinder;
 
 import javax.inject.Inject;
 
-import io.github.hidroh.materialistic.ActivityModule;
-import io.github.hidroh.materialistic.Injectable;
+import io.github.hidroh.materialistic.MaterialisticApplication;
 
 /**
  * A {@link Service} that provides an {@link IBinder} for the {@link ItemSyncAdapter} to sync data.
@@ -38,10 +37,7 @@ public class ItemSyncService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        ((Injectable) getApplication())
-                .getApplicationGraph()
-                .plus(new ActivityModule(this))
-                .inject(this);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         synchronized (sItemSyncAdapterLock) {
             if (sItemSyncAdapter == null) {
                 sItemSyncAdapter = new ItemSyncAdapter(getApplicationContext(),

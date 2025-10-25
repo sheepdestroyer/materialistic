@@ -51,9 +51,6 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (getActivity() instanceof Injectable) {
-            ((Injectable) getActivity()).inject(this);
-        }
         mMenuTintDelegate.onActivityCreated(getActivity());
     }
 

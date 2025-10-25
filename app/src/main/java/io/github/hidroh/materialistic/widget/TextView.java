@@ -20,7 +20,7 @@ import android.content.Context;
 import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 
-import io.github.hidroh.materialistic.Application;
+import io.github.hidroh.materialistic.MaterialisticApplication;
 
 public class TextView extends AppCompatTextView {
     public TextView(Context context, AttributeSet attrs) {
@@ -30,7 +30,7 @@ public class TextView extends AppCompatTextView {
     public TextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (!isInEditMode()) {
-            setTypeface(Application.TYPE_FACE);
+            setTypeface(MaterialisticApplication.TYPE_FACE);
         }
     }
 }

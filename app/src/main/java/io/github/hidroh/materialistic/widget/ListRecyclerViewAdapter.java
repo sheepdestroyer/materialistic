@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.github.hidroh.materialistic.AlertDialogBuilder;
 import io.github.hidroh.materialistic.AppUtils;
 import io.github.hidroh.materialistic.CustomTabsDelegate;
-import io.github.hidroh.materialistic.Injectable;
 import io.github.hidroh.materialistic.ItemActivity;
 import io.github.hidroh.materialistic.MultiPaneListener;
 import io.github.hidroh.materialistic.Preferences;
@@ -72,7 +71,6 @@ public abstract class ListRecyclerViewAdapter
     public ListRecyclerViewAdapter(Context context) {
         mContext = context;
         mInflater = AppUtils.createLayoutInflater(mContext);
-        ((Injectable) mContext).inject(this);
         mMultiPaneListener = (MultiPaneListener) mContext;
         mMultiWindowEnabled = Preferences.multiWindowEnabled(mContext);
     }

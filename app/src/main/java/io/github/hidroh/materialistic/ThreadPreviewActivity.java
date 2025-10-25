@@ -27,6 +27,7 @@ import android.view.Window;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.data.Item;
 import io.github.hidroh.materialistic.data.ItemManager;
 import io.github.hidroh.materialistic.widget.CommentItemDecoration;
@@ -36,10 +37,10 @@ import io.github.hidroh.materialistic.widget.ThreadPreviewRecyclerViewAdapter;
 /**
  * An activity that displays a preview of a comment thread.
  */
-public class ThreadPreviewActivity extends InjectableActivity {
+public class ThreadPreviewActivity extends ThemedActivity {
     public static final String EXTRA_ITEM = ThreadPreviewActivity.class.getName() + ".EXTRA_ITEM";
 
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     @Inject KeyDelegate mKeyDelegate;
 
     /**
@@ -53,6 +54,7 @@ public class ThreadPreviewActivity extends InjectableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         Item item = getIntent().getParcelableExtra(EXTRA_ITEM);
         if (item == null) {
             finish();

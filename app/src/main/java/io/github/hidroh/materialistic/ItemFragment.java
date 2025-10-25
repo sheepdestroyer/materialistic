@@ -34,6 +34,7 @@ import java.util.Arrays;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -66,7 +67,7 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     private View mEmptyView;
     private Item mItem;
     private String mItemId;
-    @Inject @Named(ActivityModule.HN) ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SinglePageItemRecyclerViewAdapter.SavedState mAdapterItems;
     private ItemRecyclerViewAdapter mAdapter;
@@ -84,6 +85,7 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        ((MaterialisticApplication) getActivity().getApplication()).applicationComponent.inject(this);
         mPreferenceObservable.subscribe(context, this::onPreferenceChanged,
                 R.string.pref_comment_display,
                 R.string.pref_max_lines,
