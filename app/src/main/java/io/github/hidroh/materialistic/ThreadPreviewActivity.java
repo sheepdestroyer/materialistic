@@ -27,6 +27,7 @@ import android.view.Window;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.data.Item;
 import io.github.hidroh.materialistic.data.ItemManager;
 import io.github.hidroh.materialistic.widget.CommentItemDecoration;
@@ -39,7 +40,7 @@ import io.github.hidroh.materialistic.widget.ThreadPreviewRecyclerViewAdapter;
 public class ThreadPreviewActivity extends ThemedActivity {
     public static final String EXTRA_ITEM = ThreadPreviewActivity.class.getName() + ".EXTRA_ITEM";
 
-    @Inject @Named("hn") ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     @Inject KeyDelegate mKeyDelegate;
 
     /**

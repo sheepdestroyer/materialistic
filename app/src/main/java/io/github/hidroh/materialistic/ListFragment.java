@@ -34,6 +34,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 import io.github.hidroh.materialistic.data.AlgoliaClient;
 import io.github.hidroh.materialistic.data.AlgoliaPopularClient;
@@ -73,7 +74,7 @@ public class ListFragment extends BaseListFragment {
     };
     private StoryRecyclerViewAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    @Inject @Named("hn") ItemManager mHnItemManager;
+    @Inject @Named(HN) ItemManager mHnItemManager;
     @Inject @Named("algolia") ItemManager mAlgoliaItemManager;
     @Inject @Named("popular") ItemManager mPopularItemManager;
     @Inject @Named(DataModule.IO_THREAD) Scheduler mIoThreadScheduler;

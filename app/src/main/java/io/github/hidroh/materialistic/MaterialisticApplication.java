@@ -18,8 +18,11 @@
 package io.github.hidroh.materialistic;
 
 import android.app.Application;
-
 import android.graphics.Typeface;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.os.StrictMode;
+import io.github.hidroh.materialistic.data.AlgoliaClient;
+import rx.schedulers.Schedulers;
 
 public class MaterialisticApplication extends android.app.Application {
     public static Typeface TYPE_FACE = null;
@@ -31,5 +34,21 @@ public class MaterialisticApplication extends android.app.Application {
         applicationComponent = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
+        AppCompatDelegate.setDefaultNightMode(Preferences.Theme.getAutoDayNightMode(this));
+        AlgoliaClient.sSortByTime = Preferences.isSortByRecent(this);
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .penaltyFlashScreen()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .build());
+        }
+        Preferences.migrate(this);
+        TYPE_FACE = FontCache.getInstance().get(this, Preferences.Theme.getTypeface(this));
+        AppUtils.registerAccountsUpdatedListener(this);
+        AdBlocker.init(this, Schedulers.io());
     }
 }

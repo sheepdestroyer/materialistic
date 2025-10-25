@@ -46,6 +46,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.ActivityModule;
 import io.github.hidroh.materialistic.AppUtils;
 import io.github.hidroh.materialistic.ComposeActivity;
@@ -96,7 +97,7 @@ public class StoryRecyclerViewAdapter extends
             return item1.getLongId() == item2.getLongId();
         }
     };
-    @Inject @Named("hn") ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     @Inject SessionManager mSessionManager;
     @Synthetic final SortedList<Item> mItems = new SortedList<>(Item.class, mSortedListCallback);
     @Synthetic final ArraySet<Item> mAdded = new ArraySet<>();

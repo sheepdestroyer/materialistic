@@ -37,6 +37,7 @@ import java.util.Locale;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,7 +58,7 @@ public class UserActivity extends ThemedActivity implements Scrollable {
     private static final String PARAM_ID = "id";
     private static final String KARMA = " (%1$s)";
     @Inject UserManager mUserManager;
-    @Inject @Named("hn") ItemManager mItemManger;
+    @Inject @Named(HN) ItemManager mItemManger;
     @Inject KeyDelegate mKeyDelegate;
     private KeyDelegate.RecyclerViewHelper mScrollableHelper;
     private String mUsername;

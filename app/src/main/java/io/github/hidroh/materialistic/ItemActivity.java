@@ -53,6 +53,7 @@ import java.lang.ref.WeakReference;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.accounts.UserServices;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 import io.github.hidroh.materialistic.data.FavoriteManager;
@@ -84,7 +85,7 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
     @Synthetic ImageView mBookmark;
     private boolean mExternalBrowser;
     private Preferences.StoryViewMode mStoryViewMode;
-    @Inject @Named("hn") ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     @Inject FavoriteManager mFavoriteManager;
     @Inject AlertDialogBuilder mAlertDialogBuilder;
     @Inject PopupMenu mPopupMenu;

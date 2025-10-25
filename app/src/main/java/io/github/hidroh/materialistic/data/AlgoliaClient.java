@@ -23,6 +23,7 @@ import javax.inject.Named;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.ActivityModule;
 import io.github.hidroh.materialistic.DataModule;
 import io.github.hidroh.materialistic.annotation.Synthetic;
@@ -48,7 +49,7 @@ public class AlgoliaClient implements ItemManager {
     private static final String BASE_API_URL = "https://" + HOST + "/api/v1/";
     static final String MIN_CREATED_AT = "created_at_i>";
     RestService mRestService;
-    @Inject @Named("hn") ItemManager mHackerNewsClient;
+    @Inject @Named(HN) ItemManager mHackerNewsClient;
     @Inject @Named(DataModule.MAIN_THREAD) Scheduler mMainThreadScheduler;
 
     /**

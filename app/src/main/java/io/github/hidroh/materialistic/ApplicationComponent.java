@@ -60,4 +60,9 @@ public interface ApplicationComponent {
     void inject(AlgoliaClient algoliaClient);
     void inject(AboutActivity aboutActivity);
     void inject(ReleaseNotesActivity releaseNotesActivity);
+    void inject(LoginActivity loginActivity);
+    void inject(MultiPageItemRecyclerViewAdapter multiPageItemRecyclerViewAdapter);
+    void inject(SinglePageItemRecyclerViewAdapter singlePageItemRecyclerViewAdapter);
+    void inject(SubmissionRecyclerViewAdapter submissionRecyclerViewAdapter);
+    void inject(ThreadPreviewRecyclerViewAdapter threadPreviewRecyclerViewAdapter);
 }

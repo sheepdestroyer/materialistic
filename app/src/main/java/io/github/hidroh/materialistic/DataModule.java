@@ -47,6 +47,9 @@ import rx.schedulers.Schedulers;
  */
 @Module(includes = NetworkModule.class)
 public class DataModule {
+    public static final String HN = "hn";
+    public static final String ALGOLIA = "algolia";
+    public static final String POPULAR = "popular";
     public static final String MAIN_THREAD = "main";
     public static final String IO_THREAD = "io";
 
@@ -56,7 +59,7 @@ public class DataModule {
      * @param client The {@link HackerNewsClient} instance.
      * @return The singleton instance of {@link HackerNewsClient}.
      */
-    @Provides @Singleton @Named("hn")
+    @Provides @Singleton @Named(HN)
     public ItemManager provideHackerNewsClient(HackerNewsClient client) {
         return client;
     }
@@ -67,7 +70,7 @@ public class DataModule {
      * @param client The {@link AlgoliaClient} instance.
      * @return The singleton instance of {@link AlgoliaClient}.
      */
-    @Provides @Singleton @Named("algolia")
+    @Provides @Singleton @Named(ALGOLIA)
     public ItemManager provideAlgoliaClient(AlgoliaClient client) {
         return client;
     }
@@ -78,7 +81,7 @@ public class DataModule {
      * @param client The {@link AlgoliaPopularClient} instance.
      * @return The singleton instance of {@link AlgoliaPopularClient}.
      */
-    @Provides @Singleton @Named("popular")
+    @Provides @Singleton @Named(POPULAR)
     public ItemManager provideAlgoliaPopularClient(AlgoliaPopularClient client) {
         return client;
     }

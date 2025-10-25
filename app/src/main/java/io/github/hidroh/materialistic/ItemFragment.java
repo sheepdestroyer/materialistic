@@ -34,6 +34,7 @@ import java.util.Arrays;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static io.github.hidroh.materialistic.DataModule.HN;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -66,7 +67,7 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     private View mEmptyView;
     private Item mItem;
     private String mItemId;
-    @Inject @Named("hn") ItemManager mItemManager;
+    @Inject @Named(HN) ItemManager mItemManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SinglePageItemRecyclerViewAdapter.SavedState mAdapterItems;
     private ItemRecyclerViewAdapter mAdapter;
