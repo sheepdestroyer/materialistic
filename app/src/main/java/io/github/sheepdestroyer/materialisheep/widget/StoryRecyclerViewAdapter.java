@@ -71,6 +71,7 @@ public class StoryRecyclerViewAdapter extends
     private static final String STATE_SHOW_ALL = "state:showAll";
     private static final String STATE_USERNAME = "state:username";
     private final Object VOTED = new Object();
+    private final Object VIEWED = new Object();
     private final RecyclerView.OnScrollListener mAutoViewScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -262,9 +263,17 @@ public class StoryRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position, List<Object> payloads) {
+        boolean isPartial = false;
         if (payloads.contains(VOTED)) {
             holder.animateVote(getItem(position).getScore());
-        } else {
+            isPartial = true;
+        }
+        if (payloads.contains(VIEWED)) {
+            holder.setViewed(getItem(position).isViewed());
+            isPartial = true;
+        }
+
+        if (!isPartial) {
             super.onBindViewHolder(holder, position, payloads);
         }
     }
@@ -567,6 +576,8 @@ public class StoryRecyclerViewAdapter extends
         if (item == null || !isItemAvailable(item) || item.isViewed()) {
             return;
         }
+        item.setIsViewed(true);
+        notifyItemChanged(position, VIEWED);
         mSessionManager.view(item.getId());
     }
 
