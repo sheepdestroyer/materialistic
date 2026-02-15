@@ -182,9 +182,15 @@ public class NetworkModule {
     }
 
     static class LoggingInterceptor implements Interceptor {
-        private final Interceptor debugInterceptor = new HttpLoggingInterceptor(
-                message -> Log.d(TAG_OK_HTTP, message))
-                .setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+        private final HttpLoggingInterceptor debugInterceptor;
+
+        LoggingInterceptor() {
+            debugInterceptor = new HttpLoggingInterceptor(new SecureLogger(TAG_OK_HTTP));
+            debugInterceptor.redactHeader("Authorization");
+            debugInterceptor.redactHeader("Cookie");
+            debugInterceptor.redactHeader("Set-Cookie");
+            debugInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+        }
 
         @Override
         public Response intercept(Chain chain) throws IOException {
