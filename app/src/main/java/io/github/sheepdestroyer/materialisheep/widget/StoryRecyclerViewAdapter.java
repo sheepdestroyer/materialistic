@@ -567,6 +567,9 @@ public class StoryRecyclerViewAdapter extends
         if (item == null || !isItemAvailable(item) || item.isViewed()) {
             return;
         }
+        // Optimistic update: mark as viewed immediately to prevent redundant calls to SessionManager
+        // while scrolling. The DB update will eventually trigger a UI refresh via mObserver.
+        item.setIsViewed(true);
         mSessionManager.view(item.getId());
     }
 
