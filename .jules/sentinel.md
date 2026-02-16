@@ -1,0 +1,4 @@
+## 2025-02-23 - [Stored XSS via Readability View]
+**Vulnerability:** The `WebFragment` displayed content parsed by `ReadabilityClient` in a WebView with JavaScript enabled and File Access enabled. Malicious scripts in the original article could be preserved by Readability and executed in the local context, potentially accessing local files.
+**Learning:** Even "readable" content stripped of most formatting can still contain scripts if not aggressively sanitized. Enabling JS for local content display (which `Readability` mode essentially is) bridges the gap between stored data and execution.
+**Prevention:** Explicitly disable JavaScript and File Access when loading local/generated content in WebViews (`setJavaScriptEnabled(false)`). Use `setAllowFileAccess(false)` globally unless absolutely necessary.

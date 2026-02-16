@@ -520,7 +520,10 @@ public class WebFragment extends LazyLoadFragment
         mWebView.setBackgroundColor(isRemote ? Color.WHITE : Color.TRANSPARENT);
         mWebView.getSettings().setLoadWithOverviewMode(isRemote);
         mWebView.getSettings().setUseWideViewPort(isRemote);
-        mWebView.getSettings().setJavaScriptEnabled(true);
+        // Only enable JavaScript for remote content to prevent XSS in Readability mode
+        mWebView.getSettings().setJavaScriptEnabled(isRemote);
+        // File access is not needed and poses a security risk
+        mWebView.getSettings().setAllowFileAccess(false);
         getActivity().invalidateOptionsMenu();
     }
 
