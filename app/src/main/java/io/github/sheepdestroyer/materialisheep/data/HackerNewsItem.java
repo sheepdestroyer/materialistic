@@ -286,6 +286,11 @@ class HackerNewsItem implements Item {
         if (displayedAuthor.length() == 0) {
             return displayedAuthor;
         }
+        // Remove existing ForegroundColorSpan to prevent accumulation
+        Object[] spans = displayedAuthor.getSpans(0, displayedAuthor.length(), ForegroundColorSpan.class);
+        for (Object span : spans) {
+            displayedAuthor.removeSpan(span);
+        }
         displayedAuthor.setSpan(new ForegroundColorSpan(color != 0 ? color : defaultColor),
                 AUTHOR_SEPARATOR.length(), displayedAuthor.length(),
                 Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
