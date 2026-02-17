@@ -90,9 +90,12 @@ public class CacheableWebView extends WebView {
         setWebChromeClient(mArchiveClient);
     }
 
+    @SuppressWarnings("deprecation")
     private void enableCache() {
         WebSettings webSettings = getSettings();
-        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccess(false);
+        webSettings.setAllowFileAccessFromFileURLs(false);
+        webSettings.setAllowUniversalAccessFromFileURLs(false);
         setCacheModeInternal();
     }
 
@@ -109,6 +112,8 @@ public class CacheableWebView extends WebView {
     }
 
     private String getCacheableUrl(String url) {
+        // file access should be disabled by default, and only enabled if loading a file from cache
+        getSettings().setAllowFileAccess(false);
         if (TextUtils.equals(url, BLANK) || TextUtils.equals(url, FILE)) {
             mArchiveClient.cacheFileName = null;
             return url;
@@ -118,6 +123,7 @@ public class CacheableWebView extends WebView {
         File cacheFile = new File(mArchiveClient.cacheFileName);
         if (cacheFile.exists() && !AppUtils.hasConnection(getContext())) {
             getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            getSettings().setAllowFileAccess(true);
             return Uri.fromFile(cacheFile).toString();
         }
         return url;
