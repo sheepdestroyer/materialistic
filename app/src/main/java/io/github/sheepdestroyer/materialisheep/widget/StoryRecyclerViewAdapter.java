@@ -567,6 +567,7 @@ public class StoryRecyclerViewAdapter extends
         if (item == null || !isItemAvailable(item) || item.isViewed()) {
             return;
         }
+        item.setIsViewed(true); // Optimistically mark as viewed to avoid repeated processing
         mSessionManager.view(item.getId());
     }
 
