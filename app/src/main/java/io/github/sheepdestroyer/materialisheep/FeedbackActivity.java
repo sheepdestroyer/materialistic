@@ -16,6 +16,9 @@
 
 package io.github.sheepdestroyer.materialisheep;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import com.google.android.material.textfield.TextInputLayout;
 import android.view.View;
@@ -24,18 +27,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.ref.WeakReference;
-
-import javax.inject.Inject;
-
-import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
-import io.github.sheepdestroyer.materialisheep.data.FeedbackClient;
-
 /**
  * Activity for sending feedback.
  */
 public class FeedbackActivity extends ThemedActivity {
-    @Inject FeedbackClient mFeedbackClient;
 
     /**
      * Called when the activity is first created.
@@ -49,7 +44,6 @@ public class FeedbackActivity extends ThemedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_feedback);
         AppUtils.setTextWithLinks((TextView) findViewById(R.id.feedback_note),
@@ -77,9 +71,26 @@ public class FeedbackActivity extends ThemedActivity {
             if (title.length() == 0 || body.length() == 0) {
                 return;
             }
-            sendButton.setEnabled(false);
-            mFeedbackClient.send(title.getText().toString(), body.getText().toString(),
-                    new FeedbackCallback(this));
+
+            String feedbackBody = String.format("%s\nDevice: %s %s, SDK: %s, app version: %s",
+                    body.getText().toString(),
+                    Build.MANUFACTURER,
+                    Build.MODEL,
+                    Build.VERSION.SDK_INT,
+                    BuildConfig.VERSION_CODE);
+
+            Uri uri = Uri.parse("https://github.com/sheepdestroyer/materialisheep/issues/new")
+                    .buildUpon()
+                    .appendQueryParameter("title", title.getText().toString())
+                    .appendQueryParameter("body", feedbackBody)
+                    .build();
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            try {
+                startActivity(intent);
+                finish();
+            } catch (android.content.ActivityNotFoundException e) {
+                Toast.makeText(this, R.string.no_playstore, Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -91,35 +102,5 @@ public class FeedbackActivity extends ThemedActivity {
     @Override
     protected boolean isDialogTheme() {
         return true;
-    }
-
-    @Synthetic
-    void onFeedbackSent(boolean success) {
-        Toast.makeText(this,
-                success ? R.string.feedback_sent : R.string.feedback_failed,
-                Toast.LENGTH_SHORT)
-                .show();
-        if (success) {
-            finish();
-        } else {
-            //noinspection ConstantConditions
-            findViewById(R.id.feedback_button).setEnabled(true);
-        }
-    }
-
-    static class FeedbackCallback implements FeedbackClient.Callback {
-        private final WeakReference<FeedbackActivity> mFeedbackActivity;
-
-        @Synthetic
-        FeedbackCallback(FeedbackActivity drawerActivity) {
-            mFeedbackActivity = new WeakReference<>(drawerActivity);
-        }
-
-        @Override
-        public void onSent(boolean success) {
-            if (mFeedbackActivity.get() != null && !mFeedbackActivity.get().isDestroyed()) {
-                mFeedbackActivity.get().onFeedbackSent(success);
-            }
-        }
     }
 }

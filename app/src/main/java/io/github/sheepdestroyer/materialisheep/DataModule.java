@@ -28,7 +28,6 @@ import io.github.sheepdestroyer.materialisheep.accounts.UserServices;
 import io.github.sheepdestroyer.materialisheep.accounts.UserServicesClient;
 import io.github.sheepdestroyer.materialisheep.data.AlgoliaClient;
 import io.github.sheepdestroyer.materialisheep.data.AlgoliaPopularClient;
-import io.github.sheepdestroyer.materialisheep.data.FeedbackClient;
 import io.github.sheepdestroyer.materialisheep.data.HackerNewsClient;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 import io.github.sheepdestroyer.materialisheep.data.LocalCache;
@@ -102,18 +101,6 @@ public class DataModule {
     @Provides
     @Singleton
     public UserManager provideUserManager(HackerNewsClient client) {
-        return client;
-    }
-
-    /**
-     * Provides a singleton instance of {@link FeedbackClient}.
-     *
-     * @param client The {@link FeedbackClient.Impl} instance.
-     * @return The singleton instance of {@link FeedbackClient}.
-     */
-    @Provides
-    @Singleton
-    public FeedbackClient provideFeedbackClient(FeedbackClient.Impl client) {
         return client;
     }
 

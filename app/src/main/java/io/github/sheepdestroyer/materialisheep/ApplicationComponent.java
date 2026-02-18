@@ -71,8 +71,6 @@ public interface ApplicationComponent {
 
     void inject(ShowActivity showActivity);
 
-    void inject(FeedbackActivity feedbackActivity);
-
     void inject(OfflineWebActivity offlineWebActivity);
 
     void inject(SubmitActivity submitActivity);
