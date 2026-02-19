@@ -83,10 +83,13 @@ public class AdBlocker {
     private static Boolean loadFromAssets(Context context) throws IOException {
         try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
                 BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
+            // Use a local set to avoid acquiring lock on AD_HOSTS for every line
+            Set<String> localHosts = new HashSet<>(4096);
             String line;
             while ((line = buffer.readUtf8Line()) != null) {
-                AD_HOSTS.add(line);
+                localHosts.add(line);
             }
+            AD_HOSTS.addAll(localHosts);
         }
         return true;
     }
