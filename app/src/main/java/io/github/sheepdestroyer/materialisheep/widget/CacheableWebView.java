@@ -109,7 +109,7 @@ public class CacheableWebView extends WebView {
     }
 
     private String getCacheableUrl(String url) {
-        if (TextUtils.equals(url, BLANK) || TextUtils.equals(url, FILE)) {
+        if (TextUtils.equals(url, BLANK) || TextUtils.equals(url, CONTENT_URL)) {
             mArchiveClient.cacheFileName = null;
             return url;
         }
