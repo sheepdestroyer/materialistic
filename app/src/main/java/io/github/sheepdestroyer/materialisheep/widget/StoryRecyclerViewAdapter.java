@@ -41,7 +41,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -106,6 +108,8 @@ public class StoryRecyclerViewAdapter extends
     @Synthetic
     final SortedList<Item> mItems = new SortedList<>(Item.class, mSortedListCallback);
     @Synthetic
+    final Map<String, Item> mItemIdMap = new HashMap<>();
+    @Synthetic
     final ArraySet<Item> mAdded = new ArraySet<>();
     @Synthetic
     final ArrayMap<String, Integer> mPromoted = new ArrayMap<>();
@@ -128,17 +132,14 @@ public class StoryRecyclerViewAdapter extends
             notifyDataSetChanged();
             return;
         }
-        int position = NO_POSITION;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (TextUtils.equals(mItems.get(i).getId(), uri.getLastPathSegment())) {
-                position = i;
-                break;
-            }
+        Item item = mItemIdMap.get(uri.getLastPathSegment());
+        if (item == null) {
+            return;
         }
+        int position = mItems.indexOf(item);
         if (position == NO_POSITION) {
             return;
         }
-        Item item = mItems.get(position);
         if (FavoriteManager.Companion.isAdded(uri)) {
             item.setFavorite(true);
             item.setLocalRevision(mFavoriteRevision);
@@ -313,6 +314,10 @@ public class StoryRecyclerViewAdapter extends
         setUpdated(items);
         mItems.clear();
         mItems.addAll(items);
+        mItemIdMap.clear();
+        for (Item item : items) {
+            mItemIdMap.put(item.getId(), item);
+        }
     }
 
     public void setHighlightUpdated(boolean highlightUpdated) {
@@ -334,17 +339,10 @@ public class StoryRecyclerViewAdapter extends
     }
 
     public void toggleSave(String itemId) {
-        int position = NO_POSITION;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (TextUtils.equals(mItems.get(i).getId(), itemId)) {
-                position = i;
-                break;
-            }
+        Item item = mItemIdMap.get(itemId);
+        if (item != null) {
+            toggleSave(item);
         }
-        if (position == NO_POSITION) {
-            return;
-        }
-        toggleSave(mItems.get(position));
     }
 
     @Override
