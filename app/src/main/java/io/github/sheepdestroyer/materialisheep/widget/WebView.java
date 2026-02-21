@@ -77,6 +77,9 @@ public class WebView extends android.webkit.WebView {
 
         @Override
         public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon) {
+            if (!TextUtils.equals(url, BLANK) && !TextUtils.equals(url, FILE) && !url.startsWith("file://")) {
+                view.getSettings().setAllowFileAccess(false);
+            }
             super.onPageStarted(view, url, favicon);
             view.pageUp(true);
             WebView webView = (WebView) view;

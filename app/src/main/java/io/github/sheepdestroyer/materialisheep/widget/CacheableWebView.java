@@ -91,8 +91,7 @@ public class CacheableWebView extends WebView {
     }
 
     private void enableCache() {
-        WebSettings webSettings = getSettings();
-        webSettings.setAllowFileAccess(true);
+        getSettings().setAllowFileAccess(false);
         setCacheModeInternal();
     }
 
@@ -111,6 +110,7 @@ public class CacheableWebView extends WebView {
     private String getCacheableUrl(String url) {
         if (TextUtils.equals(url, BLANK) || TextUtils.equals(url, FILE)) {
             mArchiveClient.cacheFileName = null;
+            getSettings().setAllowFileAccess(TextUtils.equals(url, FILE));
             return url;
         }
         mArchiveClient.cacheFileName = generateCacheFilename(url);
@@ -118,8 +118,11 @@ public class CacheableWebView extends WebView {
         File cacheFile = new File(mArchiveClient.cacheFileName);
         if (cacheFile.exists() && !AppUtils.hasConnection(getContext())) {
             getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            getSettings().setAllowFileAccess(true);
             return Uri.fromFile(cacheFile).toString();
         }
+        // Only allow file access if explicitly loading a file URL (e.g. assets)
+        getSettings().setAllowFileAccess(url.startsWith("file://"));
         return url;
     }
 
