@@ -92,7 +92,7 @@ public class CacheableWebView extends WebView {
 
     private void enableCache() {
         WebSettings webSettings = getSettings();
-        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccess(false);
         setCacheModeInternal();
     }
 
@@ -111,15 +111,29 @@ public class CacheableWebView extends WebView {
     private String getCacheableUrl(String url) {
         if (TextUtils.equals(url, BLANK) || TextUtils.equals(url, FILE)) {
             mArchiveClient.cacheFileName = null;
+            getSettings().setAllowFileAccess(false);
             return url;
         }
+        // If the URL is already pointing to our cache directory (e.g. from reloadUrl), trust it if offline
+        String cachePrefix = "file://" + getContext().getApplicationContext().getCacheDir().getAbsolutePath();
+        if (url.startsWith(cachePrefix)) {
+            if (!AppUtils.hasConnection(getContext())) {
+                getSettings().setAllowFileAccess(true);
+            } else {
+                getSettings().setAllowFileAccess(false);
+            }
+            return url;
+        }
+
         mArchiveClient.cacheFileName = generateCacheFilename(url);
         setCacheModeInternal();
         File cacheFile = new File(mArchiveClient.cacheFileName);
         if (cacheFile.exists() && !AppUtils.hasConnection(getContext())) {
+            getSettings().setAllowFileAccess(true);
             getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
             return Uri.fromFile(cacheFile).toString();
         }
+        getSettings().setAllowFileAccess(false);
         return url;
     }
 
