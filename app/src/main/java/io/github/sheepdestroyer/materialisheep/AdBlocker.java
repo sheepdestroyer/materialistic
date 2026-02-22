@@ -27,8 +27,10 @@ import android.webkit.WebResourceResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.HttpUrl;
 import okio.BufferedSource;
@@ -42,7 +44,8 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+    // Use ConcurrentHashMap for non-blocking reads (isAdHost) which is critical for WebView performance.
+    private static final Set<String> AD_HOSTS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -83,10 +86,13 @@ public class AdBlocker {
     private static Boolean loadFromAssets(Context context) throws IOException {
         try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
                 BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
+            // Use a local set to batch additions, reducing potential contention and overhead
+            Set<String> localHosts = new HashSet<>();
             String line;
             while ((line = buffer.readUtf8Line()) != null) {
-                AD_HOSTS.add(line);
+                localHosts.add(line);
             }
+            AD_HOSTS.addAll(localHosts);
         }
         return true;
     }
