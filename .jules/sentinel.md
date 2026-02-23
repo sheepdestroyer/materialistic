@@ -1,0 +1,4 @@
+## 2025-01-29 - [WebView JavascriptInterface Persistence]
+**Vulnerability:** `WebFragment.java` injected a `JavascriptInterface` ("PdfAndroidJavascriptBridge") for viewing PDFs via a local asset. This interface persisted across navigations, exposing it to any subsequent page (e.g., malicious external sites). The interface provided access to local files.
+**Learning:** `WebView.addJavascriptInterface` persists the injected object for all subsequent page loads in the same `WebView` instance, unless explicitly removed. Simply navigating to a new URL does not clear it.
+**Prevention:** Always remove sensitive JavascriptInterfaces in `WebViewClient.onPageStarted` when navigating away from the trusted context (e.g. `view.removeJavascriptInterface("Name")`), or use a fresh `WebView` for trusted content.

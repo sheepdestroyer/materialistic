@@ -462,6 +462,13 @@ public class WebFragment extends LazyLoadFragment
                 if (getActivity() != null) {
                     getActivity().invalidateOptionsMenu();
                 }
+                if (!TextUtils.equals(PDF_LOADER_URL, url)) {
+                    view.removeJavascriptInterface("PdfAndroidJavascriptBridge");
+                    if (mPdfAndroidJavascriptBridge != null) {
+                        mPdfAndroidJavascriptBridge.cleanUp();
+                        mPdfAndroidJavascriptBridge = null;
+                    }
+                }
             }
 
             @Override
