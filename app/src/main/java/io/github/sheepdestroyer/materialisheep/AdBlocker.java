@@ -27,8 +27,10 @@ import android.webkit.WebResourceResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.HttpUrl;
 import okio.BufferedSource;
@@ -42,7 +44,10 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+    // OPTIMIZATION: Use ConcurrentHashMap for lock-free reads, significantly improving parallel performance.
+    private static final Set<String> AD_HOSTS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    // OPTIMIZATION: Reuse empty byte array to avoid allocation on every blocked request.
+    private static final byte[] EMPTY_BYTES = new byte[0];
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -66,6 +71,10 @@ public class AdBlocker {
      * @return True if the URL is an ad, false otherwise.
      */
     public static boolean isAd(String url) {
+        // OPTIMIZATION: Early return for null to avoid HttpUrl.parse and potential NPE.
+        if (url == null) {
+            return false;
+        }
         HttpUrl httpUrl = HttpUrl.parse(url);
         return isAdHost(httpUrl != null ? httpUrl.host() : "");
     }
@@ -76,18 +85,22 @@ public class AdBlocker {
      * @return An empty WebResourceResponse.
      */
     public static WebResourceResponse createEmptyResource() {
-        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
+        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(EMPTY_BYTES));
     }
 
     @WorkerThread
     private static Boolean loadFromAssets(Context context) throws IOException {
+        // OPTIMIZATION: Populate local set first to minimize contention (though ConcurrentHashMap handles it well)
+        // and reduce method calls on the shared object during initialization loop.
+        Set<String> localHosts = new HashSet<>();
         try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
                 BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
             String line;
             while ((line = buffer.readUtf8Line()) != null) {
-                AD_HOSTS.add(line);
+                localHosts.add(line);
             }
         }
+        AD_HOSTS.addAll(localHosts);
         return true;
     }
 
