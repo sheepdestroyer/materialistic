@@ -69,4 +69,22 @@ public class AdBlockWebViewClient extends WebViewClient {
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
     }
+
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        String url = request.getUrl().toString();
+        if (url.startsWith("file://")) {
+            // Allow assets (e.g. PDF viewer)
+            if (url.startsWith("file:///android_asset/")) {
+                return false;
+            }
+            // Allow cache files
+            if (url.startsWith("file://" + view.getContext().getApplicationContext().getCacheDir().getAbsolutePath())) {
+                return false;
+            }
+            // Block all other file access
+            return true;
+        }
+        return super.shouldOverrideUrlLoading(view, request);
+    }
 }

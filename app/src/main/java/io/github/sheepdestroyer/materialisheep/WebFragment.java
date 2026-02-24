@@ -458,6 +458,7 @@ public class WebFragment extends LazyLoadFragment
         mWebView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(getActivity())) {
             @Override
             public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon) {
+                view.removeJavascriptInterface("PdfAndroidJavascriptBridge");
                 super.onPageStarted(view, url, favicon);
                 if (getActivity() != null) {
                     getActivity().invalidateOptionsMenu();
