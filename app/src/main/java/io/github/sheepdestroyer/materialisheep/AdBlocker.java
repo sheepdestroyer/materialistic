@@ -17,107 +17,100 @@
 package io.github.sheepdestroyer.materialisheep;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
-import androidx.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.webkit.WebResourceResponse;
-
+import androidx.annotation.WorkerThread;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import okhttp3.HttpUrl;
 import okio.BufferedSource;
 import okio.Okio;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
 
-/**
- * A simple ad blocker that blocks network requests to hosts listed in the ad
- * hosts file.
- */
+/** A simple ad blocker that blocks network requests to hosts listed in the ad hosts file. */
 public class AdBlocker {
-    private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    // Use ConcurrentHashMap for non-blocking reads
-    private static final Set<String> AD_HOSTS = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private static final byte[] EMPTY_BYTES = new byte[0];
+  private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
+  // Use ConcurrentHashMap for non-blocking reads
+  private static final Set<String> AD_HOSTS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+  private static final byte[] EMPTY_BYTES = new byte[0];
 
-    /**
-     * Initializes the ad blocker by loading the ad hosts from the assets file.
-     *
-     * @param context   The application context.
-     * @param scheduler The RxJava scheduler to perform the operation on.
-     */
-    @SuppressLint("CheckResult")
-    public static void init(Context context, Scheduler scheduler) {
-        Observable.fromCallable(() -> loadFromAssets(context))
-                .subscribeOn(scheduler)
-                .subscribe(result -> {
-                },
-                        t -> android.util.Log.e(AdBlocker.class.getSimpleName(), "Error loading ad hosts", t));
+  /**
+   * Initializes the ad blocker by loading the ad hosts from the assets file.
+   *
+   * @param context The application context.
+   * @param scheduler The RxJava scheduler to perform the operation on.
+   */
+  @SuppressLint("CheckResult")
+  public static void init(Context context, Scheduler scheduler) {
+    Observable.fromCallable(() -> loadFromAssets(context))
+        .subscribeOn(scheduler)
+        .subscribe(
+            result -> {},
+            t -> android.util.Log.e(AdBlocker.class.getSimpleName(), "Error loading ad hosts", t));
+  }
+
+  /**
+   * Checks if a given URL is an ad.
+   *
+   * @param url The URL to check.
+   * @return True if the URL is an ad, false otherwise.
+   */
+  public static boolean isAd(String url) {
+    if (url == null) {
+      return false;
     }
+    HttpUrl httpUrl = HttpUrl.parse(url);
+    return isAdHost(httpUrl != null ? httpUrl.host() : "");
+  }
 
-    /**
-     * Checks if a given URL is an ad.
-     *
-     * @param url The URL to check.
-     * @return True if the URL is an ad, false otherwise.
-     */
-    public static boolean isAd(String url) {
-        if (url == null) {
-            return false;
+  /**
+   * Creates an empty WebResourceResponse to block a network request.
+   *
+   * @return An empty WebResourceResponse.
+   */
+  public static WebResourceResponse createEmptyResource() {
+    return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(EMPTY_BYTES));
+  }
+
+  @WorkerThread
+  private static Boolean loadFromAssets(Context context) throws IOException {
+    try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
+        BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
+      String line;
+      while ((line = buffer.readUtf8Line()) != null) {
+        if (!TextUtils.isEmpty(line)) {
+          AD_HOSTS.add(line);
         }
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        return isAdHost(httpUrl != null ? httpUrl.host() : "");
+      }
     }
+    return true;
+  }
 
-    /**
-     * Creates an empty WebResourceResponse to block a network request.
-     *
-     * @return An empty WebResourceResponse.
-     */
-    public static WebResourceResponse createEmptyResource() {
-        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(EMPTY_BYTES));
+  /**
+   * Recursively walking up sub domain chain until we exhaust or find a match, effectively doing a
+   * longest substring matching here
+   */
+  private static boolean isAdHost(String host) {
+    if (TextUtils.isEmpty(host)) {
+      return false;
     }
-
-    @WorkerThread
-    private static Boolean loadFromAssets(Context context) throws IOException {
-        try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
-                BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
-            String line;
-            while ((line = buffer.readUtf8Line()) != null) {
-                if (!TextUtils.isEmpty(line)) {
-                    AD_HOSTS.add(line);
-                }
-            }
-        }
+    int index = host.indexOf(".");
+    while (index >= 0) {
+      if (AD_HOSTS.contains(host)) {
         return true;
+      }
+      if (index + 1 >= host.length()) {
+        break;
+      }
+      host = host.substring(index + 1);
+      index = host.indexOf(".");
     }
-
-    /**
-     * Recursively walking up sub domain chain until we exhaust or find a match,
-     * effectively doing a longest substring matching here
-     */
-    private static boolean isAdHost(String host) {
-        if (TextUtils.isEmpty(host)) {
-            return false;
-        }
-        int index = host.indexOf(".");
-        while (index >= 0) {
-            if (AD_HOSTS.contains(host)) {
-                return true;
-            }
-            if (index + 1 >= host.length()) {
-                break;
-            }
-            host = host.substring(index + 1);
-            index = host.indexOf(".");
-        }
-        return false;
-    }
+    return false;
+  }
 }
