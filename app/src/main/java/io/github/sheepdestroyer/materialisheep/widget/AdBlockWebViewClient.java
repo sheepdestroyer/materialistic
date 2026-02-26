@@ -23,6 +23,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,9 @@ public class AdBlockWebViewClient extends WebViewClient {
 
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (url.startsWith("file://") && !isSafeFile(view, url)) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,11 +60,14 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        String url = request.getUrl().toString();
+        if (url.startsWith("file://") && !isSafeFile(view, url)) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
         boolean ad;
-        String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
@@ -68,5 +75,28 @@ public class AdBlockWebViewClient extends WebViewClient {
             ad = mLoadedUrls.get(url);
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+    }
+
+    private boolean isSafeFile(WebView view, String url) {
+        if (url.startsWith("file:///android_asset/")) {
+            return true;
+        }
+        File cacheDir = view.getContext().getApplicationContext().getCacheDir();
+        if (cacheDir == null) {
+            return false;
+        }
+        try {
+            android.net.Uri uri = android.net.Uri.parse(url);
+            String path = uri.getPath();
+            if (path == null) {
+                return false;
+            }
+            File file = new File(path);
+            String canonicalPath = file.getCanonicalPath();
+            String canonicalCachePath = cacheDir.getCanonicalPath();
+            return canonicalPath.startsWith(canonicalCachePath);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
