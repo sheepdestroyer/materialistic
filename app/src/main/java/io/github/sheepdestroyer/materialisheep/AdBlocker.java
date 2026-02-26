@@ -27,8 +27,8 @@ import android.webkit.WebResourceResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.HttpUrl;
 import okio.BufferedSource;
@@ -42,7 +42,8 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+    private static final Set<String> AD_HOSTS = ConcurrentHashMap.newKeySet();
+    private static final byte[] EMPTY_BYTES = new byte[0];
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -76,7 +77,7 @@ public class AdBlocker {
      * @return An empty WebResourceResponse.
      */
     public static WebResourceResponse createEmptyResource() {
-        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
+        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(EMPTY_BYTES));
     }
 
     @WorkerThread
@@ -100,7 +101,17 @@ public class AdBlocker {
             return false;
         }
         int index = host.indexOf(".");
-        return index >= 0 && (AD_HOSTS.contains(host) ||
-                index + 1 < host.length() && isAdHost(host.substring(index + 1)));
+        while (index >= 0) {
+            if (AD_HOSTS.contains(host)) {
+                return true;
+            }
+            if (index + 1 < host.length()) {
+                host = host.substring(index + 1);
+                index = host.indexOf(".");
+            } else {
+                break;
+            }
+        }
+        return false;
     }
 }
