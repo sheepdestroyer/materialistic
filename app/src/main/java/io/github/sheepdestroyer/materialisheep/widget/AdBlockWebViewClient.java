@@ -16,98 +16,94 @@
 
 package io.github.sheepdestroyer.materialisheep.widget;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
+import androidx.annotation.Nullable;
+import io.github.sheepdestroyer.materialisheep.AdBlocker;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import androidx.annotation.Nullable;
-import io.github.sheepdestroyer.materialisheep.AdBlocker;
-
 @SuppressWarnings("deprecation") // TODO: Uses deprecated WebResourceRequest API
 public class AdBlockWebViewClient extends WebViewClient {
-    private final boolean mAdBlockEnabled;
-    private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
-    private final File mCacheDir;
-    private final String mCacheDirPath;
+  private final boolean mAdBlockEnabled;
+  private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
+  private final File mCacheDir;
+  private final String mCacheDirPath;
 
-    public AdBlockWebViewClient(Context context, boolean adBlockEnabled) {
-        mAdBlockEnabled = adBlockEnabled;
-        mCacheDir = context.getApplicationContext().getCacheDir();
-        String path;
-        try {
-            path = mCacheDir.getCanonicalPath();
-        } catch (IOException e) {
-            path = mCacheDir.getAbsolutePath();
-        }
-        mCacheDirPath = path;
+  public AdBlockWebViewClient(Context context, boolean adBlockEnabled) {
+    mAdBlockEnabled = adBlockEnabled;
+    mCacheDir = context.getApplicationContext().getCacheDir();
+    String path;
+    try {
+      path = mCacheDir.getCanonicalPath();
+    } catch (IOException e) {
+      path = mCacheDir.getAbsolutePath();
     }
+    mCacheDirPath = path;
+  }
 
-    @Override
-    public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-        if (!mAdBlockEnabled) {
-            return super.shouldInterceptRequest(view, url);
-        }
-        if (isUnsafeFileUrl(url)) {
-            return AdBlocker.createEmptyResource();
-        }
-        boolean ad;
-        if (!mLoadedUrls.containsKey(url)) {
-            ad = AdBlocker.isAd(url);
-            mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
-        }
-        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, url);
+  @Override
+  public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+    if (!mAdBlockEnabled) {
+      return super.shouldInterceptRequest(view, url);
     }
-
-    @Nullable
-    @Override
-    public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        if (!mAdBlockEnabled) {
-            return super.shouldInterceptRequest(view, request);
-        }
-        String url = request.getUrl().toString();
-        if (isUnsafeFileUrl(url)) {
-            return AdBlocker.createEmptyResource();
-        }
-        boolean ad;
-        if (!mLoadedUrls.containsKey(url)) {
-            ad = AdBlocker.isAd(url);
-            mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
-        }
-        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+    if (isUnsafeFileUrl(url)) {
+      return AdBlocker.createEmptyResource();
     }
+    boolean ad;
+    if (!mLoadedUrls.containsKey(url)) {
+      ad = AdBlocker.isAd(url);
+      mLoadedUrls.put(url, ad);
+    } else {
+      ad = mLoadedUrls.get(url);
+    }
+    return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, url);
+  }
 
-    private boolean isUnsafeFileUrl(String url) {
-        if (url.startsWith("file://")) {
-            if (url.startsWith("file:///android_asset/")) {
-                return false;
-            }
-            try {
-                // file:///path -> /path
-                String path = url.substring(7);
-                File file = new File(path);
-                String canonicalPath = file.getCanonicalPath();
-                if (canonicalPath.startsWith(mCacheDirPath)) {
-                    return false;
-                }
-            } catch (IOException e) {
-                // If we can't determine canonical path, treat as unsafe
-                return true;
-            }
-            return true;
-        }
+  @Nullable
+  @Override
+  public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+    if (!mAdBlockEnabled) {
+      return super.shouldInterceptRequest(view, request);
+    }
+    String url = request.getUrl().toString();
+    if (isUnsafeFileUrl(url)) {
+      return AdBlocker.createEmptyResource();
+    }
+    boolean ad;
+    if (!mLoadedUrls.containsKey(url)) {
+      ad = AdBlocker.isAd(url);
+      mLoadedUrls.put(url, ad);
+    } else {
+      ad = mLoadedUrls.get(url);
+    }
+    return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+  }
+
+  private boolean isUnsafeFileUrl(String url) {
+    if (url.startsWith("file://")) {
+      if (url.startsWith("file:///android_asset/")) {
         return false;
+      }
+      try {
+        // file:///path -> /path
+        String path = url.substring(7);
+        File file = new File(path);
+        String canonicalPath = file.getCanonicalPath();
+        if (canonicalPath.startsWith(mCacheDirPath)) {
+          return false;
+        }
+      } catch (IOException e) {
+        // If we can't determine canonical path, treat as unsafe
+        return true;
+      }
+      return true;
     }
+    return false;
+  }
 }
