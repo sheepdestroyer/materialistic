@@ -66,7 +66,7 @@ public class OfflineWebActivity extends ThemedActivity {
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress);
         final WebView webView = (WebView) findViewById(R.id.web_view);
         webView.setBackgroundColor(Color.TRANSPARENT);
-        webView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(this)) {
+        webView.setWebViewClient(new AdBlockWebViewClient(this, Preferences.adBlockEnabled(this)) {
             @Override
             public void onPageFinished(WebView view, String url) {
                 setTitle(view.getTitle());

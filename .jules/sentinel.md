@@ -1,0 +1,4 @@
+## 2025-02-18 - WebView File Access Vulnerability
+**Vulnerability:** `CacheableWebView` enables `setAllowFileAccess(true)` to support its offline archive feature, but `AdBlockWebViewClient` did not restrict which `file://` URLs could be loaded. This created a potential for Local File Inclusion (LFI) or path traversal if a malicious URL was loaded.
+**Learning:** Enabling file access in WebView is dangerous and requires strict filtering in `shouldInterceptRequest`. Simple `startsWith` checks are insufficient; canonical paths must be used to prevent `..` traversal attacks.
+**Prevention:** Always use `File.getCanonicalPath()` when validating file paths against an allowlist. Block all `file://` URLs by default and explicitly allow only necessary directories (e.g., `android_asset` or specific cache folders).

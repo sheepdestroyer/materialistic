@@ -455,7 +455,7 @@ public class WebFragment extends LazyLoadFragment
     private void setUpWebView(View view) {
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress);
         mWebView.setBackgroundColor(Color.TRANSPARENT);
-        mWebView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(getActivity())) {
+        mWebView.setWebViewClient(new AdBlockWebViewClient(getActivity(), Preferences.adBlockEnabled(getActivity())) {
             @Override
             public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);

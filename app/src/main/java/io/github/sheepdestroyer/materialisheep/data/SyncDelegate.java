@@ -250,7 +250,7 @@ public class SyncDelegate {
 
     private void loadArticle(@NonNull final HackerNewsItem item) {
         mWebView = new CacheableWebView(mContext);
-        mWebView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(mContext)));
+        mWebView.setWebViewClient(new AdBlockWebViewClient(mContext, Preferences.adBlockEnabled(mContext)));
         mWebView.setWebChromeClient(new CacheableWebView.ArchiveClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {

@@ -48,7 +48,7 @@ public class WebCacheService extends Service {
             return START_STICKY;
         }
         CacheableWebView webView = new CacheableWebView(this);
-        webView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(this)));
+        webView.setWebViewClient(new AdBlockWebViewClient(this, Preferences.adBlockEnabled(this)));
         webView.setWebChromeClient(new CacheableWebView.ArchiveClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
