@@ -1,0 +1,3 @@
+## 2025-03-01 - Replace synchronizedSet with ConcurrentHashMap-based set in read-heavy concurrent workflows
+**Learning:** Using `Collections.synchronizedSet` introduces heavy lock contention for read operations in concurrent environments. In the case of `AdBlocker`, which is accessed concurrently from multiple WebView threads via `shouldInterceptRequest`, this lock contention creates a significant performance bottleneck. Replacing it with `Collections.newSetFromMap(new ConcurrentHashMap<>())` allows for lock-free, concurrent reads, dramatically improving lookup performance.
+**Action:** When a set is read-heavy and accessed concurrently across multiple threads, avoid `synchronizedSet` and opt for a `ConcurrentHashMap`-backed set to eliminate read lock contention.

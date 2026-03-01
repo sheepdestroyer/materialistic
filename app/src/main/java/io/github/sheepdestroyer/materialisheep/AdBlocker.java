@@ -42,7 +42,7 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+    private static final Set<String> AD_HOSTS = java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -84,9 +84,11 @@ public class AdBlocker {
         try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
                 BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
             String line;
+            Set<String> localHosts = new HashSet<>();
             while ((line = buffer.readUtf8Line()) != null) {
-                AD_HOSTS.add(line);
+                localHosts.add(line);
             }
+            AD_HOSTS.addAll(localHosts);
         }
         return true;
     }
