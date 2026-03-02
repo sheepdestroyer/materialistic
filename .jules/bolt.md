@@ -1,0 +1,3 @@
+## 2024-05-24 - [Optimize AdBlocker.isAdHost domain matching]
+**Learning:** The `AdBlocker` domain matching logic originally used a recursive approach (checking subdomains) which caused unnecessary stack overhead, impacting performance slightly when dealing with deep subdomains. It's important to note that `substring()` still creates strings in both recursive and iterative versions, but the iterative loop itself removes stack frame instantiation overhead.
+**Action:** Replaced the recursive approach with an iterative `while` loop implementation that updates a `currentHost` variable, which avoids stack growth and reduces function call overhead.
