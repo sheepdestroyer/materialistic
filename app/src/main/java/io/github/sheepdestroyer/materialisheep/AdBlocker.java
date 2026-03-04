@@ -27,8 +27,10 @@ import android.webkit.WebResourceResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.HttpUrl;
 import okio.BufferedSource;
@@ -42,7 +44,9 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+    // Using ConcurrentHashMap wrapper for read-heavy operations without locking
+    private static final Set<String> AD_HOSTS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -76,7 +80,7 @@ public class AdBlocker {
      * @return An empty WebResourceResponse.
      */
     public static WebResourceResponse createEmptyResource() {
-        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
+        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream(EMPTY_BYTE_ARRAY));
     }
 
     @WorkerThread
@@ -84,23 +88,36 @@ public class AdBlocker {
         try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
                 BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
             String line;
+            Set<String> tempHosts = new HashSet<>();
             while ((line = buffer.readUtf8Line()) != null) {
-                AD_HOSTS.add(line);
+                tempHosts.add(line);
             }
+            AD_HOSTS.addAll(tempHosts);
         }
         return true;
     }
 
     /**
-     * Recursively walking up sub domain chain until we exhaust or find a match,
+     * Iteratively walking up sub domain chain until we exhaust or find a match,
      * effectively doing a longest substring matching here
      */
     private static boolean isAdHost(String host) {
         if (TextUtils.isEmpty(host)) {
             return false;
         }
-        int index = host.indexOf(".");
-        return index >= 0 && (AD_HOSTS.contains(host) ||
-                index + 1 < host.length() && isAdHost(host.substring(index + 1)));
+
+        String currentHost = host;
+        while (!TextUtils.isEmpty(currentHost)) {
+            if (AD_HOSTS.contains(currentHost)) {
+                return true;
+            }
+            int index = currentHost.indexOf(".");
+            if (index >= 0 && index + 1 < currentHost.length()) {
+                currentHost = currentHost.substring(index + 1);
+            } else {
+                break;
+            }
+        }
+        return false;
     }
 }
