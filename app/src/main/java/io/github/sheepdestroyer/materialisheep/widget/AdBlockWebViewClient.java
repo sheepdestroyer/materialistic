@@ -16,92 +16,89 @@
 
 package io.github.sheepdestroyer.materialisheep.widget;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
+import androidx.annotation.Nullable;
+import io.github.sheepdestroyer.materialisheep.AdBlocker;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import androidx.annotation.Nullable;
-import io.github.sheepdestroyer.materialisheep.AdBlocker;
-
 @SuppressWarnings("deprecation") // TODO: Uses deprecated WebResourceRequest API
 public class AdBlockWebViewClient extends WebViewClient {
-    private final boolean mAdBlockEnabled;
-    private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
+  private final boolean mAdBlockEnabled;
+  private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
 
-    public AdBlockWebViewClient(boolean adBlockEnabled) {
-        mAdBlockEnabled = adBlockEnabled;
+  public AdBlockWebViewClient(boolean adBlockEnabled) {
+    mAdBlockEnabled = adBlockEnabled;
+  }
+
+  @Override
+  public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+    if (url == null) {
+      return super.shouldInterceptRequest(view, url);
     }
-
-    @Override
-    public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-        if (url == null) {
-            return super.shouldInterceptRequest(view, url);
-        }
-        if (url.startsWith("file://")) {
-            return handleFileRequest(view, url);
-        }
-        if (!mAdBlockEnabled) {
-            return super.shouldInterceptRequest(view, url);
-        }
-        boolean ad;
-        if (!mLoadedUrls.containsKey(url)) {
-            ad = AdBlocker.isAd(url);
-            mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
-        }
-        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, url);
+    if (url.startsWith("file://")) {
+      return handleFileRequest(view, url);
     }
-
-    @Nullable
-    @Override
-    public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        String url = request.getUrl() != null ? request.getUrl().toString() : null;
-        if (url == null) {
-            return super.shouldInterceptRequest(view, request);
-        }
-        if (url.startsWith("file://")) {
-            return handleFileRequest(view, url);
-        }
-        if (!mAdBlockEnabled) {
-            return super.shouldInterceptRequest(view, request);
-        }
-        boolean ad;
-        if (!mLoadedUrls.containsKey(url)) {
-            ad = AdBlocker.isAd(url);
-            mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
-        }
-        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+    if (!mAdBlockEnabled) {
+      return super.shouldInterceptRequest(view, url);
     }
-
-    private WebResourceResponse handleFileRequest(WebView view, String url) {
-        try {
-            File cacheDir = view.getContext().getApplicationContext().getCacheDir();
-            File requestedFile = new File(url.replace("file://", ""));
-
-            String cacheDirPath = cacheDir.getCanonicalPath() + File.separator;
-            String requestedFilePath = requestedFile.getCanonicalPath();
-
-            if (requestedFilePath.startsWith(cacheDirPath) &&
-                requestedFile.getName().startsWith(CacheableWebView.CACHE_PREFIX) &&
-                requestedFile.getName().endsWith(CacheableWebView.CACHE_EXTENSION)) {
-
-                return new WebResourceResponse("multipart/related", "utf-8", new FileInputStream(requestedFile));
-            }
-        } catch (IOException e) {
-            // Ignore and return empty resource
-        }
-        return AdBlocker.createEmptyResource();
+    boolean ad;
+    if (!mLoadedUrls.containsKey(url)) {
+      ad = AdBlocker.isAd(url);
+      mLoadedUrls.put(url, ad);
+    } else {
+      ad = mLoadedUrls.get(url);
     }
+    return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, url);
+  }
+
+  @Nullable
+  @Override
+  public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+    String url = request.getUrl() != null ? request.getUrl().toString() : null;
+    if (url == null) {
+      return super.shouldInterceptRequest(view, request);
+    }
+    if (url.startsWith("file://")) {
+      return handleFileRequest(view, url);
+    }
+    if (!mAdBlockEnabled) {
+      return super.shouldInterceptRequest(view, request);
+    }
+    boolean ad;
+    if (!mLoadedUrls.containsKey(url)) {
+      ad = AdBlocker.isAd(url);
+      mLoadedUrls.put(url, ad);
+    } else {
+      ad = mLoadedUrls.get(url);
+    }
+    return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+  }
+
+  private WebResourceResponse handleFileRequest(WebView view, String url) {
+    try {
+      File cacheDir = view.getContext().getApplicationContext().getCacheDir();
+      File requestedFile = new File(url.replace("file://", ""));
+
+      String cacheDirPath = cacheDir.getCanonicalPath() + File.separator;
+      String requestedFilePath = requestedFile.getCanonicalPath();
+
+      if (requestedFilePath.startsWith(cacheDirPath)
+          && requestedFile.getName().startsWith(CacheableWebView.CACHE_PREFIX)
+          && requestedFile.getName().endsWith(CacheableWebView.CACHE_EXTENSION)) {
+
+        return new WebResourceResponse(
+            "multipart/related", "utf-8", new FileInputStream(requestedFile));
+      }
+    } catch (IOException e) {
+      // Ignore and return empty resource
+    }
+    return AdBlocker.createEmptyResource();
+  }
 }
