@@ -92,15 +92,40 @@ public class AdBlocker {
     }
 
     /**
-     * Recursively walking up sub domain chain until we exhaust or find a match,
-     * effectively doing a longest substring matching here
+     * Iteratively walking up sub domain chain until we exhaust or find a match,
+     * effectively doing a longest substring matching here.
+     *
+     * ⚡ BOLT OPTIMIZATION
+     * What: Replaced recursion with an iterative approach (while loop).
+     * Why: The previous recursive implementation created a new stack frame for each
+     *      subdomain checked. When checking long, non-ad domains like
+     *      "a.b.c.d.e.f.example.com", this led to unnecessary stack growth and
+     *      method invocation overhead.
+     * Impact: Reduces call stack depth and method invocation overhead. While it still
+     *         allocates strings for substrings, avoiding recursive calls makes the
+     *         execution more efficient and prevents potential StackOverflowErrors
+     *         on maliciously long subdomains.
      */
     private static boolean isAdHost(String host) {
         if (TextUtils.isEmpty(host)) {
             return false;
         }
-        int index = host.indexOf(".");
-        return index >= 0 && (AD_HOSTS.contains(host) ||
-                index + 1 < host.length() && isAdHost(host.substring(index + 1)));
+
+        String currentHost = host;
+        int index = currentHost.indexOf(".");
+
+        while (index >= 0) {
+            if (AD_HOSTS.contains(currentHost)) {
+                return true;
+            }
+            if (index + 1 < currentHost.length()) {
+                currentHost = currentHost.substring(index + 1);
+                index = currentHost.indexOf(".");
+            } else {
+                break;
+            }
+        }
+
+        return false;
     }
 }
