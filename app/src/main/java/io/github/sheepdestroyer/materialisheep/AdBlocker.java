@@ -17,115 +17,106 @@
 package io.github.sheepdestroyer.materialisheep;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
-import androidx.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.webkit.WebResourceResponse;
-
+import androidx.annotation.WorkerThread;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-
 import okhttp3.HttpUrl;
 import okio.BufferedSource;
 import okio.Okio;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
 
-/**
- * A simple ad blocker that blocks network requests to hosts listed in the ad
- * hosts file.
- */
+/** A simple ad blocker that blocks network requests to hosts listed in the ad hosts file. */
 public class AdBlocker {
-    private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+  private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
+  private static final Set<String> AD_HOSTS =
+      java.util.Collections.synchronizedSet(new HashSet<>());
 
-    /**
-     * Initializes the ad blocker by loading the ad hosts from the assets file.
-     *
-     * @param context   The application context.
-     * @param scheduler The RxJava scheduler to perform the operation on.
-     */
-    @SuppressLint("CheckResult")
-    public static void init(Context context, Scheduler scheduler) {
-        Observable.fromCallable(() -> loadFromAssets(context))
-                .subscribeOn(scheduler)
-                .subscribe(result -> {
-                },
-                        t -> android.util.Log.e(AdBlocker.class.getSimpleName(), "Error loading ad hosts", t));
+  /**
+   * Initializes the ad blocker by loading the ad hosts from the assets file.
+   *
+   * @param context The application context.
+   * @param scheduler The RxJava scheduler to perform the operation on.
+   */
+  @SuppressLint("CheckResult")
+  public static void init(Context context, Scheduler scheduler) {
+    Observable.fromCallable(() -> loadFromAssets(context))
+        .subscribeOn(scheduler)
+        .subscribe(
+            result -> {},
+            t -> android.util.Log.e(AdBlocker.class.getSimpleName(), "Error loading ad hosts", t));
+  }
+
+  /**
+   * Checks if a given URL is an ad.
+   *
+   * @param url The URL to check.
+   * @return True if the URL is an ad, false otherwise.
+   */
+  public static boolean isAd(String url) {
+    HttpUrl httpUrl = HttpUrl.parse(url);
+    return isAdHost(httpUrl != null ? httpUrl.host() : "");
+  }
+
+  /**
+   * Creates an empty WebResourceResponse to block a network request.
+   *
+   * @return An empty WebResourceResponse.
+   */
+  public static WebResourceResponse createEmptyResource() {
+    return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
+  }
+
+  @WorkerThread
+  private static Boolean loadFromAssets(Context context) throws IOException {
+    try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
+        BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
+      String line;
+      while ((line = buffer.readUtf8Line()) != null) {
+        AD_HOSTS.add(line);
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Iteratively walking up sub domain chain until we exhaust or find a match, effectively doing a
+   * longest substring matching here.
+   *
+   * <p>⚡ BOLT OPTIMIZATION What: Replaced recursion with an iterative approach (while loop). Why:
+   * The previous recursive implementation created a new stack frame for each subdomain checked.
+   * When checking long, non-ad domains like "a.b.c.d.e.f.example.com", this led to unnecessary
+   * stack growth and method invocation overhead. Impact: Reduces call stack depth and method
+   * invocation overhead. While it still allocates strings for substrings, avoiding recursive calls
+   * makes the execution more efficient and prevents potential StackOverflowErrors on maliciously
+   * long subdomains.
+   */
+  private static boolean isAdHost(String host) {
+    if (TextUtils.isEmpty(host)) {
+      return false;
     }
 
-    /**
-     * Checks if a given URL is an ad.
-     *
-     * @param url The URL to check.
-     * @return True if the URL is an ad, false otherwise.
-     */
-    public static boolean isAd(String url) {
-        HttpUrl httpUrl = HttpUrl.parse(url);
-        return isAdHost(httpUrl != null ? httpUrl.host() : "");
-    }
+    String currentHost = host;
+    int index = currentHost.indexOf(".");
 
-    /**
-     * Creates an empty WebResourceResponse to block a network request.
-     *
-     * @return An empty WebResourceResponse.
-     */
-    public static WebResourceResponse createEmptyResource() {
-        return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
-    }
-
-    @WorkerThread
-    private static Boolean loadFromAssets(Context context) throws IOException {
-        try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
-                BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
-            String line;
-            while ((line = buffer.readUtf8Line()) != null) {
-                AD_HOSTS.add(line);
-            }
-        }
+    while (index >= 0) {
+      if (AD_HOSTS.contains(currentHost)) {
         return true;
+      }
+      if (index + 1 < currentHost.length()) {
+        currentHost = currentHost.substring(index + 1);
+        index = currentHost.indexOf(".");
+      } else {
+        break;
+      }
     }
 
-    /**
-     * Iteratively walking up sub domain chain until we exhaust or find a match,
-     * effectively doing a longest substring matching here.
-     *
-     * ⚡ BOLT OPTIMIZATION
-     * What: Replaced recursion with an iterative approach (while loop).
-     * Why: The previous recursive implementation created a new stack frame for each
-     *      subdomain checked. When checking long, non-ad domains like
-     *      "a.b.c.d.e.f.example.com", this led to unnecessary stack growth and
-     *      method invocation overhead.
-     * Impact: Reduces call stack depth and method invocation overhead. While it still
-     *         allocates strings for substrings, avoiding recursive calls makes the
-     *         execution more efficient and prevents potential StackOverflowErrors
-     *         on maliciously long subdomains.
-     */
-    private static boolean isAdHost(String host) {
-        if (TextUtils.isEmpty(host)) {
-            return false;
-        }
-
-        String currentHost = host;
-        int index = currentHost.indexOf(".");
-
-        while (index >= 0) {
-            if (AD_HOSTS.contains(currentHost)) {
-                return true;
-            }
-            if (index + 1 < currentHost.length()) {
-                currentHost = currentHost.substring(index + 1);
-                index = currentHost.indexOf(".");
-            } else {
-                break;
-            }
-        }
-
-        return false;
-    }
+    return false;
+  }
 }
