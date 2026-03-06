@@ -23,11 +23,18 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.Nullable;
 import io.github.sheepdestroyer.materialisheep.AdBlocker;
+
+import static io.github.sheepdestroyer.materialisheep.widget.CacheableWebView.CACHE_EXTENSION;
+import static io.github.sheepdestroyer.materialisheep.widget.CacheableWebView.CACHE_PREFIX;
 
 @SuppressWarnings("deprecation") // TODO: Uses deprecated WebResourceRequest API
 public class AdBlockWebViewClient extends WebViewClient {
@@ -40,6 +47,13 @@ public class AdBlockWebViewClient extends WebViewClient {
 
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (url == null) {
+            return super.shouldInterceptRequest(view, url);
+        }
+        WebResourceResponse response = interceptFile(view, url);
+        if (response != null) {
+            return response;
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,11 +70,18 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        if (request == null || request.getUrl() == null) {
+            return super.shouldInterceptRequest(view, request);
+        }
+        String url = request.getUrl().toString();
+        WebResourceResponse response = interceptFile(view, url);
+        if (response != null) {
+            return response;
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
         boolean ad;
-        String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
@@ -68,5 +89,28 @@ public class AdBlockWebViewClient extends WebViewClient {
             ad = mLoadedUrls.get(url);
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+    }
+
+    @Nullable
+    private WebResourceResponse interceptFile(WebView view, String url) {
+        if (url.startsWith("file://")) {
+            try {
+                File file = new File(url.replace("file://", ""));
+                String canonicalPath = file.getCanonicalPath();
+                String cacheDir = view.getContext().getApplicationContext().getCacheDir().getCanonicalPath() + File.separator;
+
+                if (canonicalPath.startsWith(cacheDir) &&
+                        file.getName().startsWith(CACHE_PREFIX) &&
+                        file.getName().endsWith(CACHE_EXTENSION)) {
+                    InputStream is = new FileInputStream(file);
+                    return new WebResourceResponse("multipart/related", "UTF-8", is);
+                }
+                // Block other local file requests
+                return AdBlocker.createEmptyResource();
+            } catch (IOException e) {
+                return AdBlocker.createEmptyResource();
+            }
+        }
+        return null;
     }
 }
