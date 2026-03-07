@@ -23,6 +23,9 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +43,11 @@ public class AdBlockWebViewClient extends WebViewClient {
 
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        WebResourceResponse fileResponse = getCachedFileResponse(view, url);
+        if (fileResponse != null) {
+            return fileResponse;
+        }
+
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,6 +64,11 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        WebResourceResponse fileResponse = getCachedFileResponse(view, request.getUrl().toString());
+        if (fileResponse != null) {
+            return fileResponse;
+        }
+
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
@@ -68,5 +81,23 @@ public class AdBlockWebViewClient extends WebViewClient {
             ad = mLoadedUrls.get(url);
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+    }
+
+    private WebResourceResponse getCachedFileResponse(WebView view, String url) {
+        if (url != null && url.startsWith("file://")) {
+            try {
+                File file = new File(url.replace("file://", ""));
+                String cacheDir = view.getContext().getApplicationContext().getCacheDir().getCanonicalPath() + File.separator;
+                if (file.getCanonicalPath().startsWith(cacheDir) &&
+                        file.getName().startsWith(CacheableWebView.CACHE_PREFIX) &&
+                        file.getName().endsWith(CacheableWebView.CACHE_EXTENSION)) {
+                    return new WebResourceResponse("multipart/related", "utf-8", new FileInputStream(file));
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+            return AdBlocker.createEmptyResource();
+        }
+        return null;
     }
 }

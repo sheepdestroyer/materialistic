@@ -33,8 +33,8 @@ import java.util.Map;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 
 public class CacheableWebView extends WebView {
-    private static final String CACHE_PREFIX = "webarchive-";
-    private static final String CACHE_EXTENSION = ".mht";
+    static final String CACHE_PREFIX = "webarchive-";
+    static final String CACHE_EXTENSION = ".mht";
     private ArchiveClient mArchiveClient = new ArchiveClient();
 
     public CacheableWebView(Context context) {
@@ -92,7 +92,7 @@ public class CacheableWebView extends WebView {
 
     private void enableCache() {
         WebSettings webSettings = getSettings();
-        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccess(false);
         setCacheModeInternal();
     }
 
