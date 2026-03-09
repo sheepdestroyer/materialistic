@@ -16,73 +16,65 @@
 
 package io.github.sheepdestroyer.materialisheep.widget;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
+import androidx.annotation.Nullable;
+import io.github.sheepdestroyer.materialisheep.AdBlocker;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import androidx.annotation.Nullable;
-import io.github.sheepdestroyer.materialisheep.AdBlocker;
-
 public class AdBlockWebViewClient extends WebViewClient {
-    private final boolean mAdBlockEnabled;
-    private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
+  private final boolean mAdBlockEnabled;
+  private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
 
-    public AdBlockWebViewClient(boolean adBlockEnabled) {
-        mAdBlockEnabled = adBlockEnabled;
+  public AdBlockWebViewClient(boolean adBlockEnabled) {
+    mAdBlockEnabled = adBlockEnabled;
+  }
+
+  @Nullable
+  @Override
+  public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+    if (request == null || request.getUrl() == null) {
+      return super.shouldInterceptRequest(view, request);
     }
 
-    @Nullable
-    @Override
-    public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        if (request == null || request.getUrl() == null) {
-            return super.shouldInterceptRequest(view, request);
+    String url = request.getUrl().toString();
+
+    if (url.startsWith("file://")) {
+      try {
+        File file = new File(request.getUrl().getPath());
+        File cacheDir = view.getContext().getApplicationContext().getCacheDir();
+        String canonicalCacheDir = cacheDir.getCanonicalPath() + File.separator;
+        String canonicalFile = file.getCanonicalPath();
+
+        if (canonicalFile.startsWith(canonicalCacheDir)
+            && file.getName().startsWith(CacheableWebView.CACHE_PREFIX)
+            && file.getName().endsWith(CacheableWebView.CACHE_EXTENSION)) {
+
+          return new WebResourceResponse("multipart/related", "UTF-8", new FileInputStream(file));
         }
-
-        String url = request.getUrl().toString();
-
-        if (url.startsWith("file://")) {
-            try {
-                File file = new File(request.getUrl().getPath());
-                File cacheDir = view.getContext().getApplicationContext().getCacheDir();
-                String canonicalCacheDir = cacheDir.getCanonicalPath() + File.separator;
-                String canonicalFile = file.getCanonicalPath();
-
-                if (canonicalFile.startsWith(canonicalCacheDir) &&
-                    file.getName().startsWith(CacheableWebView.CACHE_PREFIX) &&
-                    file.getName().endsWith(CacheableWebView.CACHE_EXTENSION)) {
-
-                    return new WebResourceResponse(
-                        "multipart/related",
-                        "UTF-8",
-                        new FileInputStream(file)
-                    );
-                }
-            } catch (IOException e) {
-                // Ignore, fallback to empty resource or default handling below
-            }
-            return AdBlocker.createEmptyResource();
-        }
-
-        if (!mAdBlockEnabled) {
-            return super.shouldInterceptRequest(view, request);
-        }
-
-        boolean ad;
-        if (!mLoadedUrls.containsKey(url)) {
-            ad = AdBlocker.isAd(url);
-            mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
-        }
-        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+      } catch (IOException e) {
+        // Ignore, fallback to empty resource or default handling below
+      }
+      return AdBlocker.createEmptyResource();
     }
+
+    if (!mAdBlockEnabled) {
+      return super.shouldInterceptRequest(view, request);
+    }
+
+    boolean ad;
+    if (!mLoadedUrls.containsKey(url)) {
+      ad = AdBlocker.isAd(url);
+      mLoadedUrls.put(url, ad);
+    } else {
+      ad = mLoadedUrls.get(url);
+    }
+    return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+  }
 }
