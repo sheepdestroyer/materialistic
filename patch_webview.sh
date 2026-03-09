@@ -1,0 +1,19 @@
+cat << 'DIFF' > webview.patch
+--- app/src/main/java/io/github/sheepdestroyer/materialisheep/widget/WebView.java
++++ app/src/main/java/io/github/sheepdestroyer/materialisheep/widget/WebView.java
+@@ -109,13 +109,6 @@
+             }
+         }
+
+-        @SuppressWarnings("deprecation")
+-        @Override
+-        public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, String url) {
+-            return mClient != null ? mClient.shouldInterceptRequest(view, url)
+-                    : super.shouldInterceptRequest(view, url);
+-        }
+-
+         @Override
+         public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, WebResourceRequest request) {
+             return mClient != null ? mClient.shouldInterceptRequest(view, request)
+DIFF
+patch app/src/main/java/io/github/sheepdestroyer/materialisheep/widget/WebView.java < webview.patch
