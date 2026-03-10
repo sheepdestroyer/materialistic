@@ -462,6 +462,11 @@ public class WebFragment extends LazyLoadFragment
                 if (getActivity() != null) {
                     getActivity().invalidateOptionsMenu();
                 }
+                // Security Fix: Remove PdfAndroidJavascriptBridge when navigating to an untrusted URL.
+                // The interface provides read access to local files and should not persist on untrusted domains.
+                if (!TextUtils.equals(url, PDF_LOADER_URL) && !TextUtils.equals(url, "about:blank")) {
+                    mWebView.removeJavascriptInterface("PdfAndroidJavascriptBridge");
+                }
             }
 
             @Override
