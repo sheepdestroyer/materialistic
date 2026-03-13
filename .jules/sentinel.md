@@ -1,0 +1,4 @@
+## 2024-03-13 - Fix directory traversal and secure file:// access in WebView
+**Vulnerability:** WebView allowed loading `file://` URLs which exposed local file system due to `setAllowFileAccess(true)` in `CacheableWebView`, creating a directory traversal vulnerability because of insufficient validation in `AdBlockWebViewClient`.
+**Learning:** Canonical paths must be checked rigorously when intercepting local file accesses in WebViews. `getCanonicalPath()` checks alone are insufficient if they do not append a `File.separator` to the base directory path, as this could allow partial directory name bypasses.
+**Prevention:** Always append `File.separator` to the base directory's canonical path before using `startsWith()` for validation to ensure the file is strictly within the intended directory.

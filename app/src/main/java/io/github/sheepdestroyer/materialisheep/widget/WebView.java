@@ -31,7 +31,7 @@ import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 
 public class WebView extends android.webkit.WebView {
     static final String BLANK = "about:blank";
-    static final String FILE = "file:///";
+    public static final String FILE = "file:///";
     private final HistoryWebViewClient mClient = new HistoryWebViewClient();
     @Synthetic
     String mPendingUrl, mPendingHtml;
