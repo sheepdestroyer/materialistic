@@ -1,0 +1,4 @@
+## 2024-05-20 - [Arbitrary File Access via WebView Intercept]
+**Vulnerability:** WebView instances that enable `setAllowFileAccess(true)` (like `CacheableWebView`) allow access to local files. The `AdBlockWebViewClient` intercepts `file://` URLs but lacks path validation, permitting rendering of arbitrary local files accessible to the application.
+**Learning:** Even when intercepting `file://` URLs for specific features (like loading web archives), any lack of canonical path validation can allow directory traversal or direct access to sensitive application data.
+**Prevention:** Always validate the canonical path of any accessed `file://` URLs against an allowed directory list (e.g., application cache, `/android_asset/`), ensuring trailing separators are included in the base path check to prevent partial directory matches.
