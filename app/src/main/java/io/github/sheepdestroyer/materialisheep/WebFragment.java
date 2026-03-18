@@ -459,6 +459,13 @@ public class WebFragment extends LazyLoadFragment
             @Override
             public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
+                if (!TextUtils.equals(url, PDF_LOADER_URL)) {
+                    view.removeJavascriptInterface("PdfAndroidJavascriptBridge");
+                    if (mPdfAndroidJavascriptBridge != null) {
+                        mPdfAndroidJavascriptBridge.cleanUp();
+                        mPdfAndroidJavascriptBridge = null;
+                    }
+                }
                 if (getActivity() != null) {
                     getActivity().invalidateOptionsMenu();
                 }
