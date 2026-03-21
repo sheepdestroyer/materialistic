@@ -23,8 +23,10 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import java.util.HashMap;
+import android.net.Uri;
+import java.io.File;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.Nullable;
 import io.github.sheepdestroyer.materialisheep.AdBlocker;
@@ -32,7 +34,7 @@ import io.github.sheepdestroyer.materialisheep.AdBlocker;
 @SuppressWarnings("deprecation") // TODO: Uses deprecated WebResourceRequest API
 public class AdBlockWebViewClient extends WebViewClient {
     private final boolean mAdBlockEnabled;
-    private final Map<String, Boolean> mLoadedUrls = new HashMap<>();
+    private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
 
     public AdBlockWebViewClient(boolean adBlockEnabled) {
         mAdBlockEnabled = adBlockEnabled;
@@ -40,15 +42,34 @@ public class AdBlockWebViewClient extends WebViewClient {
 
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (url != null && url.startsWith("file://")) {
+            try {
+                String path = Uri.parse(url).getPath();
+                if (path == null) {
+                    return AdBlocker.createEmptyResource();
+                }
+                String canonicalPath = new File(path).getCanonicalPath();
+                String assetDir = new File("/android_asset/").getCanonicalPath() + File.separator;
+                String cacheDir = view.getContext().getApplicationContext().getCacheDir().getCanonicalPath() + File.separator;
+                if (canonicalPath.startsWith(assetDir) ||
+                    (canonicalPath.startsWith(cacheDir) && canonicalPath.contains(CacheableWebView.CACHE_PREFIX) && canonicalPath.endsWith(CacheableWebView.CACHE_EXTENSION))) {
+                    return null; // Let Chromium handle allowed local files natively
+                }
+                return AdBlocker.createEmptyResource();
+            } catch (Exception e) {
+                return AdBlocker.createEmptyResource();
+            }
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
-        boolean ad;
-        if (!mLoadedUrls.containsKey(url)) {
+        if (url == null) {
+            return super.shouldInterceptRequest(view, url);
+        }
+        Boolean ad = mLoadedUrls.get(url);
+        if (ad == null) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, url);
     }
@@ -56,16 +77,35 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        String url = request.getUrl() != null ? request.getUrl().toString() : null;
+        if (url != null && url.startsWith("file://")) {
+            try {
+                String path = Uri.parse(url).getPath();
+                if (path == null) {
+                    return AdBlocker.createEmptyResource();
+                }
+                String canonicalPath = new File(path).getCanonicalPath();
+                String assetDir = new File("/android_asset/").getCanonicalPath() + File.separator;
+                String cacheDir = view.getContext().getApplicationContext().getCacheDir().getCanonicalPath() + File.separator;
+                if (canonicalPath.startsWith(assetDir) ||
+                    (canonicalPath.startsWith(cacheDir) && canonicalPath.contains(CacheableWebView.CACHE_PREFIX) && canonicalPath.endsWith(CacheableWebView.CACHE_EXTENSION))) {
+                    return null; // Let Chromium handle allowed local files natively
+                }
+                return AdBlocker.createEmptyResource();
+            } catch (Exception e) {
+                return AdBlocker.createEmptyResource();
+            }
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
-        boolean ad;
-        String url = request.getUrl().toString();
-        if (!mLoadedUrls.containsKey(url)) {
+        if (url == null) {
+            return super.shouldInterceptRequest(view, request);
+        }
+        Boolean ad = mLoadedUrls.get(url);
+        if (ad == null) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
-        } else {
-            ad = mLoadedUrls.get(url);
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
     }
