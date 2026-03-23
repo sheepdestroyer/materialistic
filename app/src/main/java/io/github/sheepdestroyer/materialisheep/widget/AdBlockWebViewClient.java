@@ -38,8 +38,33 @@ public class AdBlockWebViewClient extends WebViewClient {
         mAdBlockEnabled = adBlockEnabled;
     }
 
+    private boolean isFileAccessSecure(String url, android.content.Context context) {
+        if (url == null || !url.startsWith("file://")) return true;
+        try {
+            java.io.File file = new java.io.File(android.net.Uri.parse(url).getPath());
+            String canonicalPath = file.getCanonicalPath();
+
+            String cacheDir = context.getApplicationContext().getCacheDir().getCanonicalPath() + java.io.File.separator;
+            if (canonicalPath.startsWith(cacheDir) &&
+                canonicalPath.contains("webarchive-") &&
+                canonicalPath.endsWith(".mht")) {
+                return true;
+            }
+
+            if (canonicalPath.startsWith("/android_asset/")) {
+                return true;
+            }
+        } catch (Exception e) {
+            // default to block if exception
+        }
+        return false;
+    }
+
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (!isFileAccessSecure(url, view.getContext())) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,11 +81,14 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        String url = request.getUrl().toString();
+        if (!isFileAccessSecure(url, view.getContext())) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
         boolean ad;
-        String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
