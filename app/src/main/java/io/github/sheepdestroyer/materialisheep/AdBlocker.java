@@ -42,7 +42,8 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
+    // Use ConcurrentHashMap-backed set for non-blocking concurrent reads instead of synchronizedSet
+    private static final Set<String> AD_HOSTS = java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -92,15 +93,26 @@ public class AdBlocker {
     }
 
     /**
-     * Recursively walking up sub domain chain until we exhaust or find a match,
-     * effectively doing a longest substring matching here
+     * Iteratively walking up sub domain chain until we exhaust or find a match,
+     * effectively doing a longest substring matching here.
+     * Replaced recursion with iteration to avoid unnecessary stack frame allocations.
      */
     private static boolean isAdHost(String host) {
         if (TextUtils.isEmpty(host)) {
             return false;
         }
         int index = host.indexOf(".");
-        return index >= 0 && (AD_HOSTS.contains(host) ||
-                index + 1 < host.length() && isAdHost(host.substring(index + 1)));
+        while (index >= 0) {
+            if (AD_HOSTS.contains(host)) {
+                return true;
+            }
+            if (index + 1 < host.length()) {
+                host = host.substring(index + 1);
+                index = host.indexOf(".");
+            } else {
+                break;
+            }
+        }
+        return false;
     }
 }
