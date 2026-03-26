@@ -92,7 +92,7 @@ public class AdBlocker {
     }
 
     /**
-     * Recursively walking up sub domain chain until we exhaust or find a match,
+     * Iteratively walking up sub domain chain until we exhaust or find a match,
      * effectively doing a longest substring matching here
      */
     private static boolean isAdHost(String host) {
@@ -100,7 +100,17 @@ public class AdBlocker {
             return false;
         }
         int index = host.indexOf(".");
-        return index >= 0 && (AD_HOSTS.contains(host) ||
-                index + 1 < host.length() && isAdHost(host.substring(index + 1)));
+        while (index >= 0) {
+            if (AD_HOSTS.contains(host)) {
+                return true;
+            }
+            if (index + 1 < host.length()) {
+                host = host.substring(index + 1);
+                index = host.indexOf(".");
+            } else {
+                break;
+            }
+        }
+        return false;
     }
 }
