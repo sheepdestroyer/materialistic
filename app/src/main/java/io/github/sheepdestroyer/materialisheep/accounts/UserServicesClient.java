@@ -70,9 +70,9 @@ public class UserServicesClient implements UserServices {
     private static final String CREATING_TRUE = "t";
     private static final String DEFAULT_FNOP = "submit-page";
     private static final String DEFAULT_SUBMIT_REDIRECT = "newest";
-    private static final String REGEX_INPUT = "<\\s*input[^>]*>";
-    private static final String REGEX_VALUE = "value[^\"]*\"([^\"]*)\"";
-    private static final String REGEX_CREATE_ERROR_BODY = "<body>([^<]*)";
+    private static final Pattern PATTERN_INPUT = Pattern.compile("<\\s*input[^>]*>");
+    private static final Pattern PATTERN_VALUE = Pattern.compile("value[^\"]*\"([^\"]*)\"");
+    private static final Pattern PATTERN_CREATE_ERROR_BODY = Pattern.compile("<body>([^<]*)");
     private static final String HEADER_LOCATION = "location";
     private static final String HEADER_COOKIE = "cookie";
     private static final String HEADER_SET_COOKIE = "set-cookie";
@@ -331,12 +331,12 @@ public class UserServicesClient implements UserServices {
 
     private String getInputValue(String html, String name) {
         // extract <input ... >
-        Matcher matcherInput = Pattern.compile(REGEX_INPUT).matcher(html);
+        Matcher matcherInput = PATTERN_INPUT.matcher(html);
         while (matcherInput.find()) {
             String input = matcherInput.group();
             if (input.contains(name)) {
                 // extract value="..."
-                Matcher matcher = Pattern.compile(REGEX_VALUE).matcher(input);
+                Matcher matcher = PATTERN_VALUE.matcher(input);
                 return matcher.find() ? matcher.group(1) : null; // return first match if any
             }
         }
@@ -345,7 +345,7 @@ public class UserServicesClient implements UserServices {
 
     private String parseLoginError(Response response) {
         try {
-            Matcher matcher = Pattern.compile(REGEX_CREATE_ERROR_BODY).matcher(response.body().string());
+            Matcher matcher = PATTERN_CREATE_ERROR_BODY.matcher(response.body().string());
             return matcher.find() ? matcher.group(1).replaceAll("\\n|\\r|\\t|\\s+", " ").trim() : null;
         } catch (IOException e) {
             return null;
