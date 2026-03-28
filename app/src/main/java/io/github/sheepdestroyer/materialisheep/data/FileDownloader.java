@@ -49,6 +49,18 @@ public class FileDownloader {
     @WorkerThread
     public void downloadFile(String url, String mimeType, FileDownloaderCallback callback) {
         File outputFile = new File(mCacheDir, new File(url).getName());
+
+        try {
+            String canonicalOutputPath = outputFile.getCanonicalPath();
+            String canonicalCacheDir = new File(mCacheDir).getCanonicalPath() + File.separator;
+            if (!canonicalOutputPath.startsWith(canonicalCacheDir)) {
+                throw new SecurityException("Path traversal attempt detected");
+            }
+        } catch (IOException | SecurityException e) {
+            mMainHandler.post(() -> callback.onFailure(null, new IOException(e)));
+            return;
+        }
+
         if (outputFile.exists()) {
             mMainHandler.post(() -> callback.onSuccess(outputFile.getPath()));
             return;

@@ -344,6 +344,20 @@ public class WebFragment extends LazyLoadFragment
             mWebView.removeJavascriptInterface("PdfAndroidJavascriptBridge");
         }
         if (pdfFilePath != null && TextUtils.equals(PDF_LOADER_URL, url)) {
+            try {
+                if (getActivity() == null) {
+                    throw new SecurityException("Context is null");
+                }
+                String canonicalPdfPath = new File(pdfFilePath).getCanonicalPath();
+                String canonicalCacheDir = getActivity().getCacheDir().getCanonicalPath() + File.separator;
+                if (!canonicalPdfPath.startsWith(canonicalCacheDir)) {
+                    throw new SecurityException("Path traversal attempt detected");
+                }
+            } catch (IOException | SecurityException e) {
+                offerExternalApp();
+                return;
+            }
+
             setProgress(80);
             mIsPdf = true;
             mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath,
