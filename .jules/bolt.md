@@ -1,0 +1,3 @@
+## 2025-05-18 - Pre-compile Matchers inside frequent execution paths
+**Learning:** `Pattern.compile()` introduces runtime overhead when repeatedly compiling the same regex strings dynamically, which can accumulate when executed inside a loop (like `UserServicesClient.getInputValue`) or text extraction callbacks.
+**Action:** Always declare regular expressions as `private static final Pattern` constants to allow them to be pre-compiled once upon class loading, sharing immutably and concurrently via thread-safe `Pattern` structures while allowing fresh `Matcher` instances to be spawned via `matcher()`.
