@@ -346,20 +346,28 @@ public class WebFragment extends LazyLoadFragment
         if (pdfFilePath != null && TextUtils.equals(PDF_LOADER_URL, url)) {
             setProgress(80);
             mIsPdf = true;
-            mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath,
-                    new PdfAndroidJavascriptBridge.Callbacks() {
-                        @Override
-                        public void onFailure() {
-                            offerExternalApp();
-                            setProgress(100);
-                        }
+            try {
+                if (getActivity() != null) {
+                    mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(
+                            getActivity().getCacheDir().getCanonicalPath(), pdfFilePath,
+                            new PdfAndroidJavascriptBridge.Callbacks() {
+                                @Override
+                                public void onFailure() {
+                                    offerExternalApp();
+                                    setProgress(100);
+                                }
 
-                        @Override
-                        public void onLoad() {
-                            setProgress(100);
-                        }
-                    });
-            mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
+                                @Override
+                                public void onLoad() {
+                                    setProgress(100);
+                                }
+                            });
+                    mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
+                }
+            } catch (IOException | SecurityException e) {
+                offerExternalApp();
+                setProgress(100);
+            }
             mWebView.setInitialScale(1);
         }
         mWebView.reloadUrl(url);
@@ -690,8 +698,11 @@ public class WebFragment extends LazyLoadFragment
         private @Nullable Callbacks mCallback;
         private Handler mHandler;
 
-        PdfAndroidJavascriptBridge(String filePath, @Nullable Callbacks callback) {
+        PdfAndroidJavascriptBridge(String cacheDirPath, String filePath, @Nullable Callbacks callback) throws IOException {
             mFile = new File(filePath);
+            if (!mFile.getCanonicalPath().startsWith(new File(cacheDirPath).getCanonicalPath() + File.separator)) {
+                throw new SecurityException("Local file inclusion attempt");
+            }
             mCallback = callback;
             mHandler = new Handler(Looper.getMainLooper());
         }

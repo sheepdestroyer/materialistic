@@ -1,0 +1,4 @@
+## 2024-05-24 - Local File Inclusion in Javascript Bridge
+**Vulnerability:** The PdfAndroidJavascriptBridge in WebFragment lacked file path validation, enabling Local File Inclusion (LFI) since it exposed file chunk reads and length calculations to the WebView through its Javascript Interface, letting malicious JavaScript read arbitrary files via `getChunk()`.
+**Learning:** Instantiating JavascriptInterfaces with a raw file path argument and without restricting the underlying IO operation bounds allows WebView Javascript context to bypass standard browser origin constraints.
+**Prevention:** To avoid this, always constrain file paths in JavascriptInterfaces strictly to specific directories (e.g., app cache directory) by validating that the file's canonical path begins with the canonical path of the allowed directory plus `File.separator`.
