@@ -1,0 +1,4 @@
+## 2025-03-31 - Fix Local File Inclusion in Javascript Interface
+**Vulnerability:** A Local File Inclusion (LFI) vulnerability was found in the `PdfAndroidJavascriptBridge` constructor, where user input file paths were not validated to ensure they resided within the allowed cache directory. This allowed external files to be read and encoded.
+**Learning:** `JavascriptInterface` objects provide direct access from WebView JavaScript context into Android app. Failing to validate the bounds of allowed file system access within such bridges can allow malicious websites or payloads to read sensitive local files.
+**Prevention:** Always validate that the canonical path of any file accessed via a Javascript Interface starts strictly with the canonical path of the intended base directory (e.g., the application's cache directory) plus a `File.separator`.
