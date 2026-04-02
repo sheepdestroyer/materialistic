@@ -1,0 +1,3 @@
+## 2024-04-02 - Precompile Regular Expressions in Loop-Heavy or Repeated Call Paths
+**Learning:** Found several instances where `Pattern.compile()` was being called dynamically inside methods (like `getInputValue` or `parseLoginError` in `UserServicesClient`) or when processing intents (like `extractUrl` in `SubmitActivity`). Compiling regexes on the fly creates unnecessary GC pressure and CPU overhead, especially if called frequently.
+**Action:** Always pre-compile regular expressions as `private static final Pattern` constants. They are immutable and thread-safe, making them ideal to share across instances and method invocations, bypassing the overhead of compiling the regex every single time.
