@@ -23,6 +23,10 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import android.net.Uri;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +44,9 @@ public class AdBlockWebViewClient extends WebViewClient {
 
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (url != null && url.toLowerCase().startsWith("file://") && !isSafeFileUrl(view, url)) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,11 +63,14 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        String url = request.getUrl().toString();
+        if (url != null && url.toLowerCase().startsWith("file://") && !isSafeFileUrl(view, url)) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
         boolean ad;
-        String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
@@ -68,5 +78,36 @@ public class AdBlockWebViewClient extends WebViewClient {
             ad = mLoadedUrls.get(url);
         }
         return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
+    }
+
+    private boolean isSafeFileUrl(WebView view, String url) {
+        Uri uri = Uri.parse(url);
+        String path = uri.getPath();
+        if (path == null) {
+            return false;
+        }
+        if (url.toLowerCase().startsWith("file:///android_asset/")) {
+            try {
+                File file = new File(path);
+                String canonicalPath = file.getCanonicalPath();
+                if (canonicalPath.startsWith("/android_asset/")) {
+                    return true;
+                }
+            } catch (IOException e) {
+                // Ignore and block
+            }
+        } else {
+            try {
+                File file = new File(path);
+                String canonicalPath = file.getCanonicalPath();
+                String canonicalCacheDir = view.getContext().getCacheDir().getCanonicalPath() + File.separator;
+                if (canonicalPath.startsWith(canonicalCacheDir)) {
+                    return true;
+                }
+            } catch (IOException e) {
+                // Ignore and block
+            }
+        }
+        return false;
     }
 }
