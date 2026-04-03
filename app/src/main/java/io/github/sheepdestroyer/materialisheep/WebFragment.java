@@ -346,21 +346,27 @@ public class WebFragment extends LazyLoadFragment
         if (pdfFilePath != null && TextUtils.equals(PDF_LOADER_URL, url)) {
             setProgress(80);
             mIsPdf = true;
-            mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath,
-                    new PdfAndroidJavascriptBridge.Callbacks() {
-                        @Override
-                        public void onFailure() {
-                            offerExternalApp();
-                            setProgress(100);
-                        }
+            try {
+                String cacheDirPath = getActivity().getCacheDir().getCanonicalPath();
+                mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(cacheDirPath, pdfFilePath,
+                        new PdfAndroidJavascriptBridge.Callbacks() {
+                            @Override
+                            public void onFailure() {
+                                offerExternalApp();
+                                setProgress(100);
+                            }
 
-                        @Override
-                        public void onLoad() {
-                            setProgress(100);
-                        }
-                    });
-            mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
-            mWebView.setInitialScale(1);
+                            @Override
+                            public void onLoad() {
+                                setProgress(100);
+                            }
+                        });
+                mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
+                mWebView.setInitialScale(1);
+            } catch (Exception e) {
+                offerExternalApp();
+                return;
+            }
         }
         mWebView.reloadUrl(url);
     }
@@ -690,8 +696,11 @@ public class WebFragment extends LazyLoadFragment
         private @Nullable Callbacks mCallback;
         private Handler mHandler;
 
-        PdfAndroidJavascriptBridge(String filePath, @Nullable Callbacks callback) {
+        PdfAndroidJavascriptBridge(String cacheDirPath, String filePath, @Nullable Callbacks callback) throws SecurityException, IOException {
             mFile = new File(filePath);
+            if (!mFile.getCanonicalPath().startsWith(cacheDirPath + File.separator)) {
+                throw new SecurityException("Access to path denied.");
+            }
             mCallback = callback;
             mHandler = new Handler(Looper.getMainLooper());
         }
