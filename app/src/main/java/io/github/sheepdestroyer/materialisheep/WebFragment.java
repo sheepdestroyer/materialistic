@@ -346,21 +346,32 @@ public class WebFragment extends LazyLoadFragment
         if (pdfFilePath != null && TextUtils.equals(PDF_LOADER_URL, url)) {
             setProgress(80);
             mIsPdf = true;
-            mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath,
-                    new PdfAndroidJavascriptBridge.Callbacks() {
-                        @Override
-                        public void onFailure() {
-                            offerExternalApp();
-                            setProgress(100);
-                        }
+            try {
+                Context context = getActivity();
+                if (context == null) {
+                    throw new SecurityException("Context is null, cannot verify cache directory.");
+                }
+                String cacheDirPath = context.getCacheDir().getPath();
+                mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(cacheDirPath, pdfFilePath,
+                        new PdfAndroidJavascriptBridge.Callbacks() {
+                            @Override
+                            public void onFailure() {
+                                offerExternalApp();
+                                setProgress(100);
+                            }
 
-                        @Override
-                        public void onLoad() {
-                            setProgress(100);
-                        }
-                    });
-            mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
-            mWebView.setInitialScale(1);
+                            @Override
+                            public void onLoad() {
+                                setProgress(100);
+                            }
+                        });
+                mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
+                mWebView.setInitialScale(1);
+            } catch (SecurityException e) {
+                Log.e("WebFragment", "SecurityException during PDF load: " + e.getMessage());
+                offerExternalApp();
+                setProgress(100);
+            }
         }
         mWebView.reloadUrl(url);
     }
@@ -690,8 +701,16 @@ public class WebFragment extends LazyLoadFragment
         private @Nullable Callbacks mCallback;
         private Handler mHandler;
 
-        PdfAndroidJavascriptBridge(String filePath, @Nullable Callbacks callback) {
+        PdfAndroidJavascriptBridge(String cacheDirPath, String filePath, @Nullable Callbacks callback) {
             mFile = new File(filePath);
+            try {
+                String cacheDirCanonical = new File(cacheDirPath).getCanonicalPath();
+                if (!mFile.getCanonicalPath().startsWith(cacheDirCanonical + File.separator)) {
+                    throw new SecurityException("Security violation: path traversal detected.");
+                }
+            } catch (IOException e) {
+                throw new SecurityException("Security violation: unable to resolve canonical paths.");
+            }
             mCallback = callback;
             mHandler = new Handler(Looper.getMainLooper());
         }

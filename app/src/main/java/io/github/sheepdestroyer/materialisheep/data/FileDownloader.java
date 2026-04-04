@@ -49,6 +49,17 @@ public class FileDownloader {
     @WorkerThread
     public void downloadFile(String url, String mimeType, FileDownloaderCallback callback) {
         File outputFile = new File(mCacheDir, new File(url).getName());
+        try {
+            String cacheDirCanonical = new File(mCacheDir).getCanonicalPath();
+            if (!outputFile.getCanonicalPath().startsWith(cacheDirCanonical + File.separator)) {
+                mMainHandler.post(() -> callback.onFailure(null, new IOException("Security violation: path traversal detected.")));
+                return;
+            }
+        } catch (IOException e) {
+            mMainHandler.post(() -> callback.onFailure(null, new IOException("Security violation: unable to resolve canonical paths.")));
+            return;
+        }
+
         if (outputFile.exists()) {
             mMainHandler.post(() -> callback.onSuccess(outputFile.getPath()));
             return;
