@@ -1,0 +1,1 @@
+## 2026-04-04 - Pre-compile Regex Patterns\n**Learning:** Dynamic `Pattern.compile()` inside methods and especially loops causes significant performance overhead in Java due to continuous regex parsing.\n**Action:** Pre-compile regular expressions as `private static final Pattern` constants, which are immutable and thread-safe.
