@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -49,7 +50,8 @@ public class ComposeActivity extends ThemedActivity {
     private static final String HN_FORMAT_DOC_URL = "https://news.ycombinator.com/formatdoc";
     private static final String FORMAT_QUOTE = "> %s\n\n";
     private static final String PARAGRAPH_QUOTE = "\n\n> ";
-    private static final String PARAGRAPH_BREAK_REGEX = "[\\n]{2,}";
+    // Bolt optimization: Pre-compiling the Pattern prevents implicit compilation on each call, which is faster for regex replacement operations.
+    private static final Pattern PARAGRAPH_BREAK_PATTERN = Pattern.compile("[\\n]{2,}");
     @Inject
     UserServices mUserServices;
     @Inject
@@ -247,10 +249,9 @@ public class ComposeActivity extends ThemedActivity {
 
     private String createQuote() {
         if (mQuoteText == null) {
-            mQuoteText = String.format(FORMAT_QUOTE, AppUtils.fromHtml(mParentText)
-                    .toString()
-                    .trim()
-                    .replaceAll(PARAGRAPH_BREAK_REGEX, PARAGRAPH_QUOTE));
+            mQuoteText = String.format(FORMAT_QUOTE,
+                    PARAGRAPH_BREAK_PATTERN.matcher(AppUtils.fromHtml(mParentText).toString().trim())
+                            .replaceAll(PARAGRAPH_QUOTE));
         }
         return mQuoteText;
     }
