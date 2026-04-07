@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix Local File Inclusion in WebFragment PdfAndroidJavascriptBridge
+**Vulnerability:** A local file inclusion (LFI) vulnerability existed in `PdfAndroidJavascriptBridge` because the `filePath` argument passed to its constructor was used directly to create a `File` object and read file chunks via the Javascript interface `getChunk()`. This allowed arbitrary files to be read and leaked if an attacker could control the `filePath` parameter.
+**Learning:** `new File(url).getName()` only strips preceding directories, but Javascript bridges exposed to WebViews can be exploited to read sensitive local files if path validation is omitted when handling local files directly.
+**Prevention:** Always require and validate that the canonical path of the accessed file (`mFile.getCanonicalPath()`) strictly starts with the canonical path of the intended base directory (e.g., `getCacheDir().getCanonicalPath() + File.separator`), throwing a `SecurityException` otherwise.
