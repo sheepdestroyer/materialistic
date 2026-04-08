@@ -22,7 +22,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.net.Uri;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,8 +40,28 @@ public class AdBlockWebViewClient extends WebViewClient {
         mAdBlockEnabled = adBlockEnabled;
     }
 
+    private WebResourceResponse interceptFileRequest(WebView view, String url) {
+        if (url != null && url.toLowerCase(java.util.Locale.ROOT).startsWith("file://")) {
+            try {
+                File file = new File(Uri.parse(url).getPath());
+                String canonicalPath = file.getCanonicalPath();
+                String cacheDir = view.getContext().getCacheDir().getCanonicalPath() + File.separator;
+                if (!canonicalPath.startsWith(cacheDir) && !canonicalPath.startsWith("/android_asset/")) {
+                    return AdBlocker.createEmptyResource();
+                }
+            } catch (Exception e) {
+                return AdBlocker.createEmptyResource();
+            }
+        }
+        return null;
+    }
+
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        WebResourceResponse fileIntercept = interceptFileRequest(view, url);
+        if (fileIntercept != null) {
+            return fileIntercept;
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,11 +78,15 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        String url = request.getUrl().toString();
+        WebResourceResponse fileIntercept = interceptFileRequest(view, url);
+        if (fileIntercept != null) {
+            return fileIntercept;
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
         boolean ad;
-        String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
