@@ -1,0 +1,4 @@
+## 2025-02-28 - Local File Inclusion (LFI) and Path Traversal via Cache Files
+**Vulnerability:** The application was vulnerable to path traversal and potential Local File Inclusion (LFI) via the `WebFragment` Javascript bridge and the `FileDownloader` utility, which blindly trusted file paths provided dynamically without canonical path validation.
+**Learning:** File validation needs to occur by confirming the resolved canonical path of a target file strongly begins with the canonical path of its intended sandboxed directory (like `Context.getCacheDir()`), ensuring the path hasn't "escaped" via `../` directives.
+**Prevention:** Always enforce directory constraints before operating on files, particularly those generated from external inputs, by using `File.getCanonicalPath()` to securely bound file access.

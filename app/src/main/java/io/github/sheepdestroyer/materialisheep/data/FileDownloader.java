@@ -49,6 +49,17 @@ public class FileDownloader {
     @WorkerThread
     public void downloadFile(String url, String mimeType, FileDownloaderCallback callback) {
         File outputFile = new File(mCacheDir, new File(url).getName());
+        try {
+            String canonicalCacheDir = new File(mCacheDir).getCanonicalPath() + File.separator;
+            String canonicalOutputFile = outputFile.getCanonicalPath();
+            if (!canonicalOutputFile.startsWith(canonicalCacheDir)) {
+                mMainHandler.post(() -> callback.onFailure(null, new IOException("Path traversal attempt")));
+                return;
+            }
+        } catch (IOException e) {
+            mMainHandler.post(() -> callback.onFailure(null, new IOException("Invalid file path")));
+            return;
+        }
         if (outputFile.exists()) {
             mMainHandler.post(() -> callback.onSuccess(outputFile.getPath()));
             return;
