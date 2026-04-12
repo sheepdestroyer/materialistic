@@ -1,0 +1,5 @@
+## 2025-05-24 - Fix Local File Inclusion (LFI) via WebView intercept
+
+**Vulnerability:** The AdBlockWebViewClient intercepted requests in WebView but lacked validation on `file://` URLs. This could allow an attacker to bypass intended file access restrictions and read arbitrary files if the WebView processes untrusted URLs that redirect to local files, which could be displayed or leaked by custom WebChromeClients or Javascript bridges.
+**Learning:** `shouldInterceptRequest` provides an opportunity to block local file accesses before the WebView loader attempts to handle them, bypassing standard `setAllowFileAccess` restrictions in cases where native caching or JS bridges depend on `file://` access (e.g. `CacheableWebView` requiring `setAllowFileAccess(true)` for its offline reading features).
+**Prevention:** Always validate `file://` requests intercepted in custom `WebViewClient`s by parsing the URI, extracting the canonical path, and explicitly checking if it falls within the authorized directories (e.g. cache directory or `/android_asset/`). If it fails validation, return an empty `WebResourceResponse`.
