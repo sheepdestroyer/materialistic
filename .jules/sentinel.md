@@ -1,0 +1,4 @@
+## 2024-05-24 - LFI vulnerability in AdBlockWebViewClient
+**Vulnerability:** A local file inclusion (LFI) vulnerability exists in the WebViews because `setAllowFileAccess(true)` is required for caching. This allowed any `file://` URL loaded within the WebView to bypass normal constraints if intercepted incorrectly.
+**Learning:** `AdBlockWebViewClient` was missing logic to validate `file://` accesses to restrict them specifically to the app's cache dir and the `/android_asset/` directory. Without explicit filtering, malicious inputs could construct a file URL pointing anywhere and the WebView would happily load it.
+**Prevention:** In `shouldInterceptRequest`, explicitly parse the `file://` URL scheme, resolve the absolute path, and compare its canonical path against allowed base directories (`getCacheDir().getCanonicalPath()` and `/android_asset/`). Return an empty web resource if the request tries to escape the allowed roots.
