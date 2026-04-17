@@ -1,0 +1,3 @@
+## 2024-05-23 - Avoid dynamic Pattern compilation and String.replaceAll
+**Learning:** `String.replaceAll(String regex, String replacement)` implicitly calls `Pattern.compile(regex)` on every invocation. In Android apps, doing this inside loops or methods like `parseLoginError`, `createQuote`, or `extractUrl` adds unnecessary object instantiation and regex compilation overhead, leading to garbage collection pressure and slower execution.
+**Action:** Always pre-compile regular expressions using `private static final Pattern` constants. For string replacements, use `PATTERN_CONSTANT.matcher(text).replaceAll(replacement)` instead of `text.replaceAll(regex, replacement)`.
