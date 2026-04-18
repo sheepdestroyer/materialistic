@@ -22,9 +22,12 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.net.Uri;
 
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.Nullable;
 import io.github.sheepdestroyer.materialisheep.AdBlocker;
@@ -32,15 +35,50 @@ import io.github.sheepdestroyer.materialisheep.AdBlocker;
 @SuppressWarnings("deprecation") // TODO: Uses deprecated WebResourceRequest API
 public class AdBlockWebViewClient extends WebViewClient {
     private final boolean mAdBlockEnabled;
-    private final Map<String, Boolean> mLoadedUrls = new HashMap<>();
+    private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
 
     public AdBlockWebViewClient(boolean adBlockEnabled) {
         mAdBlockEnabled = adBlockEnabled;
     }
 
+    private boolean isInvalidFileUrl(WebView view, String url) {
+        if (url == null) return false;
+        String lowerUrl = url.toLowerCase(java.util.Locale.ROOT);
+        // Security concern: Validate file:// URLs to prevent Local File Inclusion (LFI)
+        // and path traversal vulnerabilities (e.g., file:///android_asset/../../etc/passwd).
+        if (lowerUrl.startsWith("file://")) {
+            if (lowerUrl.startsWith("file:///android_asset/")) {
+                try {
+                    String path = Uri.parse(url).getPath();
+                    return path != null && path.contains("..");
+                } catch (Exception e) {
+                    return true;
+                }
+            }
+            try {
+                String path = Uri.parse(url).getPath();
+                if (path == null) return true;
+                String canonicalPath = new File(path).getCanonicalPath();
+                String cachePath = view.getContext().getCacheDir().getCanonicalPath() + File.separator;
+                if (!canonicalPath.startsWith(cachePath)) {
+                    return true;
+                }
+            } catch (IOException | SecurityException e) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (isInvalidFileUrl(view, url)) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
+            return super.shouldInterceptRequest(view, url);
+        }
+        if (url == null) {
             return super.shouldInterceptRequest(view, url);
         }
         boolean ad;
@@ -56,11 +94,17 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        if (isInvalidFileUrl(view, request.getUrl().toString())) {
+            return AdBlocker.createEmptyResource();
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
-        boolean ad;
         String url = request.getUrl().toString();
+        if (url == null) {
+             return super.shouldInterceptRequest(view, request);
+        }
+        boolean ad;
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);
