@@ -1,0 +1,4 @@
+## 2024-05-20 - [CRITICAL] WebViews Vulnerable to LFI Bypass via URL encoding
+**Vulnerability:** Local File Inclusion (LFI) in `CacheableWebView` due to unrestricted `file://` access while using `AdBlockWebViewClient`.
+**Learning:** In Android WebViews, if `setAllowFileAccess(true)` is enabled for native caching features, `WebViewClient.shouldInterceptRequest` must robustly intercept and validate `file://` schemes. Naive string replacement or omitting URL decoding (`Uri.parse(url).getPath()`) allows attackers to bypass checks via URL-encoded characters (e.g. `%2e%2e%2f`).
+**Prevention:** Always validate the canonical path of decoded `file://` URLs against a safe base directory (like `getCacheDir().getCanonicalPath()`) and return an empty `WebResourceResponse` for invalid paths, rather than relying solely on Android's default file access protections.
