@@ -50,6 +50,7 @@ public class ComposeActivity extends ThemedActivity {
     private static final String FORMAT_QUOTE = "> %s\n\n";
     private static final String PARAGRAPH_QUOTE = "\n\n> ";
     private static final String PARAGRAPH_BREAK_REGEX = "[\\n]{2,}";
+    private static final java.util.regex.Pattern PATTERN_PARAGRAPH_BREAK = java.util.regex.Pattern.compile(PARAGRAPH_BREAK_REGEX);
     @Inject
     UserServices mUserServices;
     @Inject
@@ -247,10 +248,10 @@ public class ComposeActivity extends ThemedActivity {
 
     private String createQuote() {
         if (mQuoteText == null) {
-            mQuoteText = String.format(FORMAT_QUOTE, AppUtils.fromHtml(mParentText)
+            mQuoteText = String.format(FORMAT_QUOTE, PATTERN_PARAGRAPH_BREAK.matcher(AppUtils.fromHtml(mParentText)
                     .toString()
-                    .trim()
-                    .replaceAll(PARAGRAPH_BREAK_REGEX, PARAGRAPH_QUOTE));
+                    .trim())
+                    .replaceAll(PARAGRAPH_QUOTE));
         }
         return mQuoteText;
     }
