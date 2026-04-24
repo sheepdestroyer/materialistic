@@ -344,23 +344,33 @@ public class WebFragment extends LazyLoadFragment
             mWebView.removeJavascriptInterface("PdfAndroidJavascriptBridge");
         }
         if (pdfFilePath != null && TextUtils.equals(PDF_LOADER_URL, url)) {
+            if (getActivity() == null) {
+                return;
+            }
             setProgress(80);
             mIsPdf = true;
-            mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath,
-                    new PdfAndroidJavascriptBridge.Callbacks() {
-                        @Override
-                        public void onFailure() {
-                            offerExternalApp();
-                            setProgress(100);
-                        }
+            try {
+                String cacheDirPath = getActivity().getCacheDir().getCanonicalPath() + File.separator;
+                mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(cacheDirPath, pdfFilePath,
+                        new PdfAndroidJavascriptBridge.Callbacks() {
+                            @Override
+                            public void onFailure() {
+                                offerExternalApp();
+                                setProgress(100);
+                            }
 
-                        @Override
-                        public void onLoad() {
-                            setProgress(100);
-                        }
-                    });
-            mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
-            mWebView.setInitialScale(1);
+                            @Override
+                            public void onLoad() {
+                                setProgress(100);
+                            }
+                        });
+                mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
+                mWebView.setInitialScale(1);
+            } catch (IOException | SecurityException e) {
+                offerExternalApp();
+                setProgress(100);
+                return;
+            }
         }
         mWebView.reloadUrl(url);
     }
@@ -690,8 +700,16 @@ public class WebFragment extends LazyLoadFragment
         private @Nullable Callbacks mCallback;
         private Handler mHandler;
 
-        PdfAndroidJavascriptBridge(String filePath, @Nullable Callbacks callback) {
-            mFile = new File(filePath);
+        PdfAndroidJavascriptBridge(String cacheDirPath, String filePath, @Nullable Callbacks callback) {
+            try {
+                File file = new File(filePath);
+                if (!file.getCanonicalPath().startsWith(cacheDirPath)) {
+                    throw new SecurityException("File must be in cache directory");
+                }
+                mFile = file;
+            } catch (IOException e) {
+                throw new SecurityException("Failed to validate file path", e);
+            }
             mCallback = callback;
             mHandler = new Handler(Looper.getMainLooper());
         }
