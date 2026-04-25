@@ -1,0 +1,52 @@
+<<<<<<< SEARCH
+    private boolean isBlockedFile(WebView view, String url) {
+        if (url == null) return false;
+        String lowerUrl = url.toLowerCase(java.util.Locale.ROOT);
+        if (!lowerUrl.startsWith("file://")) return false;
+        try {
+            String path = android.net.Uri.parse(url).getPath();
+=======
+    private boolean isBlockedFile(WebView view, String url) {
+        if (url == null) return false;
+        String lowerUrl = url.toLowerCase(java.util.Locale.ROOT);
+        if (!lowerUrl.startsWith("file://")) return false;
+        try {
+            // Security: Decode URI path to properly inspect for LFI traversal
+            String path = android.net.Uri.parse(url).getPath();
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+            if (lowerUrl.startsWith("file:///android_asset/")) {
+                if (path.contains("..")) return true;
+            } else {
+                java.io.File file = new java.io.File(path);
+                String canonicalPath = file.getCanonicalPath();
+                java.io.File cacheDir = view.getContext().getCacheDir();
+                if (cacheDir == null || !canonicalPath.startsWith(cacheDir.getCanonicalPath() + java.io.File.separator)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+=======
+            if (lowerUrl.startsWith("file:///android_asset/")) {
+                // Security: Prevent accessing files outside the asset directory
+                if (path.contains("..")) return true;
+            } else {
+                java.io.File file = new java.io.File(path);
+                String canonicalPath = file.getCanonicalPath();
+                java.io.File cacheDir = view.getContext().getCacheDir();
+                // Security: Validate canonical path matches expected cache directory to prevent arbitrary local file reads
+                if (cacheDir == null || !canonicalPath.startsWith(cacheDir.getCanonicalPath() + java.io.File.separator)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            // Security: Fail securely on any parsing or I/O error
+            return true;
+        }
+    }
+>>>>>>> REPLACE
