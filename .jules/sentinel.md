@@ -1,0 +1,4 @@
+## 2025-04-26 - [Fix Local File Inclusion in AdBlockWebViewClient]
+**Vulnerability:** Path traversal payload via `file://` URLs bypassed the ad-blocker allowing access to sensitive local files, and state modification map could suffer race condition due to background thread invocations.
+**Learning:** `WebViewClient.shouldInterceptRequest` is invoked on background threads and needs explicit security checks for `file://` URLs, specifically preventing directory traversal (using `..`) and ensuring the file remains in an expected safe zone like `cacheDir`. Furthermore, state maps used here must be thread-safe (e.g. `ConcurrentHashMap`).
+**Prevention:** Intercept all `file://` schemes in custom `WebViewClient` methods, apply `getCanonicalPath` verification against an intended base directory, explicitly return empty `WebResourceResponse` objects when violations are detected, and ensure shared state uses concurrent collections.
