@@ -92,7 +92,7 @@ public class CacheableWebView extends WebView {
 
     private void enableCache() {
         WebSettings webSettings = getSettings();
-        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccess(false);
         setCacheModeInternal();
     }
 
