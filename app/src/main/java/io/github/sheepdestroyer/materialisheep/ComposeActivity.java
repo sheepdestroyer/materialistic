@@ -30,6 +30,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
+import java.util.regex.Pattern;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
@@ -50,6 +51,7 @@ public class ComposeActivity extends ThemedActivity {
     private static final String FORMAT_QUOTE = "> %s\n\n";
     private static final String PARAGRAPH_QUOTE = "\n\n> ";
     private static final String PARAGRAPH_BREAK_REGEX = "[\\n]{2,}";
+    private static final Pattern PATTERN_PARAGRAPH_BREAK = Pattern.compile(PARAGRAPH_BREAK_REGEX);
     @Inject
     UserServices mUserServices;
     @Inject
@@ -247,10 +249,9 @@ public class ComposeActivity extends ThemedActivity {
 
     private String createQuote() {
         if (mQuoteText == null) {
-            mQuoteText = String.format(FORMAT_QUOTE, AppUtils.fromHtml(mParentText)
-                    .toString()
-                    .trim()
-                    .replaceAll(PARAGRAPH_BREAK_REGEX, PARAGRAPH_QUOTE));
+            String trimmedText = AppUtils.fromHtml(mParentText).toString().trim();
+            String replacedText = PATTERN_PARAGRAPH_BREAK.matcher(trimmedText).replaceAll(PARAGRAPH_QUOTE);
+            mQuoteText = String.format(FORMAT_QUOTE, replacedText);
         }
         return mQuoteText;
     }
