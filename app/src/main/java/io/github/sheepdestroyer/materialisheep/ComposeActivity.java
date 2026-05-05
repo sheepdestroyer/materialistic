@@ -22,6 +22,8 @@ import android.os.Bundle;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
+
+import java.util.regex.Pattern;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -50,6 +52,8 @@ public class ComposeActivity extends ThemedActivity {
     private static final String FORMAT_QUOTE = "> %s\n\n";
     private static final String PARAGRAPH_QUOTE = "\n\n> ";
     private static final String PARAGRAPH_BREAK_REGEX = "[\\n]{2,}";
+    // ⚡ Bolt: Pre-compile regular expression to prevent dynamic compilation overhead and optimize string replacement
+    private static final Pattern PATTERN_PARAGRAPH_BREAK = Pattern.compile(PARAGRAPH_BREAK_REGEX);
     @Inject
     UserServices mUserServices;
     @Inject
@@ -247,10 +251,10 @@ public class ComposeActivity extends ThemedActivity {
 
     private String createQuote() {
         if (mQuoteText == null) {
-            mQuoteText = String.format(FORMAT_QUOTE, AppUtils.fromHtml(mParentText)
+            mQuoteText = String.format(FORMAT_QUOTE, PATTERN_PARAGRAPH_BREAK.matcher(AppUtils.fromHtml(mParentText)
                     .toString()
-                    .trim()
-                    .replaceAll(PARAGRAPH_BREAK_REGEX, PARAGRAPH_QUOTE));
+                    .trim())
+                    .replaceAll(PARAGRAPH_QUOTE));
         }
         return mQuoteText;
     }
