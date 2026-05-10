@@ -22,7 +22,10 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.net.Uri;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,11 +41,39 @@ public class AdBlockWebViewClient extends WebViewClient {
         mAdBlockEnabled = adBlockEnabled;
     }
 
+    private WebResourceResponse handleFileUrl(WebView view, String url) {
+        try {
+            Uri uri = Uri.parse(url);
+            String path = uri.getPath();
+            if (path == null || path.contains("..")) {
+                return AdBlocker.createEmptyResource();
+            }
+
+            File file = new File(path);
+            String canonicalPath = file.getCanonicalPath();
+            String cacheDirPath = view.getContext().getApplicationContext().getCacheDir().getCanonicalPath() + File.separator;
+
+            if (canonicalPath.startsWith(cacheDirPath)) {
+                FileInputStream is = new FileInputStream(file);
+                return new WebResourceResponse("application/x-mimearchive", "UTF-8", is);
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+
+        return AdBlocker.createEmptyResource();
+    }
+
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (url != null && url.toLowerCase(java.util.Locale.ROOT).startsWith("file://") && !url.toLowerCase(java.util.Locale.ROOT).startsWith("file:///android_asset/") && !url.toLowerCase(java.util.Locale.ROOT).startsWith("file:///android_res/")) {
+            return handleFileUrl(view, url);
+        }
+
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
+
         boolean ad;
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
@@ -56,9 +87,14 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        if (request != null && request.getUrl() != null && request.getUrl().toString().toLowerCase(java.util.Locale.ROOT).startsWith("file://") && !request.getUrl().toString().toLowerCase(java.util.Locale.ROOT).startsWith("file:///android_asset/") && !request.getUrl().toString().toLowerCase(java.util.Locale.ROOT).startsWith("file:///android_res/")) {
+            return handleFileUrl(view, request.getUrl().toString());
+        }
+
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
+
         boolean ad;
         String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
