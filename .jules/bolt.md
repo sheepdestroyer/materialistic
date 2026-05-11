@@ -1,0 +1,3 @@
+## 2023-10-27 - Pre-compiled Regex Performance Boost
+**Learning:** In Java, dynamic regex compilation using `Pattern.compile()` or implicitly via `String.replaceAll()` inside frequently called methods or loops causes significant CPU and memory overhead. `Pattern` instances are immutable and thread-safe, making them perfect candidates for static constants.
+**Action:** Always extract static regular expressions into `private static final Pattern` constants. For replacements, use `PATTERN_CONSTANT.matcher(text).replaceAll("replacement")` instead of `text.replaceAll("regex", "replacement")` to avoid redundant compilation, especially in parsers or high-frequency UI tasks like formatting quotes.
