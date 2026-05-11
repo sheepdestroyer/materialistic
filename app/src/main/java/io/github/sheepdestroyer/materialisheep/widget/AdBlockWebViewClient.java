@@ -23,7 +23,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 import androidx.annotation.Nullable;
@@ -32,7 +32,7 @@ import io.github.sheepdestroyer.materialisheep.AdBlocker;
 @SuppressWarnings("deprecation") // TODO: Uses deprecated WebResourceRequest API
 public class AdBlockWebViewClient extends WebViewClient {
     private final boolean mAdBlockEnabled;
-    private final Map<String, Boolean> mLoadedUrls = new HashMap<>();
+    private final Map<String, Boolean> mLoadedUrls = new ConcurrentHashMap<>();
 
     public AdBlockWebViewClient(boolean adBlockEnabled) {
         mAdBlockEnabled = adBlockEnabled;
@@ -40,6 +40,22 @@ public class AdBlockWebViewClient extends WebViewClient {
 
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+        if (url != null && url.toLowerCase(java.util.Locale.ROOT).startsWith("file://")) {
+            try {
+                String decodedPath = android.net.Uri.parse(url).getPath();
+                if (decodedPath != null && !decodedPath.contains("..")) {
+                    java.io.File file = new java.io.File(decodedPath);
+                    String canonicalPath = file.getCanonicalPath();
+                    java.io.File cacheDir = view.getContext().getCacheDir();
+                    if (canonicalPath.startsWith(cacheDir.getCanonicalPath() + java.io.File.separator) && canonicalPath.endsWith(".mht")) {
+                        return new WebResourceResponse("application/x-mimearchive", "UTF-8", new java.io.FileInputStream(file));
+                    }
+                }
+            } catch (java.io.IOException e) {
+                // Ignore
+            }
+            return null;
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, url);
         }
@@ -56,11 +72,27 @@ public class AdBlockWebViewClient extends WebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        String url = request.getUrl().toString();
+        if (url.toLowerCase(java.util.Locale.ROOT).startsWith("file://")) {
+            try {
+                String decodedPath = request.getUrl().getPath();
+                if (decodedPath != null && !decodedPath.contains("..")) {
+                    java.io.File file = new java.io.File(decodedPath);
+                    String canonicalPath = file.getCanonicalPath();
+                    java.io.File cacheDir = view.getContext().getCacheDir();
+                    if (canonicalPath.startsWith(cacheDir.getCanonicalPath() + java.io.File.separator) && canonicalPath.endsWith(".mht")) {
+                        return new WebResourceResponse("application/x-mimearchive", "UTF-8", new java.io.FileInputStream(file));
+                    }
+                }
+            } catch (java.io.IOException e) {
+                // Ignore
+            }
+            return null;
+        }
         if (!mAdBlockEnabled) {
             return super.shouldInterceptRequest(view, request);
         }
         boolean ad;
-        String url = request.getUrl().toString();
         if (!mLoadedUrls.containsKey(url)) {
             ad = AdBlocker.isAd(url);
             mLoadedUrls.put(url, ad);

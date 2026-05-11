@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix Local File Inclusion (LFI) via setAllowFileAccess in CacheableWebView
+**Vulnerability:** CacheableWebView sets `setAllowFileAccess(true)` globally while using an interceptor (AdBlockWebViewClient) that could still potentially allow path traversal and other file:// attacks. This is a severe Local File Inclusion (LFI) vulnerability.
+**Learning:** `setAllowFileAccess(false)` natively blocks most dangerous file:// access but preserves necessary internal `file:///android_asset/` access on newer versions. Custom file caching must be intercepted properly using a `WebResourceResponse` while checking the canonical path to prevent path traversal (`..`).
+**Prevention:** Always disable `setAllowFileAccess` on Android WebViews. Explicitly manage any allowed offline/cached file paths using `shouldInterceptRequest` with canonical path verification within the app's cache directory.
