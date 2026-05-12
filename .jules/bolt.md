@@ -1,0 +1,4 @@
+
+## $(date +%Y-%m-%d) - Pre-compile Regex Constants
+**Learning:** In Android apps heavily reliant on text processing, parsing, or web scraping (like extracting values from HTML responses using Matcher), dynamic compilation of regular expressions using inline `Pattern.compile(regex)` inside methods creates hidden performance overhead due to repeated state-machine generation. Even `String.replaceAll(regex)` is a hidden offender as it implicitly calls `Pattern.compile(regex).matcher(this).replaceAll(...)` under the hood.
+**Action:** Always extract static regular expressions into `private static final Pattern` constants. These constants are immutable, thread-safe, and compile the state-machine exactly once during class initialization. Use the pre-compiled constant's `.matcher()` method directly.

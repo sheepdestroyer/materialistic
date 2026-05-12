@@ -53,7 +53,10 @@ public class SubmitActivity extends ThemedActivity {
     private static final String STATE_SUBJECT = "state:subject";
     private static final String STATE_TEXT = "state:text";
     // matching title url without any trailing text
-    private static final String REGEX_FUZZY_URL = "(.*)((http|https)://[^\\s]*)$";
+
+    // Performance optimization: Pre-compiling regular expressions as static final constants
+    // prevents dynamic Pattern.compile() overhead on every usage, avoiding redundant object creation.
+    private static final Pattern PATTERN_FUZZY_URL = Pattern.compile("(.*)((http|https)://[^\\s]*)$");
     @Inject
     UserServices mUserServices;
     @Inject
@@ -271,7 +274,7 @@ public class SubmitActivity extends ThemedActivity {
     }
 
     private void extractUrl(String text) {
-        Matcher matcher = Pattern.compile(REGEX_FUZZY_URL).matcher(text);
+        Matcher matcher = PATTERN_FUZZY_URL.matcher(text);
         if (matcher.find() && matcher.groupCount() >= 3) { // group 1: title, group 2: url, group 3: scheme
             mTitleEditText.setText(trimTitle(matcher.group(1).trim()));
             mContentEditText.setText(matcher.group(2));
