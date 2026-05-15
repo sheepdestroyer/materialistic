@@ -329,7 +329,11 @@ public class SyncDelegate {
     }
 
     void stopSync() {
-        // TODO
+        if (mWebView != null) {
+            mWebView.stopLoading();
+            mWebView.destroy();
+            mWebView = null;
+        }
         mJob.connectionEnabled = false;
         int id = Integer.valueOf(mJob.id);
         mNotificationManager.cancel(id);
