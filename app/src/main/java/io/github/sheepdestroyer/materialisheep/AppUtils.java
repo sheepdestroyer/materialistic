@@ -30,9 +30,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
@@ -44,12 +44,12 @@ import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.view.ContextThemeWrapper;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.WindowMetrics;
 import android.webkit.WebSettings;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,8 +77,7 @@ import io.github.sheepdestroyer.materialisheep.data.Item;
 import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
 
-@SuppressWarnings({ "WeakerAccess", "deprecation" }) // TODO: Uses deprecated NetworkInfo, Display,
-                                                     // LocalBroadcastManager, SystemUI, Custom Tabs APIs
+@SuppressWarnings({ "WeakerAccess", "deprecation" }) // TODO: Uses deprecated LocalBroadcastManager, SystemUI, Custom Tabs APIs
 @PublicApi
 /**
  * A utility class providing common functions for the application.
@@ -397,11 +396,16 @@ public class AppUtils {
      * @return True if connected to WiFi, false otherwise.
      */
     public static boolean isOnWiFi(Context context) {
-        NetworkInfo activeNetwork = ((ConnectivityManager) context.getSystemService(
-                Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting() &&
-                activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return false;
+        }
+        Network network = cm.getActiveNetwork();
+        if (network == null) {
+            return false;
+        }
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+        return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
 
     /**
@@ -411,9 +415,16 @@ public class AppUtils {
      * @return True if there is a connection, false otherwise.
      */
     public static boolean hasConnection(Context context) {
-        NetworkInfo activeNetworkInfo = ((ConnectivityManager) context.getSystemService(
-                Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return false;
+        }
+        Network network = cm.getActiveNetwork();
+        if (network == null) {
+            return false;
+        }
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+        return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
     /**
@@ -681,11 +692,13 @@ public class AppUtils {
      * @return The display height in pixels.
      */
     public static int getDisplayHeight(Context context) {
-        Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
-                .getDefaultDisplay();
-        Point point = new Point();
-        display.getSize(point);
-        return point.y;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            WindowMetrics metrics = wm.getCurrentWindowMetrics();
+            return metrics.getBounds().height();
+        } else {
+            return context.getResources().getDisplayMetrics().heightPixels;
+        }
     }
 
     /**
