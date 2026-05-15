@@ -24,6 +24,8 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.Window;
 
+import androidx.core.content.IntentCompat;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -37,7 +39,6 @@ import io.github.sheepdestroyer.materialisheep.widget.ThreadPreviewRecyclerViewA
 /**
  * An activity that displays a preview of a comment thread.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated Parcelable API
 public class ThreadPreviewActivity extends ThemedActivity {
     public static final String EXTRA_ITEM = ThreadPreviewActivity.class.getName() + ".EXTRA_ITEM";
 
@@ -61,7 +62,7 @@ public class ThreadPreviewActivity extends ThemedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
-        Item item = getIntent().getParcelableExtra(EXTRA_ITEM);
+        Item item = IntentCompat.getParcelableExtra(getIntent(), EXTRA_ITEM, Item.class);
         if (item == null) {
             finish();
             return;
