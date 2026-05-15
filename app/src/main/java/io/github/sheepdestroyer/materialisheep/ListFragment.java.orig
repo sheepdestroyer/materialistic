@@ -164,12 +164,6 @@ public class ListFragment extends BaseListFragment {
         if (savedInstanceState == null) {
             mSwipeRefreshLayout.setRefreshing(true);
         }
-        mSwipeRefreshLayout.setOnChildScrollUpCallback((parent, child) -> {
-            if (mRecyclerView != null && mRecyclerView.getVisibility() == View.VISIBLE) {
-                return mRecyclerView.canScrollVertically(-1);
-            }
-            return false;
-        });
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
             mCacheMode = ItemManager.MODE_NETWORK;
             getAdapter().setCacheMode(mCacheMode);
@@ -318,6 +312,7 @@ public class ListFragment extends BaseListFragment {
         if (items == null) {
             mSwipeRefreshLayout.setRefreshing(false);
             if (getAdapter().getItems() == null || getAdapter().getItems().size() == 0) {
+                // TODO make refreshing indicator visible in error view
                 mEmptyView.setVisibility(View.GONE);
                 mRecyclerView.setVisibility(View.INVISIBLE);
                 mErrorView.setVisibility(View.VISIBLE);
