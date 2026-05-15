@@ -22,10 +22,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import io.github.sheepdestroyer.materialisheep.BuildConfig;
-import io.github.sheepdestroyer.materialisheep.R;
 
 /**
  * App widget provider that handles widget lifecycle events.
@@ -40,14 +38,22 @@ public class WidgetProvider extends AppWidgetProvider {
         if (TextUtils.equals(intent.getAction(), ACTION_REFRESH_WIDGET)) {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
-            new WidgetHelper(context).refresh(appWidgetId);
+            final PendingResult pendingResult = goAsync();
+            new Thread(() -> {
+                new WidgetHelper(context).refresh(appWidgetId);
+                pendingResult.finish();
+            }).start();
         } else if (TextUtils.equals(intent.getAction(), AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
             int[] appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
             if (appWidgetIds != null) {
-                WidgetHelper widgetHelper = new WidgetHelper(context);
-                for (int appWidgetId : appWidgetIds) {
-                    widgetHelper.configure(appWidgetId);
-                }
+                final PendingResult pendingResult = goAsync();
+                new Thread(() -> {
+                    WidgetHelper widgetHelper = new WidgetHelper(context);
+                    for (int appWidgetId : appWidgetIds) {
+                        widgetHelper.configure(appWidgetId);
+                    }
+                    pendingResult.finish();
+                }).start();
             }
         } else {
             super.onReceive(context, intent);
@@ -56,10 +62,14 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        WidgetHelper widgetHelper = new WidgetHelper(context);
-        for (int appWidgetId : appWidgetIds) {
-            widgetHelper.update(appWidgetId);
-        }
+        final PendingResult pendingResult = goAsync();
+        new Thread(() -> {
+            WidgetHelper widgetHelper = new WidgetHelper(context);
+            for (int appWidgetId : appWidgetIds) {
+                widgetHelper.update(appWidgetId);
+            }
+            pendingResult.finish();
+        }).start();
     }
 
     @Override

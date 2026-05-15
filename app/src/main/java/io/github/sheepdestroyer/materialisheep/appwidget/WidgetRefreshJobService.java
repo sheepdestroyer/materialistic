@@ -16,16 +16,16 @@
 
 package io.github.sheepdestroyer.materialisheep.appwidget;
 
-import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.os.Build;
 
 public class WidgetRefreshJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        new WidgetHelper(this).refresh(jobParameters.getJobId());
-        jobFinished(jobParameters, false); // if we're able to start job means we have network conn
+        new Thread(() -> {
+            new WidgetHelper(this).refresh(jobParameters.getJobId());
+            jobFinished(jobParameters, false); // if we're able to start job means we have network conn
+        }).start();
         return true;
     }
 

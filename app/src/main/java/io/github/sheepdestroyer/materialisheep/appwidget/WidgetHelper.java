@@ -16,7 +16,6 @@
 
 package io.github.sheepdestroyer.materialisheep.appwidget;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -27,23 +26,37 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 import android.widget.RemoteViews;
 
 import java.util.Locale;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
+
+import static io.github.sheepdestroyer.materialisheep.DataModule.HN;
+import static io.github.sheepdestroyer.materialisheep.DataModule.ALGOLIA;
+import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.BestActivity;
 import io.github.sheepdestroyer.materialisheep.ListActivity;
+import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import io.github.sheepdestroyer.materialisheep.NewActivity;
 import io.github.sheepdestroyer.materialisheep.R;
 import io.github.sheepdestroyer.materialisheep.SearchActivity;
+import io.github.sheepdestroyer.materialisheep.data.Item;
+import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 
 import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
@@ -51,13 +64,23 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * A helper class for managing widgets.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated AppWidgetManager/RemoteViews APIs
-class WidgetHelper {
+public class WidgetHelper {
     private static final String SP_NAME = "WidgetConfiguration_%1$d";
     private static final int DEFAULT_FREQUENCY_HOUR = 6;
     private final Context mContext;
     private final AppWidgetManager mAppWidgetManager;
     private final AlarmManager mAlarmManager;
+    private static final String SCORE = "%1$dp";
+    private static final String COMMENT = "%1$dc";
+    private static final String SUBTITLE_SEPARATOR = " - ";
+    private static final int MAX_ITEMS = 10;
+
+    @Inject
+    @Named(HN)
+    ItemManager mItemManager;
+    @Inject
+    @Named(ALGOLIA)
+    ItemManager mSearchManager;
 
     /**
      * Constructs a new {@code WidgetHelper}.
@@ -66,6 +89,7 @@ class WidgetHelper {
      */
     WidgetHelper(Context context) {
         mContext = context;
+        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
         mAppWidgetManager = AppWidgetManager.getInstance(context);
         mAlarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
     }
@@ -112,7 +136,6 @@ class WidgetHelper {
      * @param appWidgetId the ID of the widget to refresh
      */
     void refresh(int appWidgetId) {
-        mAppWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, android.R.id.list);
         update(appWidgetId);
     }
 
@@ -126,7 +149,7 @@ class WidgetHelper {
         clearConfig(appWidgetId);
     }
 
-    private void scheduleUpdate(int appWidgetId) {
+    void scheduleUpdate(int appWidgetId) {
         String frequency = getConfig(appWidgetId, R.string.pref_widget_frequency);
         long frequencyHourMillis = DateUtils.HOUR_IN_MILLIS
                 * (TextUtils.isEmpty(frequency) ? DEFAULT_FREQUENCY_HOUR : Integer.valueOf(frequency));
@@ -171,17 +194,71 @@ class WidgetHelper {
                         DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_TIME));
         remoteViews.setOnClickPendingIntent(R.id.button_refresh,
                 createRefreshPendingIntent(appWidgetId));
-        Intent intent = new Intent(mContext, WidgetService.class)
-                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                .putExtra(WidgetService.EXTRA_CUSTOM_QUERY, config.customQuery)
-                .putExtra(WidgetService.EXTRA_SECTION, config.section)
-                .putExtra(WidgetService.EXTRA_LIGHT_THEME, config.isLightTheme);
-        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-        remoteViews.setRemoteAdapter(android.R.id.list, intent);
+
+        ItemManager itemManager = config.customQuery ? mSearchManager : mItemManager;
+        String filter;
+        int hotThreshold;
+        if (TextUtils.equals(config.section, mContext.getString(R.string.pref_widget_section_value_best))) {
+            filter = ItemManager.BEST_FETCH_MODE;
+            hotThreshold = AppUtils.HOT_THRESHOLD_HIGH;
+        } else if (TextUtils.equals(config.section, mContext.getString(R.string.pref_widget_section_value_top))) {
+            filter = ItemManager.TOP_FETCH_MODE;
+            hotThreshold = AppUtils.HOT_THRESHOLD_NORMAL;
+        } else {
+            filter = config.section;
+            hotThreshold = AppUtils.HOT_THRESHOLD_NORMAL;
+        }
+
+        Item[] items = itemManager.getStories(filter, ItemManager.MODE_NETWORK);
+        int count = items != null ? Math.min(items.length, MAX_ITEMS) : 0;
+
+        RemoteViews.RemoteCollectionItems.Builder itemsBuilder = new RemoteViews.RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .setViewTypeCount(1);
+
+        for (int i = 0; i < count; i++) {
+            Item item = items[i];
+            if (item == null) {
+                itemsBuilder.addItem(i, new RemoteViews(mContext.getPackageName(), config.isLightTheme ? R.layout.item_widget_light : R.layout.item_widget));
+                continue;
+            }
+            if (item.getLocalRevision() <= 0) {
+                Item remoteItem = mItemManager.getItem(item.getId(), ItemManager.MODE_NETWORK);
+                if (remoteItem != null) {
+                    item.populate(remoteItem);
+                } else {
+                    itemsBuilder.addItem(i, new RemoteViews(mContext.getPackageName(), config.isLightTheme ? R.layout.item_widget_light : R.layout.item_widget));
+                    continue;
+                }
+            }
+
+            RemoteViews itemViews = new RemoteViews(mContext.getPackageName(), config.isLightTheme ? R.layout.item_widget_light : R.layout.item_widget);
+            itemViews.setTextViewText(R.id.title, item.getDisplayedTitle());
+            itemViews.setTextViewText(R.id.score, new SpannableStringBuilder()
+                    .append(getSpan(item.getScore(), SCORE, hotThreshold * AppUtils.HOT_FACTOR))
+                    .append(SUBTITLE_SEPARATOR)
+                    .append(getSpan(item.getKidCount(), COMMENT, hotThreshold)));
+            itemViews.setOnClickFillInIntent(R.id.item_view, new Intent().setData(AppUtils.createItemUri(item.getId())));
+
+            itemsBuilder.addItem(item.getLongId(), itemViews);
+        }
+
+        remoteViews.setRemoteAdapter(android.R.id.list, itemsBuilder.build());
         remoteViews.setEmptyView(android.R.id.list, R.id.empty);
         remoteViews.setPendingIntentTemplate(android.R.id.list,
                 PendingIntent.getActivity(mContext, 0, new Intent(Intent.ACTION_VIEW),
                         PendingIntent.FLAG_IMMUTABLE));
+    }
+
+    private SpannableString getSpan(int value, String format, int hotThreshold) {
+        String text = String.format(Locale.US, format, value);
+        SpannableString spannable = new SpannableString(text);
+        if (value >= hotThreshold) {
+            spannable.setSpan(new ForegroundColorSpan(
+                    ContextCompat.getColor(mContext, R.color.orange500)),
+                    0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return spannable;
     }
 
     private PendingIntent createRefreshPendingIntent(int appWidgetId) {
