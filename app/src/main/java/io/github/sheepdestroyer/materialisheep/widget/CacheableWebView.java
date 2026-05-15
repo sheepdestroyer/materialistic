@@ -92,8 +92,28 @@ public class CacheableWebView extends WebView {
 
     private void enableCache() {
         WebSettings webSettings = getSettings();
-        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccess(false);
         setCacheModeInternal();
+    }
+
+    @Override
+    protected android.webkit.WebResourceResponse interceptRequest(String url) {
+        if (url != null && url.toLowerCase(java.util.Locale.ROOT).startsWith("file://")) {
+            String path = android.net.Uri.parse(url).getPath();
+            if (path != null && !path.contains("..")) {
+                java.io.File file = new java.io.File(path);
+                try {
+                    String canonicalPath = file.getCanonicalPath();
+                    String cacheDirPath = getContext().getApplicationContext().getCacheDir().getCanonicalPath() + java.io.File.separator;
+                    if (canonicalPath.startsWith(cacheDirPath) && canonicalPath.endsWith(CACHE_EXTENSION) && file.exists()) {
+                        return new android.webkit.WebResourceResponse("application/x-mimearchive", "UTF-8", new java.io.FileInputStream(file));
+                    }
+                } catch (java.io.IOException e) {
+                    // Ignore
+                }
+            }
+        }
+        return super.interceptRequest(url);
     }
 
     private void setCacheModeInternal() {

@@ -72,6 +72,10 @@ public class WebView extends android.webkit.WebView {
         reloadUrl(FILE);
     }
 
+    protected WebResourceResponse interceptRequest(String url) {
+        return null;
+    }
+
     static class HistoryWebViewClient extends WebViewClient {
         private WebViewClient mClient;
 
@@ -113,12 +117,26 @@ public class WebView extends android.webkit.WebView {
         @SuppressWarnings("deprecation")
         @Override
         public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, String url) {
+            if (view instanceof WebView) {
+                WebView webView = (WebView) view;
+                WebResourceResponse response = webView.interceptRequest(url);
+                if (response != null) {
+                    return response;
+                }
+            }
             return mClient != null ? mClient.shouldInterceptRequest(view, url)
                     : super.shouldInterceptRequest(view, url);
         }
 
         @Override
         public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, WebResourceRequest request) {
+            if (view instanceof WebView) {
+                WebView webView = (WebView) view;
+                WebResourceResponse response = webView.interceptRequest(request.getUrl().toString());
+                if (response != null) {
+                    return response;
+                }
+            }
             return mClient != null ? mClient.shouldInterceptRequest(view, request)
                     : super.shouldInterceptRequest(view, request);
         }
