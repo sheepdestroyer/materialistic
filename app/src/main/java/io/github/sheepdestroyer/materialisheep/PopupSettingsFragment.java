@@ -35,7 +35,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 /**
  * A dialog fragment that displays settings in a popup.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated Fragment APIs (instantiate, onActivityCreated)
 public class PopupSettingsFragment extends AppCompatDialogFragment {
     static final String EXTRA_TITLE = PopupSettingsFragment.class.getName() + ".EXTRA_TITLE";
     static final String EXTRA_SUMMARY = PopupSettingsFragment.class.getName() + ".EXTRA_SUMMARY";
@@ -79,15 +78,16 @@ public class PopupSettingsFragment extends AppCompatDialogFragment {
     }
 
     /**
-     * Called when the fragment's activity has been created and this
-     * fragment's view hierarchy instantiated.
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored in to the view.
      *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
      */
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         if (savedInstanceState == null) {
             Fragment fragment = new PreferenceFragment();
             fragment.setArguments(getArguments());
