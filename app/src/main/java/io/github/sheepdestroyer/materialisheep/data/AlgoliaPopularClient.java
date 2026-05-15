@@ -16,10 +16,10 @@
 
 package io.github.sheepdestroyer.materialisheep.data;
 
-import android.text.format.DateUtils;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -35,7 +35,6 @@ import io.reactivex.rxjava3.core.Scheduler;
  * An {@link ItemManager} that uses the Algolia REST API to fetch popular
  * stories.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated DateUtils APIs
 public class AlgoliaPopularClient extends AlgoliaClient {
 
     /**
@@ -94,22 +93,17 @@ public class AlgoliaPopularClient extends AlgoliaClient {
     }
 
     private long toTimestamp(@Range String filter) {
-        long timestamp = System.currentTimeMillis();
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
         switch (filter) {
             case LAST_24H:
             default:
-                timestamp -= DateUtils.DAY_IN_MILLIS;
-                break;
+                return now.minusDays(1).toInstant().toEpochMilli();
             case PAST_WEEK:
-                timestamp -= DateUtils.WEEK_IN_MILLIS;
-                break;
+                return now.minusWeeks(1).toInstant().toEpochMilli();
             case PAST_MONTH:
-                timestamp -= DateUtils.WEEK_IN_MILLIS * 4;
-                break;
+                return now.minusMonths(1).toInstant().toEpochMilli();
             case PAST_YEAR:
-                timestamp -= DateUtils.YEAR_IN_MILLIS;
-                break;
+                return now.minusYears(1).toInstant().toEpochMilli();
         }
-        return timestamp;
     }
 }
