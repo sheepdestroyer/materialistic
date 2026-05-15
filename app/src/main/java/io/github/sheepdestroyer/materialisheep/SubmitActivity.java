@@ -44,6 +44,8 @@ import javax.inject.Inject;
 
 import io.github.sheepdestroyer.materialisheep.accounts.UserServices;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
+import io.github.sheepdestroyer.materialisheep.Preferences;
+import io.github.sheepdestroyer.materialisheep.UserActivity;
 
 /**
  * An activity that allows users to submit a new story.
@@ -242,10 +244,10 @@ public class SubmitActivity extends ThemedActivity {
         } else if (successful) {
             Toast.makeText(this, R.string.submit_successful, Toast.LENGTH_SHORT).show();
             if (!isDestroyed()) {
-                Intent intent = new Intent(this, NewActivity.class);
-                intent.putExtra(NewActivity.EXTRA_REFRESH, true);
+                Intent intent = new Intent(this, UserActivity.class);
+                intent.putExtra(UserActivity.EXTRA_USERNAME, Preferences.getUsername(this));
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent); // TODO should go to profile instead?
+                startActivity(intent);
                 finish();
             }
         } else if (!isDestroyed()) {
