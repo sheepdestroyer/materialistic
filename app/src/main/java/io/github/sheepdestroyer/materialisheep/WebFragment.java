@@ -764,16 +764,6 @@ public class WebFragment extends LazyLoadFragment
       }
     }
 
-    @SuppressWarnings("removal") // finalize deprecated since Java 9, kept for Android compat
-    @Override
-    public void finalize() throws Throwable {
-      try {
-        cleanUp();
-      } finally {
-        super.finalize();
-      }
-    }
-
     interface Callbacks {
       void onFailure();
 
