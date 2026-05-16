@@ -32,7 +32,7 @@ import java.util.Map;
 
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 
-public class CacheableWebView extends WebView {
+public class CacheableWebView extends MaterialWebView {
     private static final String CACHE_PREFIX = "webarchive-";
     private static final String CACHE_EXTENSION = ".mht";
     private ArchiveClient mArchiveClient = new ArchiveClient();

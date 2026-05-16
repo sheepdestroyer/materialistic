@@ -26,21 +26,21 @@ import android.webkit.WebViewClient;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 
-public class WebView extends android.webkit.WebView {
+public class MaterialWebView extends android.webkit.WebView {
   static final String BLANK = "about:blank";
   static final String FILE = "file:///";
   private final HistoryWebViewClient mClient = new HistoryWebViewClient();
   @Synthetic String mPendingUrl, mPendingHtml;
 
-  public WebView(Context context) {
+  public MaterialWebView(Context context) {
     this(context, null);
   }
 
-  public WebView(Context context, AttributeSet attrs) {
+  public MaterialWebView(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public WebView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public MaterialWebView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     super.setWebViewClient(mClient);
   }
@@ -75,8 +75,8 @@ public class WebView extends android.webkit.WebView {
     public void onPageStarted(android.webkit.WebView view, String url, Bitmap favicon) {
       super.onPageStarted(view, url, favicon);
       view.pageUp(true);
-      WebView webView = (WebView) view;
-      if (AppUtils.urlEquals(url, webView.mPendingUrl)) {
+      MaterialWebView materialWebView = (MaterialWebView) view;
+      if (AppUtils.urlEquals(url, materialWebView.mPendingUrl)) {
         view.setVisibility(VISIBLE);
       }
       if (mClient != null) {
@@ -87,18 +87,18 @@ public class WebView extends android.webkit.WebView {
     @Override
     public void onPageFinished(android.webkit.WebView view, String url) {
       super.onPageFinished(view, url);
-      WebView webView = (WebView) view;
+      MaterialWebView materialWebView = (MaterialWebView) view;
       if (TextUtils.equals(url, BLANK)) { // has pending reload, open corresponding URL
-        if (!TextUtils.isEmpty(webView.mPendingHtml)) {
+        if (!TextUtils.isEmpty(materialWebView.mPendingHtml)) {
           view.loadDataWithBaseURL(
-              webView.mPendingUrl, webView.mPendingHtml, "text/html", "UTF-8", webView.mPendingUrl);
+              materialWebView.mPendingUrl, materialWebView.mPendingHtml, "text/html", "UTF-8", materialWebView.mPendingUrl);
         } else {
-          view.loadUrl(webView.mPendingUrl);
+          view.loadUrl(materialWebView.mPendingUrl);
         }
-      } else if (!TextUtils.isEmpty(webView.mPendingUrl)
-          && TextUtils.equals(url, webView.mPendingUrl)) { // reload done, clear history
-        webView.mPendingUrl = null;
-        webView.mPendingHtml = null;
+      } else if (!TextUtils.isEmpty(materialWebView.mPendingUrl)
+          && TextUtils.equals(url, materialWebView.mPendingUrl)) { // reload done, clear history
+        materialWebView.mPendingUrl = null;
+        materialWebView.mPendingHtml = null;
         view.clearHistory();
       }
       if (mClient != null) {
