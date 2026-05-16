@@ -20,17 +20,20 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 
 public class WidgetRefreshJobService extends JobService {
-    @Override
-    public boolean onStartJob(JobParameters jobParameters) {
-        new Thread(() -> {
-            new WidgetHelper(this).refresh(jobParameters.getJobId());
-            jobFinished(jobParameters, false); // if we're able to start job means we have network conn
-        }).start();
-        return true;
-    }
+  @Override
+  public boolean onStartJob(JobParameters jobParameters) {
+    new Thread(
+            () -> {
+              new WidgetHelper(this).refresh(jobParameters.getJobId());
+              jobFinished(
+                  jobParameters, false); // if we're able to start job means we have network conn
+            })
+        .start();
+    return true;
+  }
 
-    @Override
-    public boolean onStopJob(JobParameters jobParameters) {
-        return true;
-    }
+  @Override
+  public boolean onStopJob(JobParameters jobParameters) {
+    return true;
+  }
 }
