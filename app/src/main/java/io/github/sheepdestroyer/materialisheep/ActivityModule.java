@@ -23,7 +23,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import io.github.sheepdestroyer.materialisheep.appwidget.WidgetService;
 import io.github.sheepdestroyer.materialisheep.data.ItemSyncJobService;
 import io.github.sheepdestroyer.materialisheep.data.ItemSyncService;
 
