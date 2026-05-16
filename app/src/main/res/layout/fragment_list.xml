@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015 Ha Duy Trung
   ~
@@ -14,18 +15,15 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<io.github.sheepdestroyer.materialisheep.widget.AppBarSwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="io.github.sheepdestroyer.materialisheep.ListActivity"
+    android:id="@id/swipe_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context="io.github.sheepdestroyer.materialisheep.ListActivity">
 
-    <include layout="@layout/empty_search"  />
-
-    <include layout="@layout/empty_list" />
-
-    <io.github.sheepdestroyer.materialisheep.widget.AppBarSwipeRefreshLayout
-        android:id="@id/swipe_layout"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -34,8 +32,11 @@
             android:paddingBottom="?attr/actionBarSize"
             android:clipToPadding="false"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
-    </io.github.sheepdestroyer.materialisheep.widget.AppBarSwipeRefreshLayout>
+        <include layout="@layout/empty_search" />
+        <include layout="@layout/empty_list" />
 
-</FrameLayout>
+    </FrameLayout>
+
+</io.github.sheepdestroyer.materialisheep.widget.AppBarSwipeRefreshLayout>
