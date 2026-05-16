@@ -61,6 +61,7 @@ public class AppUtilsTest {
     // For simplicity we ensure that our implementation logic handles null inputs safely,
     // which is verified by passing the null test above.
   }
+
   @Test
   public void testGetAbbreviatedTimeSpan() {
     long now = System.currentTimeMillis();
