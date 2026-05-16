@@ -2,6 +2,7 @@ package io.github.sheepdestroyer.materialisheep;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -15,6 +16,33 @@ import org.robolectric.shadows.ShadowConnectivityManager;
 
 @RunWith(RobolectricTestRunner.class)
 public class AppUtilsTest {
+
+  @Test
+  public void testUrlEquals() {
+    // Exact identical URLs
+    assertTrue(AppUtils.urlEquals("http://example.com", "http://example.com"));
+    assertTrue(AppUtils.urlEquals("http://example.com/", "http://example.com/"));
+
+    // Identical base URLs with different trailing slash presence
+    assertTrue(AppUtils.urlEquals("http://example.com", "http://example.com/"));
+    assertTrue(AppUtils.urlEquals("http://example.com/", "http://example.com"));
+
+    // Different URLs
+    assertFalse(AppUtils.urlEquals("http://example.com", "http://anotherexample.com"));
+    assertFalse(AppUtils.urlEquals("http://example.com", "https://example.com"));
+
+    // Case sensitivity
+    assertFalse(AppUtils.urlEquals("http://example.com", "http://EXAMPLE.com"));
+
+    // Edge cases: null and empty
+    assertFalse(AppUtils.urlEquals(null, "http://example.com"));
+    assertFalse(AppUtils.urlEquals("http://example.com", null));
+    assertFalse(AppUtils.urlEquals(null, null));
+    assertFalse(AppUtils.urlEquals("", "http://example.com"));
+    assertFalse(AppUtils.urlEquals("http://example.com", ""));
+    assertFalse(AppUtils.urlEquals("", ""));
+  }
+
   @Test
   public void testHasConnection() {
     Context context = ApplicationProvider.getApplicationContext();
