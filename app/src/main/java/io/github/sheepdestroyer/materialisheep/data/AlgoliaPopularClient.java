@@ -16,83 +16,94 @@
 
 package io.github.sheepdestroyer.materialisheep.data;
 
-import androidx.annotation.StringDef;
-import io.github.sheepdestroyer.materialisheep.DataModule;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+
 import javax.inject.Inject;
 import javax.inject.Named;
-import retrofit2.Call;
 
-/** An {@link ItemManager} that uses the Algolia REST API to fetch popular stories. */
+import io.github.sheepdestroyer.materialisheep.DataModule;
+
+import androidx.annotation.StringDef;
+import retrofit2.Call;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+
+/**
+ * An {@link ItemManager} that uses the Algolia REST API to fetch popular
+ * stories.
+ */
 public class AlgoliaPopularClient extends AlgoliaClient {
 
-  /**
-   * Constructs a new {@code AlgoliaPopularClient}.
-   *
-   * @param factory the {@link RestServiceFactory} to use for creating the REST service
-   * @param hackerNewsClient the {@link ItemManager} for HackerNews items
-   * @param mainThreadScheduler the {@link Scheduler} for observing on main thread
-   */
-  @Inject
-  public AlgoliaPopularClient(
-      RestServiceFactory factory,
-      @Named(DataModule.HN) ItemManager hackerNewsClient,
-      @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
-    super(factory, hackerNewsClient, mainThreadScheduler);
-  }
-
-  @Retention(RetentionPolicy.SOURCE)
-  @StringDef({LAST_24H, PAST_WEEK, PAST_MONTH, PAST_YEAR})
-  public @interface Range {}
-
-  public static final String LAST_24H = "last_24h";
-  public static final String PAST_WEEK = "past_week";
-  public static final String PAST_MONTH = "past_month";
-  public static final String PAST_YEAR = "past_year";
-
-  /**
-   * Searches for popular stories using Algolia's numeric filters.
-   *
-   * @param filter the {@link Range} filter to apply
-   * @return an {@link Observable} that emits the search results
-   */
-  @Override
-  protected Observable<AlgoliaHits> searchRx(@Range String filter) {
-    return mRestService.searchByMinTimestampRx(getNumericFilter(filter), null);
-  }
-
-  /**
-   * Searches for popular stories using Algolia's numeric filters.
-   *
-   * @param filter the {@link Range} filter to apply
-   * @return a {@link Call} that can be used to execute the search
-   */
-  @Override
-  protected Call<AlgoliaHits> search(@Range String filter) {
-    return mRestService.searchByMinTimestamp(getNumericFilter(filter), null);
-  }
-
-  private String getNumericFilter(@Range String filter) {
-    return MIN_CREATED_AT + toTimestamp(filter) / 1000;
-  }
-
-  private long toTimestamp(@Range String filter) {
-    ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
-    switch (filter) {
-      case LAST_24H:
-      default:
-        return now.minusDays(1).toInstant().toEpochMilli();
-      case PAST_WEEK:
-        return now.minusWeeks(1).toInstant().toEpochMilli();
-      case PAST_MONTH:
-        return now.minusMonths(1).toInstant().toEpochMilli();
-      case PAST_YEAR:
-        return now.minusYears(1).toInstant().toEpochMilli();
+    /**
+     * Constructs a new {@code AlgoliaPopularClient}.
+     *
+     * @param factory             the {@link RestServiceFactory} to use for creating
+     *                            the REST service
+     * @param hackerNewsClient    the {@link ItemManager} for HackerNews items
+     * @param mainThreadScheduler the {@link Scheduler} for observing on main thread
+     */
+    @Inject
+    public AlgoliaPopularClient(RestServiceFactory factory, @Named(DataModule.HN) ItemManager hackerNewsClient,
+            @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
+        super(factory, hackerNewsClient, mainThreadScheduler);
     }
-  }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({
+            LAST_24H,
+            PAST_WEEK,
+            PAST_MONTH,
+            PAST_YEAR
+    })
+    public @interface Range {
+    }
+
+    public static final String LAST_24H = "last_24h";
+    public static final String PAST_WEEK = "past_week";
+    public static final String PAST_MONTH = "past_month";
+    public static final String PAST_YEAR = "past_year";
+
+    /**
+     * Searches for popular stories using Algolia's numeric filters.
+     *
+     * @param filter the {@link Range} filter to apply
+     * @return an {@link Observable} that emits the search results
+     */
+    @Override
+    protected Observable<AlgoliaHits> searchRx(@Range String filter) {
+        return mRestService.searchByMinTimestampRx(getNumericFilter(filter), null);
+    }
+
+    /**
+     * Searches for popular stories using Algolia's numeric filters.
+     *
+     * @param filter the {@link Range} filter to apply
+     * @return a {@link Call} that can be used to execute the search
+     */
+    @Override
+    protected Call<AlgoliaHits> search(@Range String filter) {
+        return mRestService.searchByMinTimestamp(getNumericFilter(filter), null);
+    }
+
+    private String getNumericFilter(@Range String filter) {
+        return MIN_CREATED_AT + toTimestamp(filter) / 1000;
+    }
+
+    private long toTimestamp(@Range String filter) {
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+        switch (filter) {
+            case LAST_24H:
+            default:
+                return now.minusDays(1).toInstant().toEpochMilli();
+            case PAST_WEEK:
+                return now.minusWeeks(1).toInstant().toEpochMilli();
+            case PAST_MONTH:
+                return now.minusMonths(1).toInstant().toEpochMilli();
+            case PAST_YEAR:
+                return now.minusYears(1).toInstant().toEpochMilli();
+        }
+    }
 }
