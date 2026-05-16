@@ -2,6 +2,7 @@ package io.github.sheepdestroyer.materialisheep;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.text.format.DateUtils;
@@ -32,6 +33,7 @@ public class AppUtilsTest {
     // For simplicity we ensure that our implementation logic handles null inputs safely,
     // which is verified by passing the null test above.
   }
+
   @Test
   public void testGetAbbreviatedTimeSpan() {
     long now = System.currentTimeMillis();
