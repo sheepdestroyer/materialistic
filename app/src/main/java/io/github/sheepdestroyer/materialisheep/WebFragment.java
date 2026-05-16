@@ -71,7 +71,7 @@ import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import io.github.sheepdestroyer.materialisheep.widget.AdBlockWebViewClient;
 import io.github.sheepdestroyer.materialisheep.widget.CacheableWebView;
 import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
-import io.github.sheepdestroyer.materialisheep.widget.WebView;
+import io.github.sheepdestroyer.materialisheep.widget.MaterialWebView;
 import okhttp3.Call;
 
 import static android.view.View.GONE;
@@ -94,7 +94,7 @@ public class WebFragment extends LazyLoadFragment
     public static final String PDF_LOADER_URL = "file:///android_asset/pdf/index.html";
     private static final String PDF_MIME_TYPE = "application/pdf";
     @Synthetic
-    WebView mWebView;
+    MaterialWebView mWebView;
     private NestedScrollView mScrollView;
     @Synthetic
     boolean mExternalRequired = false;
@@ -172,7 +172,7 @@ public class WebFragment extends LazyLoadFragment
         mScrollViewContent = (ViewGroup) mFragmentView.findViewById(R.id.scroll_view_content);
         mScrollView = (NestedScrollView) mFragmentView.findViewById(R.id.nested_scroll_view);
         mControls = (ViewSwitcher) mFragmentView.findViewById(R.id.control_switcher);
-        mWebView = (WebView) mFragmentView.findViewById(R.id.web_view);
+        mWebView = (MaterialWebView) mFragmentView.findViewById(R.id.web_view);
         mButtonRefresh = (ImageButton) mFragmentView.findViewById(R.id.button_refresh);
         mButtonMore = mFragmentView.findViewById(R.id.button_more);
         mButtonNext = mFragmentView.findViewById(R.id.button_next);
@@ -424,6 +424,7 @@ public class WebFragment extends LazyLoadFragment
                     @SuppressWarnings("deprecation") // Using deprecated LocalBroadcastManager
                     android.content.Intent intent = new Intent(WebFragment.ACTION_FULLSCREEN)
                             .putExtra(EXTRA_FULLSCREEN, false);
+                    // skipcq: JAVA-A1023
                     LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
                 });
         mButtonNext.setOnClickListener(v -> mWebView.findNext(true));
@@ -743,15 +744,6 @@ public class WebFragment extends LazyLoadFragment
                 }
             } catch (IOException e) {
                 Log.e("Exception", e.toString());
-            }
-        }
-
-        @Override
-        public void finalize() throws Throwable {
-            try {
-                cleanUp();
-            } finally {
-                super.finalize();
             }
         }
 
