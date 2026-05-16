@@ -109,7 +109,8 @@ public class PopupSettingsFragment extends AppCompatDialogFragment {
     }
   }
 
-  static class PopupBottomSheetDialog extends com.google.android.material.bottomsheet.BottomSheetDialog {
+  static class PopupBottomSheetDialog
+      extends com.google.android.material.bottomsheet.BottomSheetDialog {
     public PopupBottomSheetDialog(@NonNull Context context, @StyleRes int theme) {
       super(context, theme);
     }
