@@ -93,14 +93,18 @@ public class PopupSettingsFragment extends AppCompatDialogFragment {
     public void onCreatePreferences(Bundle bundle, String s) {
       addPreferencesFromResource(R.xml.preferences_category);
       Preference category = findPreference(getString(R.string.pref_category));
+      Bundle args = getArguments();
+      if (args == null) {
+        return;
+      }
       int summary, title;
-      if ((title = getArguments().getInt(EXTRA_TITLE, 0)) != 0) {
+      if ((title = args.getInt(EXTRA_TITLE, 0)) != 0 && category != null) {
         category.setTitle(title);
       }
-      if ((summary = getArguments().getInt(EXTRA_SUMMARY, 0)) != 0) {
+      if ((summary = args.getInt(EXTRA_SUMMARY, 0)) != 0 && category != null) {
         category.setSummary(summary);
       }
-      int[] preferences = getArguments().getIntArray(EXTRA_XML_PREFERENCES);
+      int[] preferences = args.getIntArray(EXTRA_XML_PREFERENCES);
       if (preferences != null) {
         for (int preference : preferences) {
           addPreferencesFromResource(preference);
