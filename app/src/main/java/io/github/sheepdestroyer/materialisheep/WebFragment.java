@@ -429,7 +429,7 @@ public class WebFragment extends LazyLoadFragment
               @SuppressWarnings("deprecation") // Using deprecated LocalBroadcastManager
               android.content.Intent intent =
                   new Intent(WebFragment.ACTION_FULLSCREEN).putExtra(EXTRA_FULLSCREEN, false);
-              LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+              LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent); // skipcq: JAVA-A1023
             });
     mButtonNext.setOnClickListener(v -> mWebView.findNext(true));
     mButtonMore.setOnClickListener(
@@ -763,6 +763,7 @@ public class WebFragment extends LazyLoadFragment
       }
     }
 
+    @SuppressWarnings("removal") // finalize deprecated since Java 9, kept for Android compat
     @Override
     public void finalize() throws Throwable {
       try {
