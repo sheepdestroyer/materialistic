@@ -430,8 +430,7 @@ public class WebFragment extends LazyLoadFragment
               android.content.Intent intent =
                   new Intent(WebFragment.ACTION_FULLSCREEN).putExtra(EXTRA_FULLSCREEN, false);
               // skipcq: JAVA-A1023
-              LocalBroadcastManager.getInstance(getActivity())
-                  .sendBroadcast(intent);
+              LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
             });
     mButtonNext.setOnClickListener(v -> mWebView.findNext(true));
     mButtonMore.setOnClickListener(
