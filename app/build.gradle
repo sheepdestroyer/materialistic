@@ -22,7 +22,7 @@ android {
         buildConfigField "String", "GIT_HASH", "\"${gitHash}\""
         buildConfigField "int", "LATEST_RELEASE", "77"
         buildConfigField "String", "GITHUB_TOKEN", "\"\""
-        proguardFiles getDefaultProguardFile('proguard-android.txt'),
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                 'proguard-rules.pro',
                 'proguard-square.pro',
                 'proguard-support.pro',
@@ -97,10 +97,10 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.browser:browser:1.9.0'
+    implementation 'androidx.browser:browser:1.10.0'
     implementation "com.google.dagger:dagger:$daggerVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
