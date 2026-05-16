@@ -60,7 +60,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 /** A delegate for syncing data. */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated NotificationCompat.Builder
 public class SyncDelegate {
   static final String SYNC_PREFERENCES_FILE = "_syncpreferences";
   private static final String NOTIFICATION_GROUP_KEY = "group";
@@ -108,11 +107,8 @@ public class SyncDelegate {
               context.getString(R.string.notification_channel_downloads),
               NotificationManager.IMPORTANCE_LOW);
       mNotificationManager.createNotificationChannel(channel);
-      mNotificationBuilder = new NotificationCompat.Builder(context, DOWNLOADS_CHANNEL_ID);
-    } else {
-      // noinspection deprecation
-      mNotificationBuilder = new NotificationCompat.Builder(context);
     }
+    mNotificationBuilder = new NotificationCompat.Builder(context, DOWNLOADS_CHANNEL_ID);
     mNotificationBuilder
         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
         .setSmallIcon(R.drawable.ic_notification)
@@ -340,11 +336,10 @@ public class SyncDelegate {
     if (mWebView != null) {
       final CacheableWebView webView = mWebView;
       mWebView = null;
-      mHandler.post(
-          () -> {
-            webView.stopLoading();
-            webView.destroy();
-          });
+      mHandler.post(() -> {
+        webView.stopLoading();
+        webView.destroy();
+      });
     }
     mJob.connectionEnabled = false;
     int id = Integer.valueOf(mJob.id);
