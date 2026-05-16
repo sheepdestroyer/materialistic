@@ -1,3 +1,0 @@
-List of devices attached
-192.168.240.112:5555	unauthorized
-
