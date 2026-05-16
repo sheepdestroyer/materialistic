@@ -67,7 +67,7 @@ public class AppUtilsTest {
     long now = System.currentTimeMillis();
 
     // Test Years
-    assertEquals("2y", AppUtils.getAbbreviatedTimeSpan(now - (2 * DateUtils.YEAR_IN_MILLIS)));
+    assertEquals("2y", AppUtils.getAbbreviatedTimeSpan(now - (2L * 365 * DateUtils.DAY_IN_MILLIS)));
 
     // Test Weeks
     assertEquals("3w", AppUtils.getAbbreviatedTimeSpan(now - (3 * DateUtils.WEEK_IN_MILLIS)));
