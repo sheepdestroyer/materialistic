@@ -91,7 +91,11 @@ public class MaterialWebView extends android.webkit.WebView {
       if (TextUtils.equals(url, BLANK)) { // has pending reload, open corresponding URL
         if (!TextUtils.isEmpty(materialWebView.mPendingHtml)) {
           view.loadDataWithBaseURL(
-              materialWebView.mPendingUrl, materialWebView.mPendingHtml, "text/html", "UTF-8", materialWebView.mPendingUrl);
+              materialWebView.mPendingUrl,
+              materialWebView.mPendingHtml,
+              "text/html",
+              "UTF-8",
+              materialWebView.mPendingUrl);
         } else {
           view.loadUrl(materialWebView.mPendingUrl);
         }
