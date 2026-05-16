@@ -336,10 +336,11 @@ public class SyncDelegate {
     if (mWebView != null) {
       final CacheableWebView webView = mWebView;
       mWebView = null;
-      mHandler.post(() -> {
-        webView.stopLoading();
-        webView.destroy();
-      });
+      mHandler.post(
+          () -> {
+            webView.stopLoading();
+            webView.destroy();
+          });
     }
     mJob.connectionEnabled = false;
     int id = Integer.valueOf(mJob.id);
