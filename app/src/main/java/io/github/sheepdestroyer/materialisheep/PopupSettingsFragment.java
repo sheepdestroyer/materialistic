@@ -29,7 +29,6 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 /** A dialog fragment that displays settings in a popup. */
 public class PopupSettingsFragment extends AppCompatDialogFragment {
@@ -67,7 +66,7 @@ public class PopupSettingsFragment extends AppCompatDialogFragment {
   @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    return new BottomSheetDialog(getActivity(), getTheme());
+    return new PopupBottomSheetDialog(getActivity(), getTheme());
   }
 
   /**
@@ -110,8 +109,8 @@ public class PopupSettingsFragment extends AppCompatDialogFragment {
     }
   }
 
-  static class BottomSheetDialog extends com.google.android.material.bottomsheet.BottomSheetDialog {
-    public BottomSheetDialog(@NonNull Context context, @StyleRes int theme) {
+  static class PopupBottomSheetDialog extends com.google.android.material.bottomsheet.BottomSheetDialog {
+    public PopupBottomSheetDialog(@NonNull Context context, @StyleRes int theme) {
       super(context, theme);
     }
 
