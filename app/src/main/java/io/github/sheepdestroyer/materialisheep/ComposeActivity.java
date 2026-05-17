@@ -42,7 +42,6 @@ import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 /**
  * Activity for composing a new comment or reply.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated android.R.string.yes/no
 public class ComposeActivity extends ThemedActivity {
     public static final String EXTRA_PARENT_ID = ComposeActivity.class.getName() + ".EXTRA_PARENT_ID";
     public static final String EXTRA_PARENT_TEXT = ComposeActivity.class.getName() + ".EXTRA_PARENT_TEXT";
@@ -73,10 +72,10 @@ public class ComposeActivity extends ThemedActivity {
             mAlertDialogBuilder
                     .init(ComposeActivity.this)
                     .setMessage(R.string.confirm_save_draft)
-                    .setNegativeButton(android.R.string.no, (dialog, which) -> {
+                    .setNegativeButton(R.string.discard_draft, (dialog, which) -> {
                         getOnBackPressedDispatcher().onBackPressed();
                     })
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    .setPositiveButton(R.string.save_draft, (dialog, which) -> {
                         Preferences.saveDraft(ComposeActivity.this, mParentId,
                                 mEditText.getText().toString());
                         getOnBackPressedDispatcher().onBackPressed();
