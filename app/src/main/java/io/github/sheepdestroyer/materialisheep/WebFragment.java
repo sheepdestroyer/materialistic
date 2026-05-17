@@ -52,7 +52,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.os.BundleCompat;
 import androidx.core.widget.NestedScrollView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.lifecycle.ViewModelProvider;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.FileDownloader;
 import io.github.sheepdestroyer.materialisheep.data.Item;
@@ -73,7 +73,7 @@ import javax.inject.Named;
 import okhttp3.Call;
 
 /** A fragment that displays a web page. */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated LocalBroadcastManager/Fragment APIs
+@SuppressWarnings("deprecation") // TODO: Uses deprecated Fragment APIs
 public class WebFragment extends LazyLoadFragment
     implements Scrollable, KeyDelegate.BackInterceptor {
   public static final String EXTRA_ITEM = WebFragment.class.getName() + ".EXTRA_ITEM";
@@ -97,13 +97,6 @@ public class WebFragment extends LazyLoadFragment
   @Inject PopupMenu mPopupMenu;
   private KeyDelegate.NestedScrollViewHelper mScrollableHelper;
   private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
-  private final BroadcastReceiver mReceiver =
-      new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-          setFullscreen(intent.getBooleanExtra(WebFragment.EXTRA_FULLSCREEN, false));
-        }
-      };
   private ViewGroup mFullscreenView;
   private ViewGroup mScrollViewContent;
   @Synthetic ImageButton mButtonRefresh;
@@ -136,8 +129,6 @@ public class WebFragment extends LazyLoadFragment
         R.string.pref_readability_font,
         R.string.pref_readability_line_height,
         R.string.pref_readability_text_size);
-    LocalBroadcastManager.getInstance(context)
-        .registerReceiver(mReceiver, new IntentFilter(ACTION_FULLSCREEN));
   }
 
   @Override
@@ -188,6 +179,10 @@ public class WebFragment extends LazyLoadFragment
     mScrollableHelper = new KeyDelegate.NestedScrollViewHelper(mScrollView);
     mSystemUiHelper = new AppUtils.SystemUiHelper(getActivity().getWindow());
     mSystemUiHelper.setEnabled(!getResources().getBoolean(R.bool.multi_pane));
+
+    new ViewModelProvider(requireActivity()).get(FullscreenViewModel.class).getFullscreenEvent()
+        .observe(getViewLifecycleOwner(), this::setFullscreen);
+
     if (mFullscreen) {
       setFullscreen(true);
     }
@@ -260,13 +255,9 @@ public class WebFragment extends LazyLoadFragment
     // Subscriptions are fire-and-forget and managed internally.
   }
 
-  @SuppressWarnings(
-      "deprecation") // Using deprecated LocalBroadcastManager; migration to LiveData/Flow requires
-  // architectural changes
   @Override
   public void onDetach() {
     mPreferenceObservable.unsubscribe(getActivity());
-    LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
     super.onDetach();
   }
 
@@ -426,11 +417,7 @@ public class WebFragment extends LazyLoadFragment
     view.findViewById(R.id.button_exit)
         .setOnClickListener(
             v -> {
-              @SuppressWarnings("deprecation") // Using deprecated LocalBroadcastManager
-              android.content.Intent intent =
-                  new Intent(WebFragment.ACTION_FULLSCREEN).putExtra(EXTRA_FULLSCREEN, false);
-              // skipcq: JAVA-A1023
-              LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+                new ViewModelProvider(requireActivity()).get(FullscreenViewModel.class).setFullscreen(false);
             });
     mButtonNext.setOnClickListener(v -> mWebView.findNext(true));
     mButtonMore.setOnClickListener(

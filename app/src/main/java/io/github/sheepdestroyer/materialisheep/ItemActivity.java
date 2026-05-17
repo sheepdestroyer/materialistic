@@ -34,9 +34,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import androidx.core.content.IntentCompat;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
@@ -142,18 +144,10 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
             bindFavorite();
         }
     };
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mFullscreen = intent.getBooleanExtra(WebFragment.EXTRA_FULLSCREEN, false);
-            setFullscreen();
-        }
-    };
     private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
-            LocalBroadcastManager.getInstance(ItemActivity.this).sendBroadcast(
-                    new Intent(WebFragment.ACTION_FULLSCREEN).putExtra(WebFragment.EXTRA_FULLSCREEN, false));
+            new ViewModelProvider(ItemActivity.this).get(FullscreenViewModel.class).setFullscreen(false);
         }
     };
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
@@ -204,20 +198,24 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
         AppUtils.toggleFab(mReplyButton, false);
         final Intent intent = getIntent();
         MaterialisticDatabase.getInstance(this).getLiveData().observe(this, mObserver);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter(WebFragment.ACTION_FULLSCREEN));
+        new ViewModelProvider(this).get(FullscreenViewModel.class).getFullscreenEvent().observe(this, fullscreen -> {
+            if (fullscreen != null) {
+                mFullscreen = fullscreen;
+                setFullscreen();
+            }
+        });
         mPreferenceObservable.subscribe(this, this::onPreferenceChanged,
                 R.string.pref_navigation);
         getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
         if (savedInstanceState != null) {
-            mItem = savedInstanceState.getParcelable(STATE_ITEM);
+            mItem = BundleCompat.getParcelable(savedInstanceState, STATE_ITEM, WebItem.class);
             mItemId = savedInstanceState.getString(STATE_ITEM_ID);
             mFullscreen = savedInstanceState.getBoolean(STATE_FULLSCREEN);
         } else {
             if (Intent.ACTION_VIEW.equalsIgnoreCase(intent.getAction())) {
                 mItemId = AppUtils.getDataUriId(intent, PARAM_ID);
             } else if (intent.hasExtra(EXTRA_ITEM)) {
-                mItem = intent.getParcelableExtra(EXTRA_ITEM);
+                mItem = IntentCompat.getParcelableExtra(intent, EXTRA_ITEM, WebItem.class);
                 mItemId = mItem.getId();
             }
         }
@@ -329,7 +327,6 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         mPreferenceObservable.unsubscribe(this);
         if (mTabLayoutMediator != null) {
             mTabLayoutMediator.detach();

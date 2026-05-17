@@ -45,9 +45,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.lifecycle.ViewModelProvider;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 import io.github.sheepdestroyer.materialisheep.data.SessionManager;
@@ -66,7 +67,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
  * handles different layouts
  * for portrait and landscape orientations and manages multi-pane functionality.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated LocalBroadcastManager, Parcelable APIs
 public abstract class BaseListActivity extends DrawerActivity implements MultiPaneListener {
 
     protected static final String LIST_FRAGMENT_TAG = BaseListActivity.class.getName() +
@@ -97,18 +97,10 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
     boolean mFullscreen;
     private boolean mMultiWindowEnabled;
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mFullscreen = intent.getBooleanExtra(WebFragment.EXTRA_FULLSCREEN, false);
-            setFullscreen();
-        }
-    };
     private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
-            LocalBroadcastManager.getInstance(BaseListActivity.this).sendBroadcast(new Intent(
-                    WebFragment.ACTION_FULLSCREEN).putExtra(WebFragment.EXTRA_FULLSCREEN, false));
+            new ViewModelProvider(BaseListActivity.this).get(FullscreenViewModel.class).setFullscreen(false);
         }
     };
     private ItemPagerAdapter mAdapter;
@@ -144,8 +136,12 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         mAppBar = (AppBarLayout) findViewById(R.id.appbar);
         mIsMultiPane = getResources().getBoolean(R.bool.multi_pane);
         if (mIsMultiPane) {
-            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                    new IntentFilter(WebFragment.ACTION_FULLSCREEN));
+            new ViewModelProvider(this).get(FullscreenViewModel.class).getFullscreenEvent().observe(this, fullscreen -> {
+                if (fullscreen != null) {
+                    mFullscreen = fullscreen;
+                    setFullscreen();
+                }
+            });
             mListView = findViewById(android.R.id.list);
             mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
             mTabLayout.setVisibility(View.GONE);
@@ -174,7 +170,7 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
                             LIST_FRAGMENT_TAG)
                     .commit();
         } else {
-            mSelectedItem = savedInstanceState.getParcelable(STATE_SELECTED_ITEM);
+            mSelectedItem = BundleCompat.getParcelable(savedInstanceState, STATE_SELECTED_ITEM, WebItem.class);
             mFullscreen = savedInstanceState.getBoolean(STATE_FULLSCREEN);
             if (mIsMultiPane) {
                 openMultiPaneItem();
@@ -328,9 +324,6 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
     protected void onDestroy() {
         super.onDestroy();
         mPreferenceObservable.unsubscribe(this);
-        if (mIsMultiPane) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-        }
     }
 
     /**
