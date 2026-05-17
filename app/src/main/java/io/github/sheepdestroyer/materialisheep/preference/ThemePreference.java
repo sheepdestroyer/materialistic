@@ -31,7 +31,6 @@ import io.github.sheepdestroyer.materialisheep.Preferences;
 import io.github.sheepdestroyer.materialisheep.R;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 
-@SuppressWarnings("deprecation") // TODO: Uses deprecated Preference APIs
 public class ThemePreference extends Preference {
 
     private static final String LIGHT = "light";
@@ -85,9 +84,9 @@ public class ThemePreference extends Preference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        super.onSetInitialValue(restorePersistedValue, defaultValue);
-        mSelectedTheme = restorePersistedValue ? getPersistedString(null) : (String) defaultValue;
+    protected void onSetInitialValue(Object defaultValue) {
+        super.onSetInitialValue(defaultValue);
+        mSelectedTheme = getPersistedString((String) defaultValue);
         if (TextUtils.isEmpty(mSelectedTheme)) {
             mSelectedTheme = LIGHT;
         }

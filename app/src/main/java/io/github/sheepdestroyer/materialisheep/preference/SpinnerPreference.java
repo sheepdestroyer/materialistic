@@ -37,7 +37,6 @@ import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
  * Entries, entry values and entry layouts should be provided via arrays.
  * Preference value will be persisted as string.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated Preference APIs
 public abstract class SpinnerPreference extends Preference {
     @Synthetic
     String[] mEntries = new String[0];
@@ -76,9 +75,9 @@ public abstract class SpinnerPreference extends Preference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        super.onSetInitialValue(restorePersistedValue, defaultValue);
-        String value = restorePersistedValue ? getPersistedString(null) : (String) defaultValue;
+    protected void onSetInitialValue(Object defaultValue) {
+        super.onSetInitialValue(defaultValue);
+        String value = getPersistedString((String) defaultValue);
         for (int i = 0; i < mEntryValues.length; i++) {
             if (TextUtils.equals(mEntryValues[i], value)) {
                 mSelection = i;
