@@ -19,11 +19,11 @@ public class PreferencesTest {
   private SharedPreferences sharedPreferences;
 
   @Before
-    public void setUp() {
-        context = ApplicationProvider.getApplicationContext();
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        Preferences.reset(context);
-    }
+  public void setUp() {
+    context = ApplicationProvider.getApplicationContext();
+    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    Preferences.reset(context);
+  }
 
   @Test
   public void testIsListItemCardView() {
