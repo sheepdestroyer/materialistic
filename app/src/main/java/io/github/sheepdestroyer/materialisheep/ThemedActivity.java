@@ -150,6 +150,11 @@ public abstract class ThemedActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Handles theme change notifications.
+     *
+     * @param key the preference key that changed
+     */
     private void onThemeChanged(int key) {
         if (key == R.string.pref_daynight_auto) {
             AppCompatDelegate.setDefaultNightMode(Preferences.Theme.getAutoDayNightMode(this));
@@ -161,6 +166,11 @@ public abstract class ThemedActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets the activity's task description for the recent apps screen.
+     *
+     * @param title the title to display in the recent apps screen
+     */
     void setTaskTitle(CharSequence title) {
         if (!TextUtils.isEmpty(title)) {
             setTaskDescription(new ActivityManager.TaskDescription(title.toString(),

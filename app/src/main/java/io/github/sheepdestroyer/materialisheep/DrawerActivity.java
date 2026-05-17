@@ -260,6 +260,9 @@ public abstract class DrawerActivity extends ThemedActivity {
         closeDrawers();
     }
 
+    /**
+     * Updates the username displayed in the navigation drawer.
+     */
     private void setUsername() {
         String username = Preferences.getUsername(this);
         if (!TextUtils.isEmpty(username)) {
@@ -273,6 +276,9 @@ public abstract class DrawerActivity extends ThemedActivity {
         }
     }
 
+    /**
+     * Closes any open navigation drawers.
+     */
     private void closeDrawers() {
         mDrawerLayout.closeDrawers();
     }

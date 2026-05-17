@@ -102,6 +102,14 @@ public interface ReadabilityClient {
         private String mReadabilityJs;
         private final CompositeDisposable mDisposables = new CompositeDisposable();
 
+        /**
+         * Constructs a new ReadabilityClient implementation.
+         *
+         * @param context the application context
+         * @param cache the local cache for storing and retrieving readability content
+         * @param ioScheduler the scheduler for I/O operations
+         * @param mainThreadScheduler the scheduler for main thread operations
+         */
         @Inject
         public Impl(Context context, LocalCache cache,
                 @Named(DataModule.IO_THREAD) Scheduler ioScheduler,
@@ -118,6 +126,13 @@ public interface ReadabilityClient {
             }
         }
 
+        /**
+         * Parses the content of a URL asynchronously and invokes the callback.
+         *
+         * @param itemId the ID of the item
+         * @param url the URL to parse
+         * @param callback the callback to be invoked when the content is available
+         */
         @Override
         public void parse(String itemId, String url, Callback callback) {
             mDisposables.add(Observable.defer(() -> fromCache(itemId))
@@ -131,6 +146,12 @@ public interface ReadabilityClient {
                     }, () -> callback.onResponse(null)));
         }
 
+        /**
+         * Parses the content of a URL and caches the result.
+         *
+         * @param itemId the ID of the item
+         * @param url the URL to parse
+         */
         @WorkerThread
         @Override
         public void parse(String itemId, String url) {
@@ -218,6 +239,9 @@ public interface ReadabilityClient {
             })).timeout(30, TimeUnit.SECONDS);
         }
 
+        /**
+         * Clears any ongoing parsing operations and releases resources.
+         */
         @Override
         public void destroy() {
             mDisposables.clear();
