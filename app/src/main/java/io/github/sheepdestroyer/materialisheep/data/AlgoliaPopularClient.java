@@ -46,14 +46,14 @@ public class AlgoliaPopularClient extends AlgoliaClient {
     super(factory, hackerNewsClient, mainThreadScheduler);
   }
 
-  @Retention(RetentionPolicy.SOURCE)
-  @StringDef({LAST_24H, PAST_WEEK, PAST_MONTH, PAST_YEAR})
-  public @interface Range {}
-
   public static final String LAST_24H = "last_24h";
   public static final String PAST_WEEK = "past_week";
   public static final String PAST_MONTH = "past_month";
   public static final String PAST_YEAR = "past_year";
+
+  @Retention(RetentionPolicy.SOURCE)
+  @StringDef({LAST_24H, PAST_WEEK, PAST_MONTH, PAST_YEAR})
+  public @interface Range {}
 
   /**
    * Searches for popular stories using Algolia's numeric filters.
