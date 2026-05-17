@@ -311,14 +311,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <receiver android:name=".data.ItemSyncWifiReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action
-                    android:name="android.net.conn.CONNECTIVITY_CHANGE"
-                    tools:ignore="BatteryLife"/>
-            </intent-filter>
-        </receiver>
         <receiver
             android:name=".appwidget.WidgetProvider"
             tools:ignore="ExportedReceiver"
