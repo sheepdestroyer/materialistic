@@ -1,0 +1,3 @@
+## 2024-06-25 - Pure Java CharSequence Optimization
+**Learning:** `CharSequence.compare(a, b)` lacks the `O(1)` length-check optimization found in `.equals()` and iterates at `O(N)` for differing lengths. In pure Java contexts without access to `android.text.TextUtils.equals()`, `String.contentEquals(CharSequence)` leverages optimized JVM intrinsics and avoids `toString()` allocations while preserving the fast `O(1)` length short-circuit.
+**Action:** Use `String.contentEquals()` for performant `CharSequence` comparisons when at least one side is a `String`. Ensure `minSdkVersion` and build toolchains support specific library calls like `CharSequence.compare` before defaulting to them.

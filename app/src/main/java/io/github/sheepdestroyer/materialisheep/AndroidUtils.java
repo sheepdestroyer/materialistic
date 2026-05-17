@@ -38,8 +38,10 @@ public interface AndroidUtils {
             if (a == b) return true;
             int length;
             if (a != null && b != null && (length = a.length()) == b.length()) {
-                if (a instanceof String && b instanceof String) {
-                    return a.equals(b);
+                if (a instanceof String) {
+                    return ((String) a).contentEquals(b);
+                } else if (b instanceof String) {
+                    return ((String) b).contentEquals(a);
                 } else {
                     for (int i = 0; i < length; i++) {
                         if (a.charAt(i) != b.charAt(i)) return false;
