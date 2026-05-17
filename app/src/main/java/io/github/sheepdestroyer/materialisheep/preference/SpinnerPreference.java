@@ -41,11 +41,11 @@ public abstract class SpinnerPreference extends Preference {
   @Synthetic int mSelection = 0;
 
   @SuppressWarnings("unused")
-  public SpinnerPreference(Context context, AttributeSet attrs) {
+  protected SpinnerPreference(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public SpinnerPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+  protected SpinnerPreference(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     setWidgetLayoutResource(R.layout.preference_spinner);
     init(context, attrs);
