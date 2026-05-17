@@ -192,6 +192,7 @@ public class NavFloatingActionButton extends FloatingActionButton
     // noinspection Convert2Lambda
     super.setOnTouchListener(
         new OnTouchListener() {
+          @Override
           public boolean onTouch(View view, MotionEvent motionEvent) {
             switch (motionEvent.getAction()) {
               case MotionEvent.ACTION_MOVE:
