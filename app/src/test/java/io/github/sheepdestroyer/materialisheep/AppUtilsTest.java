@@ -4,7 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.text.format.DateUtils;
 import androidx.test.core.app.ApplicationProvider;
@@ -13,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowConnectivityManager;
+import org.robolectric.shadows.ShadowToast;
 
 @RunWith(RobolectricTestRunner.class)
 public class AppUtilsTest {
@@ -86,5 +90,19 @@ public class AppUtilsTest {
 
     // Test edge case (future time)
     assertEquals("0m", AppUtils.getAbbreviatedTimeSpan(now + DateUtils.DAY_IN_MILLIS));
+  }
+
+  @Test
+  public void testOpenPlayStore_ActivityNotFound() {
+    Context context = ApplicationProvider.getApplicationContext();
+    Context wrapper = new ContextWrapper(context) {
+      @Override
+      public void startActivity(Intent intent) {
+        throw new ActivityNotFoundException("Activity not found");
+      }
+    };
+
+    AppUtils.openPlayStore(wrapper);
+    assertEquals(context.getString(R.string.no_playstore), ShadowToast.getTextOfLatestToast());
   }
 }
