@@ -40,6 +40,7 @@ import javax.inject.Named;
 import static io.github.sheepdestroyer.materialisheep.DataModule.HN;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BundleCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
@@ -52,7 +53,6 @@ import io.github.sheepdestroyer.materialisheep.widget.SubmissionRecyclerViewAdap
 /**
  * An activity that displays a user's profile.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated Parcelable, RecyclerView, BottomSheetBehavior APIs
 public class UserActivity extends ThemedActivity implements Scrollable {
     public static final String EXTRA_USERNAME = UserActivity.class.getName() + ".EXTRA_USERNAME";
     private static final String STATE_USER = "state:user";
@@ -105,7 +105,7 @@ public class UserActivity extends ThemedActivity implements Scrollable {
         setContentView(R.layout.activity_user);
         findViewById(R.id.touch_outside).setOnClickListener(v -> finish());
         mBottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet));
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        mBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 switch (newState) {
@@ -114,7 +114,7 @@ public class UserActivity extends ThemedActivity implements Scrollable {
                         break;
                     case BottomSheetBehavior.STATE_EXPANDED:
                         AppUtils.setStatusBarDim(getWindow(), false);
-                        mRecyclerView.setLayoutFrozen(false);
+                        mRecyclerView.suppressLayout(false);
                         break;
                     case BottomSheetBehavior.STATE_COLLAPSED:
                     case BottomSheetBehavior.STATE_DRAGGING:
@@ -159,7 +159,7 @@ public class UserActivity extends ThemedActivity implements Scrollable {
         mScrollableHelper = new KeyDelegate.RecyclerViewHelper(mRecyclerView,
                 KeyDelegate.RecyclerViewHelper.SCROLL_ITEM);
         if (savedInstanceState != null) {
-            mUser = savedInstanceState.getParcelable(STATE_USER);
+            mUser = BundleCompat.getParcelable(savedInstanceState, STATE_USER, UserManager.User.class);
         }
         if (mUser == null) {
             load();
@@ -325,7 +325,7 @@ public class UserActivity extends ThemedActivity implements Scrollable {
         mTabLayout.addTab(mTabLayout.newTab()
                 .setText(getResources().getQuantityString(R.plurals.submissions_count, count, count)));
         mRecyclerView.setAdapter(new SubmissionRecyclerViewAdapter(mItemManger, mUser.getItems()));
-        mRecyclerView.setLayoutFrozen(mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED);
+        mRecyclerView.suppressLayout(mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED);
     }
 
     static class UserResponseListener implements ResponseListener<UserManager.User> {
