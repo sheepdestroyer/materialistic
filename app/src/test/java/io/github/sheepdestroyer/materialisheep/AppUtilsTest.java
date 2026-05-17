@@ -95,12 +95,13 @@ public class AppUtilsTest {
   @Test
   public void testOpenPlayStore_ActivityNotFound() {
     Context context = ApplicationProvider.getApplicationContext();
-    Context wrapper = new ContextWrapper(context) {
-      @Override
-      public void startActivity(Intent intent) {
-        throw new ActivityNotFoundException("Activity not found");
-      }
-    };
+    Context wrapper =
+        new ContextWrapper(context) {
+          @Override
+          public void startActivity(Intent intent) {
+            throw new ActivityNotFoundException("Activity not found");
+          }
+        };
 
     AppUtils.openPlayStore(wrapper);
     assertEquals(context.getString(R.string.no_playstore), ShadowToast.getTextOfLatestToast());
