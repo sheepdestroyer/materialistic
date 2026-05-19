@@ -138,6 +138,7 @@ public class SyncDelegate {
                   Preferences.Offline.isWifiOnly(context)
                       ? JobInfo.NETWORK_TYPE_UNMETERED
                       : JobInfo.NETWORK_TYPE_ANY)
+              .setRequiresBatteryNotLow(true)
               .setExtras(job.toPersistableBundle());
       if (Preferences.Offline.currentConnectionEnabled(context)) {
         builder.setOverrideDeadline(0);
@@ -196,7 +197,6 @@ public class SyncDelegate {
       sync(cachedItem);
     } else {
       updateProgress();
-      // TODO defer on low battery as well?
       mHnRestService
           .networkItem(itemId)
           .enqueue(
