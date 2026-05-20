@@ -61,7 +61,8 @@ import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.GravityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import io.github.sheepdestroyer.materialisheep.annotation.PublicApi;
@@ -75,7 +76,7 @@ import java.util.List;
 @SuppressWarnings({
   "WeakerAccess",
   "deprecation"
-}) // TODO: Uses deprecated LocalBroadcastManager, SystemUI, Custom Tabs APIs
+}) // TODO: Uses deprecated SystemUI, Custom Tabs APIs
 @PublicApi
 /**
  * A utility class providing common functions for the application. This includes methods for
@@ -635,10 +636,9 @@ public class AppUtils {
                         ComposeActivity.EXTRA_PARENT_TEXT,
                         item instanceof Item ? ((Item) item).getText() : null));
           } else {
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(
-                    new Intent(WebFragment.ACTION_FULLSCREEN)
-                        .putExtra(WebFragment.EXTRA_FULLSCREEN, true));
+            if (context instanceof ViewModelStoreOwner) {
+                new ViewModelProvider((ViewModelStoreOwner) context).get(FullscreenViewModel.class).setFullscreen(true);
+            }
           }
         });
   }
