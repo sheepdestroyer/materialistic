@@ -78,6 +78,7 @@ public class SyncDelegate {
   private ProgressListener mListener;
   private Job mJob;
   @VisibleForTesting CacheableWebView mWebView;
+  private boolean mFinished;
 
   /**
    * Constructs a new {@code SyncDelegate}.
@@ -173,6 +174,7 @@ public class SyncDelegate {
       message.what = Integer.valueOf(mJob.id);
       mHandler.sendMessageDelayed(message, TIMEOUT_MILLIS);
       mSyncProgress = new SyncProgress(mJob);
+      mFinished = false;
       sync(mJob.id);
     } else {
       syncDeferredItems();
@@ -305,7 +307,10 @@ public class SyncDelegate {
 
   private void updateProgress() {
     if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) { // TODO may never done
-      finish(); // TODO finish once only
+      if (!mFinished) {
+        mFinished = true;
+        finish();
+      }
     } else if (mJob.notificationEnabled) {
       showProgress();
     }
