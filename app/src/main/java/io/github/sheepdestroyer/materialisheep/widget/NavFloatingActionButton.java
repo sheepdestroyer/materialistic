@@ -167,7 +167,7 @@ public class NavFloatingActionButton extends FloatingActionButton
                 if (mNavigable == null) {
                   return;
                 }
-                startDrag(e.getX(), e.getY());
+                startDrag(e.getRawX(), e.getRawY());
               }
             });
     // noinspection Convert2Lambda
@@ -182,7 +182,9 @@ public class NavFloatingActionButton extends FloatingActionButton
   }
 
   @Synthetic
-  void startDrag(float startX, float startY) {
+  void startDrag(float startRawX, float startRawY) {
+    float startViewX = getX();
+    float startViewY = getY();
     if (mVibrationEnabled) {
       mVibrator.vibrate(
           VibrationEffect.createOneShot(
@@ -197,8 +199,8 @@ public class NavFloatingActionButton extends FloatingActionButton
             switch (motionEvent.getAction()) {
               case MotionEvent.ACTION_MOVE:
                 mMoved = true;
-                view.setX(motionEvent.getRawX() - startX); // TODO compensate shift
-                view.setY(motionEvent.getRawY() - startY);
+                view.setX(startViewX + motionEvent.getRawX() - startRawX);
+                view.setY(startViewY + motionEvent.getRawY() - startRawY);
                 break;
               case MotionEvent.ACTION_CANCEL:
               case MotionEvent.ACTION_UP:
