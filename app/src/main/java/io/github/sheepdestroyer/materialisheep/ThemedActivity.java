@@ -35,7 +35,6 @@ import android.view.Menu;
 /**
  * An abstract base activity that supports different themes.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated TaskDescription API
 public abstract class ThemedActivity extends AppCompatActivity {
     private final MenuTintDelegate mMenuTintDelegate = new MenuTintDelegate();
     private final Preferences.Observable mThemeObservable = new Preferences.Observable();
@@ -174,12 +173,21 @@ public abstract class ThemedActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void setTaskTitle(CharSequence title) {
         if (!TextUtils.isEmpty(title)) {
-            setTaskDescription(new ActivityManager.TaskDescription(title.toString(),
-                    BitmapFactory.decodeResource(getResources(), R.drawable.ic_app),
-                    ContextCompat.getColor(this,
-                            AppUtils.getThemedResId(this, androidx.appcompat.R.attr.colorPrimary))));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                setTaskDescription(new ActivityManager.TaskDescription.Builder()
+                        .setLabel(title.toString())
+                        .setIcon(R.drawable.ic_app)
+                        .setPrimaryColor(ContextCompat.getColor(this, AppUtils.getThemedResId(this, androidx.appcompat.R.attr.colorPrimary)))
+                        .build());
+            } else {
+                setTaskDescription(new ActivityManager.TaskDescription(title.toString(),
+                        BitmapFactory.decodeResource(getResources(), R.drawable.ic_app),
+                        ContextCompat.getColor(this,
+                                AppUtils.getThemedResId(this, androidx.appcompat.R.attr.colorPrimary))));
+            }
         }
     }
 }
