@@ -77,6 +77,7 @@ public class SyncDelegate {
   private final Context mContext;
   private ProgressListener mListener;
   private Job mJob;
+  private boolean mFinished;
   @VisibleForTesting CacheableWebView mWebView;
 
   /**
@@ -167,6 +168,7 @@ public class SyncDelegate {
 
   void performSync(@NonNull Job job) {
     // assume that connection wouldn't change until we finish syncing
+    mFinished = false;
     mJob = job;
     if (!TextUtils.isEmpty(mJob.id)) {
       Message message = Message.obtain(mHandler, this::stopSync);
@@ -304,8 +306,12 @@ public class SyncDelegate {
   }
 
   private void updateProgress() {
+    if (mFinished) {
+      return;
+    }
     if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) { // TODO may never done
-      finish(); // TODO finish once only
+      mFinished = true;
+      finish();
     } else if (mJob.notificationEnabled) {
       showProgress();
     }
