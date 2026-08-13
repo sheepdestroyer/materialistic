@@ -396,7 +396,7 @@ public class SinglePageItemRecyclerViewAdapter
             addAll(0, list);
         }
 
-        @SuppressWarnings({"unchecked", "deprecation"})
+        @SuppressWarnings("unchecked")
         @Synthetic
         SavedState(Parcel source) {
             ArrayList<Item> savedList;
