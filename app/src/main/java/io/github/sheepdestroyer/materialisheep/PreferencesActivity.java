@@ -26,7 +26,6 @@ import android.view.MenuItem;
 /**
  * An activity that displays a preference screen.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated Fragment.instantiate API
 public class PreferencesActivity extends ThemedActivity {
     public static final String EXTRA_TITLE = PreferencesActivity.class.getName() + ".EXTRA_TITLE";
     public static final String EXTRA_PREFERENCES = PreferencesActivity.class.getName() + ".EXTRA_PREFERENCES";
@@ -53,10 +52,12 @@ public class PreferencesActivity extends ThemedActivity {
         if (savedInstanceState == null) {
             Bundle args = new Bundle();
             args.putInt(EXTRA_PREFERENCES, getIntent().getIntExtra(EXTRA_PREFERENCES, 0));
+            SettingsFragment fragment = new SettingsFragment();
+            fragment.setArguments(args);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.content_frame,
-                            Fragment.instantiate(this, SettingsFragment.class.getName(), args),
+                            fragment,
                             SettingsFragment.class.getName())
                     .commit();
         }
