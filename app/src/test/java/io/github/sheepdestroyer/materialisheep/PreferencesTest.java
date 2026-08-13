@@ -1,5 +1,6 @@
 package io.github.sheepdestroyer.materialisheep;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -69,5 +70,25 @@ public class PreferencesTest {
     // Set to false
     Preferences.setSortByRecent(context, false);
     assertFalse(Preferences.isSortByRecent(context));
+  }
+
+  @Test
+  public void testGetFloatFromStringErrorHandling() {
+    // Test default value (NullPointerException case inside getFloatFromString)
+    assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
+
+    // Test valid float string
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_line_height), "2.5")
+        .commit();
+    assertEquals(2.5f, Preferences.getLineHeight(context), 0.001f);
+
+    // Test invalid non-float string (NumberFormatException case inside getFloatFromString)
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_line_height), "not_a_float")
+        .commit();
+    assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
   }
 }
