@@ -78,6 +78,7 @@ public class SyncDelegate {
   private ProgressListener mListener;
   private Job mJob;
   @VisibleForTesting CacheableWebView mWebView;
+  private boolean mFinished;
 
   /**
    * Constructs a new {@code SyncDelegate}.
@@ -305,7 +306,7 @@ public class SyncDelegate {
 
   private void updateProgress() {
     if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) { // TODO may never done
-      finish(); // TODO finish once only
+      finish();
     } else if (mJob.notificationEnabled) {
       showProgress();
     }
@@ -325,6 +326,10 @@ public class SyncDelegate {
   }
 
   private void finish() {
+    if (mFinished) {
+      return;
+    }
+    mFinished = true;
     if (mListener != null) {
       mListener.onDone(mJob.id);
       mListener = null;
