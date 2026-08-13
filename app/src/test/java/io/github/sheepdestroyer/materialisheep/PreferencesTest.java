@@ -1,5 +1,6 @@
 package io.github.sheepdestroyer.materialisheep;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -69,5 +70,19 @@ public class PreferencesTest {
     // Set to false
     Preferences.setSortByRecent(context, false);
     assertFalse(Preferences.isSortByRecent(context));
+  }
+
+  @Test
+  public void testParseSwipeActionErrorHandling() throws Exception {
+    java.lang.reflect.Method method = Preferences.class.getDeclaredMethod("parseSwipeAction", String.class);
+    method.setAccessible(true);
+
+    // Test invalid string (IllegalArgumentException)
+    Object resultInvalid = method.invoke(null, "InvalidSwipeAction");
+    assertEquals(Preferences.SwipeAction.None, resultInvalid);
+
+    // Test null (NullPointerException)
+    Object resultNull = method.invoke(null, (String) null);
+    assertEquals(Preferences.SwipeAction.None, resultNull);
   }
 }
