@@ -177,11 +177,10 @@ public abstract class ThemedActivity extends AppCompatActivity {
     void setTaskTitle(CharSequence title) {
         if (!TextUtils.isEmpty(title)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                setTaskDescription(new ActivityManager.TaskDescription.Builder()
-                        .setLabel(title.toString())
-                        .setIcon(R.drawable.ic_app)
-                        .setPrimaryColor(ContextCompat.getColor(this, AppUtils.getThemedResId(this, androidx.appcompat.R.attr.colorPrimary)))
-                        .build());
+                setTaskDescription(new ActivityManager.TaskDescription(title.toString(),
+                        R.drawable.ic_app,
+                        ContextCompat.getColor(this,
+                                AppUtils.getThemedResId(this, androidx.appcompat.R.attr.colorPrimary))));
             } else {
                 setTaskDescription(new ActivityManager.TaskDescription(title.toString(),
                         BitmapFactory.decodeResource(getResources(), R.drawable.ic_app),
